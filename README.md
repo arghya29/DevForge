@@ -275,4 +275,8 @@ Content and logic should be separate. A teacher, student, or contributor can add
 
 ## 📄 License
 
-MIT — free to use, modify, and distribute for any purpose.
+Licensed under the **Apache License 2.0**.
+
+You are free to use, modify, and distribute this project — including for commercial purposes — as long as you include the original license and copyright notice, and clearly state any changes you made to the source files.
+
+See the [`LICENSE`](./LICENSE) file for the full legal text.
