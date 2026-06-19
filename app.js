@@ -222,10 +222,13 @@ function updateLineNums() {
 }
 
 function syncScroll(el) {
-  document.getElementById("lineNums").scrollTop    = el.scrollTop;
-  const hl = document.getElementById("codeHighlight");
-  hl.scrollTop  = el.scrollTop;
-  hl.scrollLeft = el.scrollLeft;
+  // Use rAF so the highlight layer updates in the same paint frame as the textarea
+  requestAnimationFrame(() => {
+    document.getElementById("lineNums").scrollTop = el.scrollTop;
+    const hl = document.getElementById("codeHighlight");
+    hl.scrollTop  = el.scrollTop;
+    hl.scrollLeft = el.scrollLeft;
+  });
 }
 
 function handleEditorKey(e) {
@@ -302,10 +305,9 @@ function highlightCSS(code) {
     // Comments
     .replace(/(\/\*[\s\S]*?\*\/)/g,
       `<span class="tok-cmt">$1</span>`)
-    // Hex colors — render a little color swatch
+    // Hex colors — tiny inline swatch that does NOT change text width
     .replace(/(#[0-9a-fA-F]{3,8})\b/g, (_, hex) => {
-      const safe = hex.replace(/&quot;/g, "");
-      return `<span class="tok-val" style="background:${safe};color:#fff;padding:0 4px;border-radius:3px;font-size:.75em">${hex}</span>`;
+      return `<span class="tok-val" style="border-bottom:2px solid ${hex}">${hex}</span>`;
     })
     // Selectors (before {)
     .replace(/([.#]?[\w-]+(?:\s*,\s*[.#]?[\w-]+)*)\s*\{/g,

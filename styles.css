@@ -453,7 +453,10 @@ header {
 
 .editor-inner { flex: 1; position: relative; overflow: hidden; }
 
-/* Syntax highlight layer (under textarea) */
+/* Syntax highlight layer (under textarea) —
+   MUST match textarea pixel-for-pixel: same font, size, padding,
+   line-height, white-space, and overflow behaviour.
+   word-break must NOT be set (causes cursor/text misalignment). */
 .code-highlight {
   position: absolute;
   inset: 0;
@@ -462,10 +465,18 @@ header {
   font-size: var(--fs);
   line-height: 1.65;
   pointer-events: none;
+  /* white-space: pre keeps newlines and spaces exactly like the textarea */
   white-space: pre;
+  /* overflow must be hidden — scrolling is driven by the textarea via JS */
   overflow: hidden;
-  word-break: break-all;
+  /* NO word-break here — any wrapping difference breaks cursor alignment */
   color: var(--text);
+  /* Prevent the highlight layer from affecting layout */
+  box-sizing: border-box;
+  margin: 0;
+  border: none;
+  /* Must sit behind the textarea */
+  z-index: 1;
 }
 
 /* The actual editable textarea (text is transparent — highlight shows through) */
@@ -477,18 +488,27 @@ header {
   font-family: var(--font-code);
   font-size: var(--fs);
   line-height: 1.65;
+  /* Text transparent so highlight layer shows through */
   color: transparent;
   caret-color: var(--cyan);
   border: none;
   outline: none;
   resize: none;
+  /* Both axes scrollable; JS syncs highlight layer on scroll */
   overflow-y: auto;
   overflow-x: auto;
   tab-size: 2;
+  /* white-space: pre — MUST match highlight layer exactly */
   white-space: pre;
+  /* Textarea on top so it receives all mouse/keyboard events */
   z-index: 2;
+  box-sizing: border-box;
+  margin: 0;
+  /* Prevent any browser-default spellcheck underlining shifting layout */
+  -webkit-text-fill-color: transparent;
 }
-.code-editor::selection { background: rgba(88,166,255,.25); }
+.code-editor::selection         { background: rgba(88,166,255,.25); }
+.code-editor::-moz-selection    { background: rgba(88,166,255,.25); }
 
 /* ── SYNTAX HIGHLIGHT TOKEN COLORS ── */
 .tok-kw    { color: #FF7B72; }          /* keywords */
