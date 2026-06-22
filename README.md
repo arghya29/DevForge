@@ -1,24 +1,14 @@
 # ⚡ DevForge — Learn by Building
 
-<p align="center">
-  <a href="./LICENSE">
-    <img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" />
-  </a>
-  <a href="https://arghya29.github.io/DevForge/">
-    <img src="https://img.shields.io/badge/Deployed-GitHub%20Pages-brightgreen" />
-  </a>
-  <a href="./CONTRIBUTING.md">
-    <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" />
-  </a>
-</p>
 
-<p align="center">
-  <a href="./CONTRIBUTING.md">
-    <img src="https://img.shields.io/badge/contributions-welcome-orange.svg" />
-  </a>
-  <img src="https://img.shields.io/badge/dependencies-none-brightgreen.svg" />
-  <img src="https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red.svg" />
-</p>
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=for-the-badge)](./LICENSE)
+[![GitHub Pages](https://img.shields.io/badge/Deployed-GitHub%20Pages-brightgreen?style=for-the-badge)](https://arghya29.github.io/DevForge/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](./CONTRIBUTING.md)
+
+[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-orange.svg?style=for-the-badge)](./CONTRIBUTING.md)
+![No Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen.svg?style=for-the-badge)
+![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red.svg?style=for-the-badge)
+
 
 A fully client-side, **zero-dependency** interactive coding environment for learning HTML, CSS, and JavaScript. No servers. No npm. No build tools. Open `index.html` and start coding.
 
