@@ -4,6 +4,19 @@
    Each lesson has: id, tag, title, xp, instruction HTML,
    and starter code for html / css / js tabs.
 ═══════════════════════════════════════════════════════════════ */
+function toggleSidebar() {
+  const sidebar = document.querySelector(".sidebar");
+  const toggleBtn = document.getElementById("sidebarToggle");
+
+  sidebar.classList.toggle("collapsed");
+
+  const isCollapsed = sidebar.classList.contains("collapsed");
+  toggleBtn.textContent = isCollapsed ? "▶" : "◀";
+  toggleBtn.setAttribute(
+    "aria-label",
+    isCollapsed ? "Expand curriculum sidebar" : "Collapse curriculum sidebar"
+  );
+}
 
 const CURRICULUM = [
 
