@@ -1,12 +1,12 @@
 # ⚡ DevForge — Learn by Building
 
 
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=for-the-badge)](./LICENSE)
-[![GitHub Pages](https://img.shields.io/badge/Deployed-GitHub%20Pages-brightgreen?style=for-the-badge)](https://arghya29.github.io/DevForge/)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=for-the-badge)](./LICENSE)&nbsp;&nbsp;
+[![GitHub Pages](https://img.shields.io/badge/Deployed-GitHub%20Pages-brightgreen?style=for-the-badge)](https://arghya29.github.io/DevForge/)&nbsp;&nbsp;
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](./CONTRIBUTING.md)
 
-[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-orange.svg?style=for-the-badge)](./CONTRIBUTING.md)
-![No Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen.svg?style=for-the-badge)
+[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-orange.svg?style=for-the-badge)](./CONTRIBUTING.md)&nbsp;&nbsp;
+![No Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen.svg?style=for-the-badge)&nbsp;&nbsp;
 ![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red.svg?style=for-the-badge)
 
 
