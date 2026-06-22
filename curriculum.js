@@ -5,17 +5,15 @@
    and starter code for html / css / js tabs.
 ═══════════════════════════════════════════════════════════════ */
 function toggleSidebar() {
+  const app = document.querySelector(".workspace");
   const sidebar = document.querySelector(".sidebar");
   const toggleBtn = document.getElementById("sidebarToggle");
 
   sidebar.classList.toggle("collapsed");
+  app.classList.toggle("sidebar-collapsed");
 
   const isCollapsed = sidebar.classList.contains("collapsed");
   toggleBtn.textContent = isCollapsed ? "▶" : "◀";
-  toggleBtn.setAttribute(
-    "aria-label",
-    isCollapsed ? "Expand curriculum sidebar" : "Collapse curriculum sidebar"
-  );
 }
 
 const CURRICULUM = [
