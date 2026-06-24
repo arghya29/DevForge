@@ -62,6 +62,7 @@ git checkout -b feature/your-feature-name  # create your branch off dev
 ```
 
 Branch naming examples:
+
 - `feature/add-css-variables-lesson`
 - `fix/editor-cursor-alignment`
 - `docs/improve-readme`
@@ -81,6 +82,7 @@ Or use the VS Code **Live Server** extension for auto-reload on save.
 ### 4. Make Your Changes
 
 Edit the relevant file:
+
 - New lesson content → `curriculum.js`
 - Visual / layout changes → `styles.css`
 - App logic / features → `app.js`
@@ -193,16 +195,19 @@ Add a new object to the top-level `CURRICULUM` array:
 Before pushing, run the same checks that GitHub Actions runs so you're not surprised by failures on your PR.
 
 ### Install tools (one time only)
+
 ```bash
 npm install
 ```
 
 ### Run all checks at once
+
 ```bash
 npm run check
 ```
 
 ### Run individual checks
+
 ```bash
 npm run lint:js       # ESLint on app.js and curriculum.js
 npm run lint:html     # HTML validate on index.html
@@ -210,17 +215,18 @@ npm run format:check  # Prettier format check on all files
 ```
 
 ### Auto-fix formatting
+
 ```bash
 npm run format:fix    # Prettier rewrites files in place
 ```
 
 ### What each check does
 
-| Check | Tool | What it catches |
-|---|---|---|
-| JS Lint | ESLint | Undefined variables, `==` instead of `===`, unused vars, syntax errors |
-| HTML Validate | html-validate | Broken tags, missing doctype, invalid nesting, missing alt attributes |
-| Format Check | Prettier | Inconsistent indentation, quote style, trailing commas |
+| Check         | Tool          | What it catches                                                        |
+| ------------- | ------------- | ---------------------------------------------------------------------- |
+| JS Lint       | ESLint        | Undefined variables, `==` instead of `===`, unused vars, syntax errors |
+| HTML Validate | html-validate | Broken tags, missing doctype, invalid nesting, missing alt attributes  |
+| Format Check  | Prettier      | Inconsistent indentation, quote style, trailing commas                 |
 
 > **Note:** `node_modules/` is in `.gitignore` — never commit it.
 
@@ -231,6 +237,7 @@ npm run format:fix    # Prettier rewrites files in place
 Use the [Bug Report template](.github/ISSUE_TEMPLATE/bug_report.md).
 
 Include:
+
 - Browser name and version
 - Steps to reproduce
 - What you expected vs what happened
@@ -252,21 +259,25 @@ Include:
 ## Style Guide
 
 ### JavaScript (`app.js`)
+
 - `"use strict"` at the top
 - `const` by default, `let` only when reassignment is needed
 - Descriptive variable names — no single-letter names outside loop counters
 - Comment every major section with the `/* ══ SECTION ══ */` style already in the file
 
 ### CSS (`styles.css`)
+
 - All colors via CSS custom properties from `:root` — no raw hex in rules
 - Group related rules under the labelled section comments
 - No `!important`
 
 ### HTML (`index.html`)
+
 - No inline `style=""` attributes
 - Semantic elements where appropriate (`<aside>`, `<header>`, `<button>`)
 
 ### Lesson content (`curriculum.js`)
+
 - Indent starter code with 2 spaces
 - Keep starter code short — learners need to understand it at a glance
 - Escape backticks inside template literal starter code with `\``

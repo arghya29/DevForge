@@ -1,268 +1,405 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>DevForge — Learn by Building</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="styles.css"/>
-</head>
-<body>
-
-  <!-- ══════════════════════════════════════
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DevForge — Learn by Building</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- ══════════════════════════════════════
        HEADER
   ══════════════════════════════════════ -->
-  <header id="appHeader">
-
-    <div class="logo">
-      <span class="logo-icon">⚡</span>
-      DevForge
-    </div>
-
-    <div class="header-center">
-      <div id="challengeIndicator" class="challenge-indicator">⚔ CHALLENGE MODE</div>
-
-      <button class="tab-btn active" id="tabHTML" onclick="switchTab('html')">
-        <span class="tab-dot" style="background:#f0641e"></span>HTML
-      </button>
-      <button class="tab-btn" id="tabCSS" onclick="switchTab('css')">
-        <span class="tab-dot" style="background:#58A6FF"></span>CSS
-      </button>
-      <button class="tab-btn" id="tabJS" onclick="switchTab('js')">
-        <span class="tab-dot" style="background:#D29922"></span>JS
-      </button>
-    </div>
-
-    <div class="header-right">
-      <div class="autorun-wrap" onclick="toggleAutorun()" title="Auto-run on edit">
-        <div class="toggle" id="autorunToggle"></div>
-        <span id="autorunLabel">Auto</span>
+    <header id="appHeader">
+      <div class="logo">
+        <span class="logo-icon">⚡</span>
+        DevForge
       </div>
 
-      <div class="progress-wrap">
-        <span id="progressText">0/16</span>
-        <div class="progress-bar">
-          <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      <div class="header-center">
+        <div id="challengeIndicator" class="challenge-indicator">
+          ⚔ CHALLENGE MODE
         </div>
+
+        <button class="tab-btn active" id="tabHTML" onclick="switchTab('html')">
+          <span class="tab-dot" style="background: #f0641e"></span>HTML
+        </button>
+        <button class="tab-btn" id="tabCSS" onclick="switchTab('css')">
+          <span class="tab-dot" style="background: #58a6ff"></span>CSS
+        </button>
+        <button class="tab-btn" id="tabJS" onclick="switchTab('js')">
+          <span class="tab-dot" style="background: #d29922"></span>JS
+        </button>
       </div>
 
-      <button class="icon-btn" id="fsSizeBtn"     title="Font size"            onclick="toggleFsPanel()">Aa</button>
-      <button class="icon-btn" id="shortcutsBtn"  title="Keyboard shortcuts"   onclick="toggleShortcuts()">⌨</button>
-      <button class="run-btn"  id="runBtn"                                      onclick="runCode()">▶ Run</button>
-    </div>
+      <div class="header-right">
+        <div
+          class="autorun-wrap"
+          onclick="toggleAutorun()"
+          title="Auto-run on edit"
+        >
+          <div class="toggle" id="autorunToggle"></div>
+          <span id="autorunLabel">Auto</span>
+        </div>
 
-  </header>
+        <div class="progress-wrap">
+          <span id="progressText">0/16</span>
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              id="progressFill"
+              style="width: 0%"
+            ></div>
+          </div>
+        </div>
 
+        <button
+          class="icon-btn"
+          id="fsSizeBtn"
+          title="Font size"
+          onclick="toggleFsPanel()"
+        >
+          Aa
+        </button>
+        <button
+          class="icon-btn"
+          id="shortcutsBtn"
+          title="Keyboard shortcuts"
+          onclick="toggleShortcuts()"
+        >
+          ⌨
+        </button>
+        <button class="run-btn" id="runBtn" onclick="runCode()">▶ Run</button>
+      </div>
+    </header>
 
-  <!-- ══════════════════════════════════════
+    <!-- ══════════════════════════════════════
        WORKSPACE  (3-column grid)
   ══════════════════════════════════════ -->
-  <div class="workspace" id="workspace">
+    <div class="workspace" id="workspace">
+      <!-- ── SIDEBAR ── -->
+      <aside class="sidebar">
+        <div class="sidebar-head">
+          <div class="sidebar-title">Curriculum</div>
+          <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input
+              class="search-input"
+              id="searchInput"
+              placeholder="Search lessons…"
+              oninput="filterLessons(this.value)"
+            />
+            <button
+              class="search-clear"
+              id="searchClear"
+              onclick="clearSearch()"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
 
-    <!-- ── SIDEBAR ── -->
-    <aside class="sidebar">
+        <div class="lesson-list" id="lessonList"></div>
 
-      <div class="sidebar-head">
-        <div class="sidebar-title">Curriculum</div>
-        <div class="search-wrap">
-          <span class="search-icon">🔍</span>
-          <input class="search-input" id="searchInput"
-                 placeholder="Search lessons…"
-                 oninput="filterLessons(this.value)"/>
-          <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
+        <div class="sidebar-footer">
+          <span class="xp-label"
+            >XP: <span class="xp-val" id="xpVal">0</span></span
+          >
+          <span class="xp-label" id="streakLabel">🔥 0 streak</span>
+        </div>
+      </aside>
+
+      <!-- ── EDITOR PANEL ── -->
+      <div class="editor-panel" id="editorPanel">
+        <!-- File tabs (HTML / CSS / JS) -->
+        <div class="panel-tabs" id="fileTabs"></div>
+
+        <!-- Code editor with highlight layer + line numbers -->
+        <div class="editor-wrap" id="editorWrap">
+          <div class="line-nums" id="lineNums"></div>
+          <div class="editor-inner">
+            <div
+              class="code-highlight"
+              id="codeHighlight"
+              aria-hidden="true"
+            ></div>
+            <textarea
+              class="code-editor"
+              id="codeEditor"
+              spellcheck="false"
+              autocomplete="off"
+              autocorrect="off"
+              onkeydown="handleEditorKey(event)"
+              oninput="onEditorInput()"
+              onscroll="syncScroll(this)"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Lesson instruction pane (collapsible) -->
+        <div class="lesson-pane" id="lessonPane">
+          <div class="lesson-pane-head" onclick="toggleLessonPane()">
+            <span class="lesson-pane-title" id="lessonPaneTitle"
+              >📖 LESSON</span
+            >
+            <button class="collapse-btn" id="collapseBtn">▼</button>
+          </div>
+          <div class="lesson-content" id="lessonContent"></div>
+        </div>
+
+        <!-- Prev / Next navigation -->
+        <div class="lesson-nav">
+          <button class="nav-btn" id="prevBtn" onclick="navLesson(-1)">
+            ← Prev
+          </button>
+          <span class="lesson-pos" id="lessonPos">1 / 16</span>
+          <button class="nav-btn primary" id="nextBtn" onclick="navLesson(1)">
+            Next →
+          </button>
         </div>
       </div>
 
-      <div class="lesson-list" id="lessonList"></div>
+      <!-- ── DRAG RESIZER ── -->
+      <div class="resizer" id="resizer"></div>
 
-      <div class="sidebar-footer">
-        <span class="xp-label">XP: <span class="xp-val" id="xpVal">0</span></span>
-        <span class="xp-label" id="streakLabel">🔥 0 streak</span>
-      </div>
+      <!-- ── PREVIEW PANEL ── -->
+      <div class="preview-panel" id="previewPanel">
+        <div class="preview-head">
+          <div class="preview-label">
+            <span class="live-dot"></span>LIVE PREVIEW
+          </div>
+          <div class="preview-actions">
+            <div class="preview-size-btns">
+              <button
+                class="size-btn active"
+                id="sizeDesktop"
+                onclick="setPreviewSize('desktop')"
+                title="Desktop"
+              >
+                🖥
+              </button>
+              <button
+                class="size-btn"
+                id="sizeTablet"
+                onclick="setPreviewSize('tablet')"
+                title="Tablet"
+              >
+                📱
+              </button>
+              <button
+                class="size-btn"
+                id="sizeMobile"
+                onclick="setPreviewSize('mobile')"
+                title="Mobile"
+              >
+                📲
+              </button>
+            </div>
+            <button class="icon-btn" title="Refresh" onclick="runCode()">
+              ↻
+            </button>
+            <button
+              class="icon-btn"
+              title="Reset code"
+              onclick="showResetModal()"
+            >
+              ⟳
+            </button>
+            <button
+              class="icon-btn"
+              title="Copy all code"
+              onclick="copyAllCode()"
+            >
+              ⎘
+            </button>
+          </div>
+        </div>
 
-    </aside>
+        <div class="preview-iframe-wrap" id="iframeWrap">
+          <iframe
+            class="preview-iframe"
+            id="previewFrame"
+            sandbox="allow-scripts"
+          ></iframe>
+          <div class="preview-overlay" id="previewOverlay">
+            <div class="spinner"></div>
+            Running…
+          </div>
+        </div>
 
-    <!-- ── EDITOR PANEL ── -->
-    <div class="editor-panel" id="editorPanel">
-
-      <!-- File tabs (HTML / CSS / JS) -->
-      <div class="panel-tabs" id="fileTabs"></div>
-
-      <!-- Code editor with highlight layer + line numbers -->
-      <div class="editor-wrap" id="editorWrap">
-        <div class="line-nums" id="lineNums"></div>
-        <div class="editor-inner">
-          <div  class="code-highlight" id="codeHighlight" aria-hidden="true"></div>
-          <textarea class="code-editor" id="codeEditor"
-                    spellcheck="false" autocomplete="off" autocorrect="off"
-                    onkeydown="handleEditorKey(event)"
-                    oninput="onEditorInput()"
-                    onscroll="syncScroll(this)"></textarea>
+        <!-- Console -->
+        <div class="console-pane" id="consolePane">
+          <div class="console-head" onclick="toggleConsole()">
+            <div class="console-label">
+              <span>CONSOLE</span>
+              <span class="console-badge" id="consoleBadge">0</span>
+            </div>
+            <div class="console-actions">
+              <button
+                class="tiny-btn"
+                onclick="
+                  event.stopPropagation();
+                  clearConsoleUI();
+                "
+              >
+                Clear
+              </button>
+              <button
+                class="collapse-btn"
+                id="consolCollapseBtn"
+                style="
+                  background: none;
+                  border: none;
+                  cursor: pointer;
+                  color: var(--muted);
+                  font-size: 0.9rem;
+                "
+                onclick="
+                  event.stopPropagation();
+                  toggleConsole();
+                "
+              >
+                ▼
+              </button>
+            </div>
+          </div>
+          <div class="console-body" id="consoleBody">
+            <div class="log-line info">
+              <span class="log-prefix">ℹ</span>
+              <span>DevForge ready. Press Ctrl+Enter to run.</span>
+            </div>
+          </div>
         </div>
       </div>
-
-      <!-- Lesson instruction pane (collapsible) -->
-      <div class="lesson-pane" id="lessonPane">
-        <div class="lesson-pane-head" onclick="toggleLessonPane()">
-          <span class="lesson-pane-title" id="lessonPaneTitle">📖 LESSON</span>
-          <button class="collapse-btn" id="collapseBtn">▼</button>
-        </div>
-        <div class="lesson-content" id="lessonContent"></div>
-      </div>
-
-      <!-- Prev / Next navigation -->
-      <div class="lesson-nav">
-        <button class="nav-btn" id="prevBtn" onclick="navLesson(-1)">← Prev</button>
-        <span   class="lesson-pos" id="lessonPos">1 / 16</span>
-        <button class="nav-btn primary" id="nextBtn" onclick="navLesson(1)">Next →</button>
-      </div>
-
+      <!-- /preview-panel -->
     </div>
+    <!-- /workspace -->
 
-    <!-- ── DRAG RESIZER ── -->
-    <div class="resizer" id="resizer"></div>
-
-    <!-- ── PREVIEW PANEL ── -->
-    <div class="preview-panel" id="previewPanel">
-
-      <div class="preview-head">
-        <div class="preview-label">
-          <span class="live-dot"></span>LIVE PREVIEW
-        </div>
-        <div class="preview-actions">
-          <div class="preview-size-btns">
-            <button class="size-btn active" id="sizeDesktop" onclick="setPreviewSize('desktop')" title="Desktop">🖥</button>
-            <button class="size-btn"        id="sizeTablet"  onclick="setPreviewSize('tablet')"  title="Tablet" >📱</button>
-            <button class="size-btn"        id="sizeMobile"  onclick="setPreviewSize('mobile')"  title="Mobile" >📲</button>
-          </div>
-          <button class="icon-btn" title="Refresh"       onclick="runCode()">↻</button>
-          <button class="icon-btn" title="Reset code"    onclick="showResetModal()">⟳</button>
-          <button class="icon-btn" title="Copy all code" onclick="copyAllCode()">⎘</button>
-        </div>
-      </div>
-
-      <div class="preview-iframe-wrap" id="iframeWrap">
-        <iframe class="preview-iframe" id="previewFrame" sandbox="allow-scripts"></iframe>
-        <div class="preview-overlay" id="previewOverlay">
-          <div class="spinner"></div> Running…
-        </div>
-      </div>
-
-      <!-- Console -->
-      <div class="console-pane" id="consolePane">
-        <div class="console-head" onclick="toggleConsole()">
-          <div class="console-label">
-            <span>CONSOLE</span>
-            <span class="console-badge" id="consoleBadge">0</span>
-          </div>
-          <div class="console-actions">
-            <button class="tiny-btn" onclick="event.stopPropagation(); clearConsoleUI()">Clear</button>
-            <button class="collapse-btn" id="consolCollapseBtn"
-                    style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:.9rem"
-                    onclick="event.stopPropagation(); toggleConsole()">▼</button>
-          </div>
-        </div>
-        <div class="console-body" id="consoleBody">
-          <div class="log-line info">
-            <span class="log-prefix">ℹ</span>
-            <span>DevForge ready. Press Ctrl+Enter to run.</span>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- /preview-panel -->
-
-  </div><!-- /workspace -->
-
-
-  <!-- ══════════════════════════════════════
+    <!-- ══════════════════════════════════════
        FLOATING PANELS
   ══════════════════════════════════════ -->
 
-  <!-- Keyboard Shortcuts Panel -->
-  <div class="shortcuts-panel" id="shortcutsPanel">
-    <h3>⌨ SHORTCUTS</h3>
-    <div class="shortcut-row">
-      <span class="shortcut-desc">Run code</span>
-      <div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">Enter</span></div>
-    </div>
-    <div class="shortcut-row">
-      <span class="shortcut-desc">Next lesson</span>
-      <div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">]</span></div>
-    </div>
-    <div class="shortcut-row">
-      <span class="shortcut-desc">Prev lesson</span>
-      <div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">[</span></div>
-    </div>
-    <div class="shortcut-row">
-      <span class="shortcut-desc">Switch → HTML</span>
-      <div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">1</span></div>
-    </div>
-    <div class="shortcut-row">
-      <span class="shortcut-desc">Switch → CSS</span>
-      <div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">2</span></div>
-    </div>
-    <div class="shortcut-row">
-      <span class="shortcut-desc">Switch → JS</span>
-      <div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">3</span></div>
-    </div>
-    <div class="shortcut-row">
-      <span class="shortcut-desc">Reset code</span>
-      <div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">⇧</span><span class="kbd">R</span></div>
-    </div>
-    <div class="shortcut-row">
-      <span class="shortcut-desc">Copy code</span>
-      <div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">⇧</span><span class="kbd">C</span></div>
-    </div>
-  </div>
-
-  <!-- Font Size Panel -->
-  <div class="fs-panel" id="fsPanel">
-    <label>Editor font size: <span class="fs-val" id="fsValLabel">13px</span></label>
-    <input type="range" class="fs-slider" id="fsSlider"
-           min="11" max="20" value="13"
-           oninput="changeFontSize(this.value)"/>
-  </div>
-
-  <!-- Toast notification -->
-  <div class="toast" id="toast">
-    <span class="toast-icon" id="toastIcon"></span>
-    <span id="toastMsg"></span>
-  </div>
-
-  <!-- Reset confirmation modal -->
-  <div class="modal-overlay" id="resetModal">
-    <div class="modal">
-      <h3>Reset to starter code?</h3>
-      <p>This will discard your current edits for this lesson and restore the original starter code.</p>
-      <div class="modal-btns">
-        <button class="btn-cancel"  onclick="hideResetModal()">Cancel</button>
-        <button class="btn-confirm" onclick="confirmReset()">Reset</button>
+    <!-- Keyboard Shortcuts Panel -->
+    <div class="shortcuts-panel" id="shortcutsPanel">
+      <h3>⌨ SHORTCUTS</h3>
+      <div class="shortcut-row">
+        <span class="shortcut-desc">Run code</span>
+        <div class="shortcut-keys">
+          <span class="kbd">Ctrl</span><span class="kbd">Enter</span>
+        </div>
+      </div>
+      <div class="shortcut-row">
+        <span class="shortcut-desc">Next lesson</span>
+        <div class="shortcut-keys">
+          <span class="kbd">Ctrl</span><span class="kbd">]</span>
+        </div>
+      </div>
+      <div class="shortcut-row">
+        <span class="shortcut-desc">Prev lesson</span>
+        <div class="shortcut-keys">
+          <span class="kbd">Ctrl</span><span class="kbd">[</span>
+        </div>
+      </div>
+      <div class="shortcut-row">
+        <span class="shortcut-desc">Switch → HTML</span>
+        <div class="shortcut-keys">
+          <span class="kbd">Ctrl</span><span class="kbd">1</span>
+        </div>
+      </div>
+      <div class="shortcut-row">
+        <span class="shortcut-desc">Switch → CSS</span>
+        <div class="shortcut-keys">
+          <span class="kbd">Ctrl</span><span class="kbd">2</span>
+        </div>
+      </div>
+      <div class="shortcut-row">
+        <span class="shortcut-desc">Switch → JS</span>
+        <div class="shortcut-keys">
+          <span class="kbd">Ctrl</span><span class="kbd">3</span>
+        </div>
+      </div>
+      <div class="shortcut-row">
+        <span class="shortcut-desc">Reset code</span>
+        <div class="shortcut-keys">
+          <span class="kbd">Ctrl</span><span class="kbd">⇧</span
+          ><span class="kbd">R</span>
+        </div>
+      </div>
+      <div class="shortcut-row">
+        <span class="shortcut-desc">Copy code</span>
+        <div class="shortcut-keys">
+          <span class="kbd">Ctrl</span><span class="kbd">⇧</span
+          ><span class="kbd">C</span>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Completion banner -->
-  <div class="completion-banner" id="completionBanner">
-    <div class="completion-card">
-      <span class="completion-emoji">🏆</span>
-      <h2>All Lessons Complete!</h2>
-      <p>You've finished every lesson in the DevForge curriculum.<br/>
-         Total XP earned: <strong id="finalXp" style="color:var(--purple)">0</strong></p>
-      <div class="completion-btns">
-        <button class="btn-green"   onclick="hideCompletion()">Keep Exploring</button>
-        <button class="btn-outline" onclick="restartAll()">Restart</button>
+    <!-- Font Size Panel -->
+    <div class="fs-panel" id="fsPanel">
+      <label
+        >Editor font size:
+        <span class="fs-val" id="fsValLabel">13px</span></label
+      >
+      <input
+        type="range"
+        class="fs-slider"
+        id="fsSlider"
+        min="11"
+        max="20"
+        value="13"
+        oninput="changeFontSize(this.value)"
+      />
+    </div>
+
+    <!-- Toast notification -->
+    <div class="toast" id="toast">
+      <span class="toast-icon" id="toastIcon"></span>
+      <span id="toastMsg"></span>
+    </div>
+
+    <!-- Reset confirmation modal -->
+    <div class="modal-overlay" id="resetModal">
+      <div class="modal">
+        <h3>Reset to starter code?</h3>
+        <p>
+          This will discard your current edits for this lesson and restore the
+          original starter code.
+        </p>
+        <div class="modal-btns">
+          <button class="btn-cancel" onclick="hideResetModal()">Cancel</button>
+          <button class="btn-confirm" onclick="confirmReset()">Reset</button>
+        </div>
       </div>
     </div>
-  </div>
 
+    <!-- Completion banner -->
+    <div class="completion-banner" id="completionBanner">
+      <div class="completion-card">
+        <span class="completion-emoji">🏆</span>
+        <h2>All Lessons Complete!</h2>
+        <p>
+          You've finished every lesson in the DevForge curriculum.<br />
+          Total XP earned:
+          <strong id="finalXp" style="color: var(--purple)">0</strong>
+        </p>
+        <div class="completion-btns">
+          <button class="btn-green" onclick="hideCompletion()">
+            Keep Exploring
+          </button>
+          <button class="btn-outline" onclick="restartAll()">Restart</button>
+        </div>
+      </div>
+    </div>
 
-  <!-- ══════════════════════════════════════
+    <!-- ══════════════════════════════════════
        SCRIPTS  (order matters)
   ══════════════════════════════════════ -->
-  <script src="curriculum.js"></script>
-  <script src="app.js"></script>
-
-</body>
+    <script src="curriculum.js"></script>
+    <script src="app.js"></script>
+  </body>
 </html>

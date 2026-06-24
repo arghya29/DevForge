@@ -8,12 +8,11 @@ name: CI Checks
 
 on:
   pull_request:
-    branches: [ dev, main ]    # contributor PR targeting dev
+    branches: [dev, main] # contributor PR targeting dev
   push:
-    branches: [ dev, main ]    # push to dev OR push dev→main
+    branches: [dev, main] # push to dev OR push dev→main
 
 jobs:
-
   # ─────────────────────────────────────────
   #  JOB 1 — JavaScript Lint  (ESLint)
   # ─────────────────────────────────────────
@@ -35,7 +34,6 @@ jobs:
       - name: Run ESLint
         run: npx eslint app.js curriculum.js --max-warnings 0
 
-
   # ─────────────────────────────────────────
   #  JOB 2 — Format Check  (Prettier)
   # ─────────────────────────────────────────
@@ -56,7 +54,6 @@ jobs:
 
       - name: Run Prettier check
         run: npx prettier --check "*.html" "*.css" "*.js" "*.md"
-
 
   # ─────────────────────────────────────────
   #  JOB 3 — HTML Validate

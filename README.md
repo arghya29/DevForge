@@ -1,6 +1,5 @@
 # ⚡ DevForge — Learn by Building
 
-
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=for-the-badge)](./LICENSE)&nbsp;&nbsp;
 [![GitHub Pages](https://img.shields.io/badge/Deployed-GitHub%20Pages-brightgreen?style=for-the-badge)](https://arghya29.github.io/DevForge/)&nbsp;&nbsp;
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](./CONTRIBUTING.md)
@@ -9,7 +8,6 @@
 ![No Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen.svg?style=for-the-badge)&nbsp;&nbsp;
 ![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red.svg?style=for-the-badge)
 
-
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=for-the-badge)](./LICENSE)&nbsp;&nbsp;
 [![GitHub Pages](https://img.shields.io/badge/Deployed-GitHub%20Pages-brightgreen?style=for-the-badge)](https://arghya29.github.io/DevForge/)&nbsp;&nbsp;
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](./CONTRIBUTING.md)
@@ -17,7 +15,6 @@
 [![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-orange.svg?style=for-the-badge)](./CONTRIBUTING.md)&nbsp;&nbsp;
 ![No Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen.svg?style=for-the-badge)&nbsp;&nbsp;
 ![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red.svg?style=for-the-badge)
-
 
 A fully client-side, **zero-dependency** interactive coding environment for learning HTML, CSS, and JavaScript. No servers. No npm. No build tools. Open `index.html` and start coding.
 
@@ -98,12 +95,12 @@ DevForge/
 
 ### File responsibilities
 
-| File | Role |
-|---|---|
-| `index.html` | Skeleton only — every panel, button, modal defined here |
-| `styles.css` | Every CSS rule — variables, layout grid, components, animations |
+| File            | Role                                                                   |
+| --------------- | ---------------------------------------------------------------------- |
+| `index.html`    | Skeleton only — every panel, button, modal defined here                |
+| `styles.css`    | Every CSS rule — variables, layout grid, components, animations        |
 | `curriculum.js` | Single `CURRICULUM` array — add new lessons here, nothing else changes |
-| `app.js` | Brain — sidebar, editor, run/preview, console, XP, keyboard shortcuts |
+| `app.js`        | Brain — sidebar, editor, run/preview, console, XP, keyboard shortcuts  |
 
 ---
 
@@ -144,21 +141,21 @@ DevForge/
 
 ## ✨ Features
 
-| Feature | Detail |
-|---|---|
-| **Live Preview** | Runs inside a sandboxed `<iframe>` — no server needed |
-| **Console Panel** | Intercepts `console.log/warn/error` via `postMessage` from iframe |
-| **Code Buffers** | Each lesson remembers your edits independently in memory |
-| **XP & Streak** | Points awarded on first run of each lesson |
-| **Auto-run** | Preview updates 0.9s after you stop typing |
-| **Preview Sizes** | Desktop / Tablet (768px) / Mobile (390px) |
-| **Drag Resizer** | Resize editor vs preview split |
-| **Lesson Search** | Filter sidebar lessons in real time |
-| **Font Size** | Slider from 11px to 20px |
-| **Auto-indent** | Enter key matches current line indentation |
-| **Auto-close** | Brackets and quotes auto-close as you type |
-| **Keyboard Shortcuts** | Full set — see table below |
-| **Completion Confetti** | Celebration when all 16 lessons are done |
+| Feature                 | Detail                                                            |
+| ----------------------- | ----------------------------------------------------------------- |
+| **Live Preview**        | Runs inside a sandboxed `<iframe>` — no server needed             |
+| **Console Panel**       | Intercepts `console.log/warn/error` via `postMessage` from iframe |
+| **Code Buffers**        | Each lesson remembers your edits independently in memory          |
+| **XP & Streak**         | Points awarded on first run of each lesson                        |
+| **Auto-run**            | Preview updates 0.9s after you stop typing                        |
+| **Preview Sizes**       | Desktop / Tablet (768px) / Mobile (390px)                         |
+| **Drag Resizer**        | Resize editor vs preview split                                    |
+| **Lesson Search**       | Filter sidebar lessons in real time                               |
+| **Font Size**           | Slider from 11px to 20px                                          |
+| **Auto-indent**         | Enter key matches current line indentation                        |
+| **Auto-close**          | Brackets and quotes auto-close as you type                        |
+| **Keyboard Shortcuts**  | Full set — see table below                                        |
+| **Completion Confetti** | Celebration when all 16 lessons are done                          |
 
 ### ⌨ Keyboard Shortcuts
 
@@ -171,8 +168,8 @@ DevForge/
 | `Ctrl + 2`         | Switch to CSS tab     |
 | `Ctrl + 3`         | Switch to JS tab      |
 | `Ctrl + Shift + R` | Reset code to starter |
-| `Ctrl + Shift + C` | Copy all code |
-| `Escape` | Close any open panel |
+| `Ctrl + Shift + C` | Copy all code         |
+| `Escape`           | Close any open panel  |
 
 ---
 
@@ -202,6 +199,7 @@ contributor fork
 Deploying on GitHub Pages is the right choice for DevForge — it's 100% static, needs no server, and the included `deploy.yml` workflow auto-deploys every push to `main`.
 
 ### One-time setup
+
 1. Go to your repo → **Settings → Pages**
 2. Under **Source** → select **GitHub Actions**
 3. Push any commit to `main` — the workflow triggers automatically
