@@ -1,38 +1,80 @@
-name: Deploy to GitHub Pages
+# ═══════════════════════════════════════════════════════════
+#  DevForge — CI Checks
+#  Runs on PRs to dev and pushes to dev + main.
+#  All checks must pass before a PR can be merged.
+# ═══════════════════════════════════════════════════════════
+
+name: CI Checks
 
 on:
+  pull_request:
+    branches: [ dev, main ]    # contributor PR targeting dev
   push:
-    branches:
-      - main   # runs every time you push to main
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: true
+    branches: [ dev, main ]    # push to dev OR push dev→main
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+
+  # ─────────────────────────────────────────
+  #  JOB 1 — JavaScript Lint  (ESLint)
+  # ─────────────────────────────────────────
+  lint-js:
+    name: JS Lint (ESLint)
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          # Upload the entire repo root (all 4 files)
-          path: '.'
+          node-version: 20
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Install ESLint
+        run: npm install --save-dev eslint @eslint/js
+
+      - name: Run ESLint
+        run: npx eslint app.js curriculum.js --max-warnings 0
+
+
+  # ─────────────────────────────────────────
+  #  JOB 2 — Format Check  (Prettier)
+  # ─────────────────────────────────────────
+  format-check:
+    name: Format Check (Prettier)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Prettier
+        run: npm install --save-dev prettier
+
+      - name: Run Prettier check
+        run: npx prettier --check "*.html" "*.css" "*.js" "*.md"
+
+
+  # ─────────────────────────────────────────
+  #  JOB 3 — HTML Validate
+  # ─────────────────────────────────────────
+  validate-html:
+    name: HTML Validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install html-validate
+        run: npm install --save-dev html-validate
+
+      - name: Run HTML validate
+        run: npx html-validate index.html

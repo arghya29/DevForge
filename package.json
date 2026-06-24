@@ -1,0 +1,33 @@
+{
+  "name": "devforge",
+  "version": "1.0.0",
+  "description": "Interactive browser-based coding playground to learn HTML, CSS, and JavaScript",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint:js":      "eslint app.js curriculum.js --max-warnings 0",
+    "lint:html":    "html-validate index.html",
+    "format:check": "prettier --check \"*.html\" \"*.css\" \"*.js\" \"*.md\"",
+    "format:fix":   "prettier --write \"*.html\" \"*.css\" \"*.js\" \"*.md\"",
+    "check":        "npm run lint:js && npm run lint:html && npm run format:check"
+  },
+  "devDependencies": {
+    "@eslint/js":    "^9.0.0",
+    "eslint":        "^9.0.0",
+    "html-validate": "^9.0.0",
+    "prettier":      "^3.0.0"
+  },
+  "keywords": [
+    "html", "css", "javascript", "learning", "education",
+    "playground", "code-editor", "open-source", "hacktoberfest"
+  ],
+  "license": "Apache-2.0",
+  "homepage": "https://arghya29.github.io/DevForge/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/arghya29/DevForge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/arghya29/DevForge/issues"
+  }
+}

@@ -1,0 +1,5 @@
+# Don't format these
+.git/
+node_modules/
+LICENSE
+LICENSE.txt

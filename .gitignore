@@ -1,3 +1,7 @@
+# Dependencies — never commit these
+node_modules/
+package-lock.json
+
 # OS files
 .DS_Store
 .DS_Store?
@@ -20,9 +24,6 @@ Desktop.ini
 # Logs
 *.log
 npm-debug.log*
-
-# No node_modules — this project has zero dependencies
-node_modules/
 
 # Env files
 .env

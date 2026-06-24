@@ -1,15 +1,17 @@
 # Contributing to DevForge
 
-Thank you for your interest in contributing! DevForge is a beginner-friendly project and we welcome all kinds of contributions — new lessons, bug fixes, design improvements, documentation, and more.
+Thank you for your interest in contributing! DevForge is a beginner-friendly project and we welcome all kinds of contributions — new lessons, bug fixes, design improvements, and documentation.
 
 ---
 
 ## 📋 Table of Contents
 
 - [Code of Conduct](#code-of-conduct)
+- [Branching Strategy](#branching-strategy)
 - [How to Contribute](#how-to-contribute)
 - [Project Structure](#project-structure)
 - [Adding a Lesson](#adding-a-lesson)
+- [Running CI Checks Locally](#running-ci-checks-locally)
 - [Reporting Bugs](#reporting-bugs)
 - [Pull Request Guidelines](#pull-request-guidelines)
 - [Style Guide](#style-guide)
@@ -19,7 +21,25 @@ Thank you for your interest in contributing! DevForge is a beginner-friendly pro
 ## Code of Conduct
 
 This project follows the [Contributor Covenant Code of Conduct](./CODE_OF_CONDUCT.md).
-By participating, you agree to uphold it. Please report unacceptable behaviour to the maintainers via a GitHub issue.
+By participating, you agree to uphold it.
+
+---
+
+## Branching Strategy
+
+```
+your fork / feature branch
+          │
+          ▼  Pull Request  ←── always target dev, never main
+         dev
+          │
+          ▼  Maintainer pushes dev → main
+         main ──► GitHub Pages auto-deploys
+```
+
+- **All PRs must target `dev`** — PRs targeting `main` will be closed
+- `main` is the clean, live, deployed branch — only the maintainer pushes to it
+- CI checks run on every PR to `dev` and every push to both `dev` and `main`
 
 ---
 
@@ -33,42 +53,57 @@ git clone https://github.com/YOUR_USERNAME/DevForge.git
 cd DevForge
 ```
 
-### 2. Open in Browser
-
-No build step needed — just open `index.html` directly in your browser:
+### 2. Switch to dev and create your branch
 
 ```bash
-# macOS
-open index.html
+git checkout dev
+git pull origin dev                        # make sure you're up to date
+git checkout -b feature/your-feature-name  # create your branch off dev
+```
 
-# Linux
-xdg-open index.html
+Branch naming examples:
+- `feature/add-css-variables-lesson`
+- `fix/editor-cursor-alignment`
+- `docs/improve-readme`
 
-# Windows
-start index.html
+### 3. Open in Browser
+
+No build step — just open `index.html` in your browser:
+
+```bash
+open index.html        # macOS
+xdg-open index.html    # Linux
+start index.html       # Windows
 ```
 
 Or use the VS Code **Live Server** extension for auto-reload on save.
 
-### 3. Make Your Changes
+### 4. Make Your Changes
 
 Edit the relevant file:
 - New lesson content → `curriculum.js`
-- Visual/layout changes → `styles.css`
-- App logic/features → `app.js`
+- Visual / layout changes → `styles.css`
+- App logic / features → `app.js`
 - Page structure → `index.html`
 
-### 4. Test
+### 5. Run CI Checks Locally
 
-- Open `index.html` in Chrome, Firefox, and Safari
-- Check that the editor cursor stays aligned with text
-- Check that the preview renders correctly
-- Check that the console panel shows logs
-- Check that keyboard shortcuts still work
+```bash
+npm install       # one time only
+npm run check     # runs ESLint + HTML Validate + Prettier
+```
 
-### 5. Open a Pull Request
+Fix any errors before pushing. See [Running CI Checks Locally](#running-ci-checks-locally) for details.
 
-Push your branch and open a PR against `main`. Fill in the PR template.
+### 6. Push and Open a Pull Request
+
+```bash
+git add .
+git commit -m "feat: add CSS variables lesson"
+git push origin feature/your-feature-name
+```
+
+Then open a PR on GitHub — **make sure the base branch is `dev`**, not `main`. Fill in the PR template.
 
 ---
 
@@ -76,28 +111,35 @@ Push your branch and open a PR against `main`. Fill in the PR template.
 
 ```
 DevForge/
-├── index.html        # HTML structure only — no inline styles or scripts
+├── index.html        # Pure HTML structure — zero inline styles or scripts
 ├── styles.css        # All CSS — variables, layout, components, animations
 ├── curriculum.js     # All lesson data (CURRICULUM array)
 ├── app.js            # All application logic
+├── package.json      # Dev tools (ESLint, Prettier, html-validate)
+├── eslint.config.js  # ESLint rules
+├── .prettierrc       # Prettier config
+├── .html-validate.json  # HTML validator config
 ├── README.md
 ├── LICENSE
 ├── CONTRIBUTING.md   ← you are here
 ├── CODE_OF_CONDUCT.md
 ├── CHANGELOG.md
-├── .github/
-│   ├── ISSUE_TEMPLATE/
-│   │   ├── bug_report.md
-│   │   └── feature_request.md
-│   └── PULL_REQUEST_TEMPLATE.md
-└── .gitignore
+├── .gitignore
+└── .github/
+    ├── workflows/
+    │   ├── ci.yml          # CI: runs on PRs to dev + pushes to dev & main
+    │   └── deploy.yml      # Deploy: runs on push to main only
+    ├── PULL_REQUEST_TEMPLATE.md
+    └── ISSUE_TEMPLATE/
+        ├── bug_report.md
+        └── feature_request.md
 ```
 
 ---
 
 ## Adding a Lesson
 
-The easiest and most valuable contribution is a new lesson. All lesson content lives in `curriculum.js`.
+The easiest contribution is a new lesson. All lesson content lives in `curriculum.js`.
 
 ### Lesson object structure
 
@@ -110,11 +152,11 @@ The easiest and most valuable contribution is a new lesson. All lesson content l
   paneTitle:   "06 · Semantic Elements",
   instruction: `
     <h2>Your lesson heading</h2>
-    <p>Explain the concept clearly. Use <code>inline code</code> for tags/properties.</p>
+    <p>Explain the concept. Use <code>inline code</code> for tags/properties.</p>
     <div class="hint-box">💡 A hint to guide the learner.</div>
     <div class="challenge-box">⚔ An optional stretch challenge.</div>
   `,
-  html: `<!-- starter HTML code -->`,
+  html: `<!-- starter HTML -->`,
   css:  `/* starter CSS */`,
   js:   `// starter JS`
 }
@@ -122,16 +164,16 @@ The easiest and most valuable contribution is a new lesson. All lesson content l
 
 ### Rules for lesson content
 
-- **Starter code must work on its own** — when Run is clicked immediately, the preview should render something visible, not a blank page or an error.
-- **One concept per lesson** — don't introduce three new things at once.
-- **Always include a `hint-box`** — tell learners what to try changing.
-- **`challenge-box` is optional** — add one if there's a natural stretch goal.
-- **XP guide**: 20 = beginner HTML, 25 = basic CSS/JS, 30 = intermediate, 35–40 = advanced, 50 = capstone.
-- **Keep instruction HTML under ~300 characters of prose** — the pane is small.
+- **Starter code must work immediately** — clicking Run right away should show something visible, not a blank page or an error
+- **One concept per lesson** — don't introduce multiple unrelated things at once
+- **Always include a `hint-box`** — tell learners what to try changing
+- **`challenge-box` is optional** — add one if there's a natural stretch goal
+- **XP guide**: 20 = introductory HTML, 25 = basic CSS/JS, 30 = intermediate, 35–40 = advanced, 50 = capstone
+- **Keep instruction prose short** — the pane is small, aim for 2–3 sentences max per paragraph
 
 ### Adding to an existing chapter
 
-Find the chapter in `curriculum.js` and append your lesson to its `lessons` array. The sidebar, progress bar, and nav buttons update automatically.
+Find the right chapter in `curriculum.js` and append your lesson to its `lessons` array. The sidebar, progress bar, and nav buttons update automatically — no other file needs to change.
 
 ### Adding a new chapter
 
@@ -139,32 +181,71 @@ Add a new object to the top-level `CURRICULUM` array:
 
 ```js
 {
-  chapter: "Chapter Name",
+  chapter: "Advanced JavaScript",
   lessons: [ /* your lessons */ ]
 }
 ```
 
 ---
 
+## Running CI Checks Locally
+
+Before pushing, run the same checks that GitHub Actions runs so you're not surprised by failures on your PR.
+
+### Install tools (one time only)
+```bash
+npm install
+```
+
+### Run all checks at once
+```bash
+npm run check
+```
+
+### Run individual checks
+```bash
+npm run lint:js       # ESLint on app.js and curriculum.js
+npm run lint:html     # HTML validate on index.html
+npm run format:check  # Prettier format check on all files
+```
+
+### Auto-fix formatting
+```bash
+npm run format:fix    # Prettier rewrites files in place
+```
+
+### What each check does
+
+| Check | Tool | What it catches |
+|---|---|---|
+| JS Lint | ESLint | Undefined variables, `==` instead of `===`, unused vars, syntax errors |
+| HTML Validate | html-validate | Broken tags, missing doctype, invalid nesting, missing alt attributes |
+| Format Check | Prettier | Inconsistent indentation, quote style, trailing commas |
+
+> **Note:** `node_modules/` is in `.gitignore` — never commit it.
+
+---
+
 ## Reporting Bugs
 
-Please use the [Bug Report template](.github/ISSUE_TEMPLATE/bug_report.md).
+Use the [Bug Report template](.github/ISSUE_TEMPLATE/bug_report.md).
 
 Include:
 - Browser name and version
 - Steps to reproduce
 - What you expected vs what happened
-- A screenshot if relevant (especially for editor cursor issues)
+- A screenshot if relevant
 
 ---
 
 ## Pull Request Guidelines
 
-- **One concern per PR** — don't mix a new lesson with a CSS refactor.
-- **Descriptive title** — `fix: cursor misalignment in editor on Firefox` not `fix bug`.
-- **Fill in the PR template** — link to the issue it closes.
-- **No external dependencies** — DevForge deliberately has zero npm packages or CDN scripts beyond Google Fonts. Keep it that way.
-- **Test in at least 2 browsers** before submitting.
+- **All PRs must target `dev`** — not `main`
+- **One concern per PR** — don't mix a new lesson with a CSS refactor
+- **Descriptive title** — `fix: cursor misalignment in Firefox` not `fix bug`
+- **Fill in the PR template** and link to the issue it closes
+- **No external dependencies** — DevForge deliberately has zero runtime libraries. Keep it that way
+- **All 3 CI checks must pass** before a PR can be merged
 
 ---
 
@@ -173,20 +254,16 @@ Include:
 ### JavaScript (`app.js`)
 - `"use strict"` at the top
 - `const` by default, `let` only when reassignment is needed
-- Function declarations for top-level named functions
-- Descriptive variable names — no single-letter names outside of loop counters
-- Comment every major section with the `/* ══ SECTION ══ */` style already used
+- Descriptive variable names — no single-letter names outside loop counters
+- Comment every major section with the `/* ══ SECTION ══ */` style already in the file
 
 ### CSS (`styles.css`)
 - All colors via CSS custom properties from `:root` — no raw hex in rules
-- Group related rules under the labelled section comments already in the file
-- Mobile-first if adding responsive rules
+- Group related rules under the labelled section comments
 - No `!important`
 
 ### HTML (`index.html`)
 - No inline `style=""` attributes
-- No inline `onclick=""` — use `addEventListener` in `app.js` where possible
-  (existing `onclick` attributes are acceptable to keep for now)
 - Semantic elements where appropriate (`<aside>`, `<header>`, `<button>`)
 
 ### Lesson content (`curriculum.js`)

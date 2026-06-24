@@ -1,11 +1,14 @@
 # ⚡ DevForge — Learn by Building
 
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
-[![GitHub Pages](https://img.shields.io/badge/Deployed-GitHub%20Pages-brightgreen)](https://arghya29.github.io/DevForge/)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
-[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-orange.svg)](./CONTRIBUTING.md)
-[![No Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen.svg)]()
-[![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red.svg)]()
+
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=for-the-badge)](./LICENSE)&nbsp;&nbsp;
+[![GitHub Pages](https://img.shields.io/badge/Deployed-GitHub%20Pages-brightgreen?style=for-the-badge)](https://arghya29.github.io/DevForge/)&nbsp;&nbsp;
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](./CONTRIBUTING.md)
+
+[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-orange.svg?style=for-the-badge)](./CONTRIBUTING.md)&nbsp;&nbsp;
+![No Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen.svg?style=for-the-badge)&nbsp;&nbsp;
+![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red.svg?style=for-the-badge)
+
 
 A fully client-side, **zero-dependency** interactive coding environment for learning HTML, CSS, and JavaScript. No servers. No npm. No build tools. Open `index.html` and start coding.
 
@@ -42,7 +45,6 @@ Visit **[arghya29.github.io/DevForge](https://arghya29.github.io/DevForge/)** �
 ```bash
 git clone https://github.com/arghya29/DevForge.git
 cd DevForge
-# Then just open index.html in your browser:
 open index.html        # macOS
 xdg-open index.html    # Linux
 start index.html       # Windows
@@ -66,10 +68,16 @@ DevForge/
 ├── CONTRIBUTING.md         # How to add lessons and contribute
 ├── CODE_OF_CONDUCT.md      # Contributor Covenant v2.1
 ├── CHANGELOG.md            # Version history
+├── package.json            # Dev tools (ESLint, Prettier, html-validate)
+├── eslint.config.js        # ESLint rules
+├── .prettierrc             # Prettier formatting config
+├── .prettierignore         # Files Prettier should skip
+├── .html-validate.json     # HTML validator config
 ├── .gitignore
 │
 └── .github/
     ├── workflows/
+    │   ├── ci.yml                  # CI checks on PRs to dev + pushes to dev & main
     │   └── deploy.yml              # Auto-deploys to GitHub Pages on push to main
     ├── PULL_REQUEST_TEMPLATE.md
     └── ISSUE_TEMPLATE/
@@ -81,10 +89,10 @@ DevForge/
 
 | File | Role |
 |---|---|
-| `index.html` | Skeleton only — every panel, button, modal defined here with IDs and classes |
-| `styles.css` | Every CSS rule — CSS variables, layout grid, components, token colors, animations |
-| `curriculum.js` | Single `CURRICULUM` array — add new lessons here with zero changes elsewhere |
-| `app.js` | Brain — sidebar, editor, syntax highlighting, run/preview, console, XP, shortcuts |
+| `index.html` | Skeleton only — every panel, button, modal defined here |
+| `styles.css` | Every CSS rule — variables, layout grid, components, animations |
+| `curriculum.js` | Single `CURRICULUM` array — add new lessons here, nothing else changes |
+| `app.js` | Brain — sidebar, editor, run/preview, console, XP, keyboard shortcuts |
 
 ---
 
@@ -125,7 +133,6 @@ DevForge/
 | Feature | Detail |
 |---|---|
 | **Live Preview** | Runs inside a sandboxed `<iframe>` — no server needed |
-| **Syntax Highlighting** | Custom regex highlighter for HTML, CSS, JS — zero libraries |
 | **Console Panel** | Intercepts `console.log/warn/error` via `postMessage` from iframe |
 | **Code Buffers** | Each lesson remembers your edits independently in memory |
 | **XP & Streak** | Points awarded on first run of each lesson |
@@ -134,8 +141,10 @@ DevForge/
 | **Drag Resizer** | Resize editor vs preview split |
 | **Lesson Search** | Filter sidebar lessons in real time |
 | **Font Size** | Slider from 11px to 20px |
+| **Auto-indent** | Enter key matches current line indentation |
+| **Auto-close** | Brackets and quotes auto-close as you type |
 | **Keyboard Shortcuts** | Full set — see table below |
-| **Completion Confetti** | Celebration banner when all 16 lessons are done |
+| **Completion Confetti** | Celebration when all 16 lessons are done |
 
 ### ⌨ Keyboard Shortcuts
 
@@ -153,39 +162,52 @@ DevForge/
 
 ---
 
+## 🔁 Branching Strategy
+
+```
+contributor fork
+      │
+      ▼
+  feature branch
+      │
+      ▼  Pull Request (CI checks run here)
+     dev  ◄─────── all PRs target dev
+      │
+      ▼  Push to main (CI checks run again)
+     main ──► GitHub Pages auto-deploys
+```
+
+- **All pull requests must target `dev`** — never `main` directly
+- CI checks run on every PR to `dev` and every push to `dev` and `main`
+- `main` is always the clean, deployed version
+
+---
+
 ## 🌐 GitHub Pages Deployment
 
-**Yes — deploying on GitHub Pages is the right call.** It's the perfect host for this project:
+Deploying on GitHub Pages is the right choice for DevForge — it's 100% static, needs no server, and the included `deploy.yml` workflow auto-deploys every push to `main`.
 
-- No server required (DevForge is 100% static)
-- Free, fast, and reliable
-- Shareable URL for open source submissions
-- Auto-deploys via the included GitHub Actions workflow
-
-### How the auto-deploy works
-
-The file `.github/workflows/deploy.yml` is included in this repo. Every time you push to `main`, GitHub Actions automatically deploys the latest version to GitHub Pages. You don't need to do anything manually.
-
-### Setup (one-time)
-
-1. Go to your repo → **Settings** → **Pages**
-2. Under **Source**, select **GitHub Actions**
+### One-time setup
+1. Go to your repo → **Settings → Pages**
+2. Under **Source** → select **GitHub Actions**
 3. Push any commit to `main` — the workflow triggers automatically
-4. Your site is live at `https://YOUR_USERNAME.github.io/DevForge/`
+4. Live at `https://arghya29.github.io/DevForge/`
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are very welcome! The most impactful thing you can do is **add a new lesson**.
+Contributions are welcome! All PRs must target the **`dev`** branch.
 
 Read [CONTRIBUTING.md](./CONTRIBUTING.md) for the full guide. Quick version:
 
 ```bash
 git clone https://github.com/arghya29/DevForge.git
 cd DevForge
-# Make changes — no install needed
-# Open a PR against main
+git checkout dev
+# make your changes
+git checkout -b feature/your-feature-name
+# open a PR targeting dev
 ```
 
 **To add a lesson**, open `curriculum.js` and add an object to any chapter's `lessons` array:
@@ -207,44 +229,38 @@ cd DevForge
 }
 ```
 
-The sidebar, progress bar, and nav buttons update automatically — no other files to touch.
+The sidebar, progress bar, and nav buttons update automatically.
+
+---
+
+## 🏆 Open Source Programs
+
+This project welcomes contributions via:
+
+- **[GSSoC](https://gssoc.girlscript.tech/)** (GirlScript Summer of Code)
+- **[Hacktoberfest](https://hacktoberfest.com/)** — PRs in October count
+- **[KWOC](https://kwoc.kossiitkgp.org/)** (Kharagpur Winter of Code)
+- **[Script Winter of Code](https://swoc.scriptindia.org/)**
+
+### Good first issues for newcomers
+- Add a new HTML lesson (semantic elements, tables, multimedia)
+- Add a new CSS lesson (custom properties, media queries)
+- Add a new JS lesson (objects, classes, localStorage)
+- Fix a typo in any lesson instruction
+- Improve mobile layout of the sidebar
 
 ---
 
 ## 🏗️ Architecture Notes
 
 **Why no frameworks?**
-DevForge is a tool for people learning their first lines of code. A `node_modules` folder or webpack config would be intimidating and irrelevant. Pure HTML/CSS/JS keeps the project itself inspectable and educational.
-
-**How does syntax highlighting work?**
-A transparent `<textarea>` sits on top of a styled `<div>`. You type into the textarea (which handles native editing — cursor, selection, undo/redo). A regex highlighter runs on every keystroke and updates the `<div>` behind it. The textarea uses `color: transparent` and `-webkit-text-fill-color: transparent` so only the highlight layer is visible, while `caret-color: var(--cyan)` keeps the cursor visible.
+DevForge is a tool for people learning their first lines of code. A `node_modules` folder or webpack config would be intimidating and irrelevant. Pure HTML/CSS/JS keeps the project inspectable and educational.
 
 **How does the console panel work?**
-The preview runs in a `sandbox="allow-scripts"` iframe. Sandboxed iframes can't access the parent window directly, so the app secretly overwrites `console.log/warn/error` inside the iframe to fire `postMessage` to the parent, which renders each call in the console panel with a timestamp.
+The preview runs in a `sandbox="allow-scripts"` iframe. Sandboxed iframes can't access the parent window directly, so the app overwrites `console.log/warn/error` inside the iframe to fire `postMessage` to the parent, which renders each call in the console panel.
 
 **Why is `curriculum.js` separate from `app.js`?**
-Content and logic should never be in the same file. A teacher or contributor can add lessons, fix typos, or rewrite instructions by touching only `curriculum.js` — with zero risk of breaking app logic.
-
----
-
-## 🏆 Open Source Programs
-
-This project is eligible for and welcomes contributions via:
-
-- **[GSSoC](https://gssoc.girlscript.tech/)** (GirlScript Summer of Code)
-- **[Hacktoberfest](https://hacktoberfest.com/)** — PRs opened in October count
-- **[KWOC](https://kwoc.kossiitkgp.org/)** (Kharagpur Winter of Code)
-- **[Script Winter of Code](https://swoc.scriptindia.org/)**
-
-If you are a maintainer adding this project to one of the above programs, label issues with `hacktoberfest`, `gssoc`, or `good first issue` as appropriate.
-
-### Good first issues for newcomers
-- Add a new HTML lesson (semantic elements, tables, multimedia)
-- Add a new CSS lesson (custom properties, media queries, clip-path)
-- Add a new JS lesson (objects, classes, localStorage)
-- Fix a typo in any lesson instruction
-- Improve mobile layout of the sidebar
-- Add a dark/light theme toggle
+A teacher or contributor can add lessons by touching only `curriculum.js` — with zero risk of breaking app logic.
 
 ---
 
@@ -252,7 +268,7 @@ If you are a maintainer adding this project to one of the above programs, label 
 
 Licensed under the **[Apache License 2.0](./LICENSE)**.
 
-Free to use, modify, and distribute — including commercially — as long as you include the original license notice and clearly state any changes you made to the source files.
+Free to use, modify, and distribute — including commercially — as long as you include the original license notice and state any changes made to the source files.
 
 ---
 
