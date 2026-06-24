@@ -10,6 +10,15 @@
 ![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red.svg?style=for-the-badge)
 
 
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=for-the-badge)](./LICENSE)&nbsp;&nbsp;
+[![GitHub Pages](https://img.shields.io/badge/Deployed-GitHub%20Pages-brightgreen?style=for-the-badge)](https://arghya29.github.io/DevForge/)&nbsp;&nbsp;
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](./CONTRIBUTING.md)
+
+[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-orange.svg?style=for-the-badge)](./CONTRIBUTING.md)&nbsp;&nbsp;
+![No Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen.svg?style=for-the-badge)&nbsp;&nbsp;
+![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red.svg?style=for-the-badge)
+
+
 A fully client-side, **zero-dependency** interactive coding environment for learning HTML, CSS, and JavaScript. No servers. No npm. No build tools. Open `index.html` and start coding.
 
 🌐 **Live Demo:** [arghya29.github.io/DevForge](https://arghya29.github.io/DevForge/)
@@ -39,9 +48,11 @@ A fully client-side, **zero-dependency** interactive coding environment for lear
 ## 🚀 Quick Start
 
 ### Option 1 — GitHub Pages (already live)
+
 Visit **[arghya29.github.io/DevForge](https://arghya29.github.io/DevForge/)** — nothing to install.
 
 ### Option 2 — Run locally
+
 ```bash
 git clone https://github.com/arghya29/DevForge.git
 cd DevForge
@@ -96,35 +107,38 @@ DevForge/
 
 ---
 
-## 📚 Curriculum  (16 lessons · 455 XP total)
+## 📚 Curriculum (16 lessons · 455 XP total)
 
 ### HTML Foundations
-| # | Lesson | XP |
-|---|---|---|
-| 01 | Your First Element | 20 |
-| 02 | Headings & Paragraphs | 20 |
-| 03 | Lists & Links | 20 |
-| 04 | Images & Attributes | 20 |
-| 05 | Forms & Inputs | 30 |
+
+| #   | Lesson                | XP  |
+| --- | --------------------- | --- |
+| 01  | Your First Element    | 20  |
+| 02  | Headings & Paragraphs | 20  |
+| 03  | Lists & Links         | 20  |
+| 04  | Images & Attributes   | 20  |
+| 05  | Forms & Inputs        | 30  |
 
 ### CSS Styling
-| # | Lesson | XP |
-|---|---|---|
-| 01 | Selectors & Specificity | 25 |
-| 02 | The Box Model | 25 |
-| 03 | Flexbox Layout | 30 |
-| 04 | CSS Grid | 30 |
-| 05 | Transitions & Animations | 35 |
+
+| #   | Lesson                   | XP  |
+| --- | ------------------------ | --- |
+| 01  | Selectors & Specificity  | 25  |
+| 02  | The Box Model            | 25  |
+| 03  | Flexbox Layout           | 30  |
+| 04  | CSS Grid                 | 30  |
+| 05  | Transitions & Animations | 35  |
 
 ### JavaScript
-| # | Lesson | XP |
-|---|---|---|
-| 01 | Variables & Types | 25 |
-| 02 | Functions | 25 |
-| 03 | Arrays & Loops | 30 |
-| 04 | DOM Manipulation | 30 |
-| 05 | Fetch & Async/Await | 40 |
-| 06 | Build a Todo App (capstone) | 50 |
+
+| #   | Lesson                      | XP  |
+| --- | --------------------------- | --- |
+| 01  | Variables & Types           | 25  |
+| 02  | Functions                   | 25  |
+| 03  | Arrays & Loops              | 30  |
+| 04  | DOM Manipulation            | 30  |
+| 05  | Fetch & Async/Await         | 40  |
+| 06  | Build a Todo App (capstone) | 50  |
 
 ---
 
@@ -148,14 +162,14 @@ DevForge/
 
 ### ⌨ Keyboard Shortcuts
 
-| Shortcut | Action |
-|---|---|
-| `Ctrl + Enter` | Run code |
-| `Ctrl + ]` | Next lesson |
-| `Ctrl + [` | Previous lesson |
-| `Ctrl + 1` | Switch to HTML tab |
-| `Ctrl + 2` | Switch to CSS tab |
-| `Ctrl + 3` | Switch to JS tab |
+| Shortcut           | Action                |
+| ------------------ | --------------------- |
+| `Ctrl + Enter`     | Run code              |
+| `Ctrl + ]`         | Next lesson           |
+| `Ctrl + [`         | Previous lesson       |
+| `Ctrl + 1`         | Switch to HTML tab    |
+| `Ctrl + 2`         | Switch to CSS tab     |
+| `Ctrl + 3`         | Switch to JS tab      |
 | `Ctrl + Shift + R` | Reset code to starter |
 | `Ctrl + Shift + C` | Copy all code |
 | `Escape` | Close any open panel |
@@ -243,6 +257,7 @@ This project welcomes contributions via:
 - **[Script Winter of Code](https://swoc.scriptindia.org/)**
 
 ### Good first issues for newcomers
+
 - Add a new HTML lesson (semantic elements, tables, multimedia)
 - Add a new CSS lesson (custom properties, media queries)
 - Add a new JS lesson (objects, classes, localStorage)
