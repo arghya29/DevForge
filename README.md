@@ -1,11 +1,14 @@
 # ⚡ DevForge — Learn by Building
 
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
-[![GitHub Pages](https://img.shields.io/badge/Deployed-GitHub%20Pages-brightgreen)](https://arghya29.github.io/DevForge/)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
-[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-orange.svg)](./CONTRIBUTING.md)
-[![No Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen.svg)]()
-[![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red.svg)]()
+
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=for-the-badge)](./LICENSE)&nbsp;&nbsp;
+[![GitHub Pages](https://img.shields.io/badge/Deployed-GitHub%20Pages-brightgreen?style=for-the-badge)](https://arghya29.github.io/DevForge/)&nbsp;&nbsp;
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](./CONTRIBUTING.md)
+
+[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-orange.svg?style=for-the-badge)](./CONTRIBUTING.md)&nbsp;&nbsp;
+![No Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen.svg?style=for-the-badge)&nbsp;&nbsp;
+![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red.svg?style=for-the-badge)
+
 
 A fully client-side, **zero-dependency** interactive coding environment for learning HTML, CSS, and JavaScript. No servers. No npm. No build tools. Open `index.html` and start coding.
 
@@ -36,9 +39,11 @@ A fully client-side, **zero-dependency** interactive coding environment for lear
 ## 🚀 Quick Start
 
 ### Option 1 — GitHub Pages (already live)
+
 Visit **[arghya29.github.io/DevForge](https://arghya29.github.io/DevForge/)** — nothing to install.
 
 ### Option 2 — Run locally
+
 ```bash
 git clone https://github.com/arghya29/DevForge.git
 cd DevForge
@@ -79,77 +84,80 @@ DevForge/
 
 ### File responsibilities
 
-| File | Role |
-|---|---|
-| `index.html` | Skeleton only — every panel, button, modal defined here with IDs and classes |
-| `styles.css` | Every CSS rule — CSS variables, layout grid, components, token colors, animations |
-| `curriculum.js` | Single `CURRICULUM` array — add new lessons here with zero changes elsewhere |
-| `app.js` | Brain — sidebar, editor, syntax highlighting, run/preview, console, XP, shortcuts |
+| File            | Role                                                                              |
+| --------------- | --------------------------------------------------------------------------------- |
+| `index.html`    | Skeleton only — every panel, button, modal defined here with IDs and classes      |
+| `styles.css`    | Every CSS rule — CSS variables, layout grid, components, token colors, animations |
+| `curriculum.js` | Single `CURRICULUM` array — add new lessons here with zero changes elsewhere      |
+| `app.js`        | Brain — sidebar, editor, syntax highlighting, run/preview, console, XP, shortcuts |
 
 ---
 
-## 📚 Curriculum  (16 lessons · 455 XP total)
+## 📚 Curriculum (16 lessons · 455 XP total)
 
 ### HTML Foundations
-| # | Lesson | XP |
-|---|---|---|
-| 01 | Your First Element | 20 |
-| 02 | Headings & Paragraphs | 20 |
-| 03 | Lists & Links | 20 |
-| 04 | Images & Attributes | 20 |
-| 05 | Forms & Inputs | 30 |
+
+| #   | Lesson                | XP  |
+| --- | --------------------- | --- |
+| 01  | Your First Element    | 20  |
+| 02  | Headings & Paragraphs | 20  |
+| 03  | Lists & Links         | 20  |
+| 04  | Images & Attributes   | 20  |
+| 05  | Forms & Inputs        | 30  |
 
 ### CSS Styling
-| # | Lesson | XP |
-|---|---|---|
-| 01 | Selectors & Specificity | 25 |
-| 02 | The Box Model | 25 |
-| 03 | Flexbox Layout | 30 |
-| 04 | CSS Grid | 30 |
-| 05 | Transitions & Animations | 35 |
+
+| #   | Lesson                   | XP  |
+| --- | ------------------------ | --- |
+| 01  | Selectors & Specificity  | 25  |
+| 02  | The Box Model            | 25  |
+| 03  | Flexbox Layout           | 30  |
+| 04  | CSS Grid                 | 30  |
+| 05  | Transitions & Animations | 35  |
 
 ### JavaScript
-| # | Lesson | XP |
-|---|---|---|
-| 01 | Variables & Types | 25 |
-| 02 | Functions | 25 |
-| 03 | Arrays & Loops | 30 |
-| 04 | DOM Manipulation | 30 |
-| 05 | Fetch & Async/Await | 40 |
-| 06 | Build a Todo App (capstone) | 50 |
+
+| #   | Lesson                      | XP  |
+| --- | --------------------------- | --- |
+| 01  | Variables & Types           | 25  |
+| 02  | Functions                   | 25  |
+| 03  | Arrays & Loops              | 30  |
+| 04  | DOM Manipulation            | 30  |
+| 05  | Fetch & Async/Await         | 40  |
+| 06  | Build a Todo App (capstone) | 50  |
 
 ---
 
 ## ✨ Features
 
-| Feature | Detail |
-|---|---|
-| **Live Preview** | Runs inside a sandboxed `<iframe>` — no server needed |
-| **Syntax Highlighting** | Custom regex highlighter for HTML, CSS, JS — zero libraries |
-| **Console Panel** | Intercepts `console.log/warn/error` via `postMessage` from iframe |
-| **Code Buffers** | Each lesson remembers your edits independently in memory |
-| **XP & Streak** | Points awarded on first run of each lesson |
-| **Auto-run** | Preview updates 0.9s after you stop typing |
-| **Preview Sizes** | Desktop / Tablet (768px) / Mobile (390px) |
-| **Drag Resizer** | Resize editor vs preview split |
-| **Lesson Search** | Filter sidebar lessons in real time |
-| **Font Size** | Slider from 11px to 20px |
-| **Keyboard Shortcuts** | Full set — see table below |
-| **Completion Confetti** | Celebration banner when all 16 lessons are done |
+| Feature                 | Detail                                                            |
+| ----------------------- | ----------------------------------------------------------------- |
+| **Live Preview**        | Runs inside a sandboxed `<iframe>` — no server needed             |
+| **Syntax Highlighting** | Custom regex highlighter for HTML, CSS, JS — zero libraries       |
+| **Console Panel**       | Intercepts `console.log/warn/error` via `postMessage` from iframe |
+| **Code Buffers**        | Each lesson remembers your edits independently in memory          |
+| **XP & Streak**         | Points awarded on first run of each lesson                        |
+| **Auto-run**            | Preview updates 0.9s after you stop typing                        |
+| **Preview Sizes**       | Desktop / Tablet (768px) / Mobile (390px)                         |
+| **Drag Resizer**        | Resize editor vs preview split                                    |
+| **Lesson Search**       | Filter sidebar lessons in real time                               |
+| **Font Size**           | Slider from 11px to 20px                                          |
+| **Keyboard Shortcuts**  | Full set — see table below                                        |
+| **Completion Confetti** | Celebration banner when all 16 lessons are done                   |
 
 ### ⌨ Keyboard Shortcuts
 
-| Shortcut | Action |
-|---|---|
-| `Ctrl + Enter` | Run code |
-| `Ctrl + ]` | Next lesson |
-| `Ctrl + [` | Previous lesson |
-| `Ctrl + 1` | Switch to HTML tab |
-| `Ctrl + 2` | Switch to CSS tab |
-| `Ctrl + 3` | Switch to JS tab |
+| Shortcut           | Action                |
+| ------------------ | --------------------- |
+| `Ctrl + Enter`     | Run code              |
+| `Ctrl + ]`         | Next lesson           |
+| `Ctrl + [`         | Previous lesson       |
+| `Ctrl + 1`         | Switch to HTML tab    |
+| `Ctrl + 2`         | Switch to CSS tab     |
+| `Ctrl + 3`         | Switch to JS tab      |
 | `Ctrl + Shift + R` | Reset code to starter |
-| `Ctrl + Shift + C` | Copy all code |
-| `Escape` | Close any open panel |
+| `Ctrl + Shift + C` | Copy all code         |
+| `Escape`           | Close any open panel  |
 
 ---
 
@@ -239,6 +247,7 @@ This project is eligible for and welcomes contributions via:
 If you are a maintainer adding this project to one of the above programs, label issues with `hacktoberfest`, `gssoc`, or `good first issue` as appropriate.
 
 ### Good first issues for newcomers
+
 - Add a new HTML lesson (semantic elements, tables, multimedia)
 - Add a new CSS lesson (custom properties, media queries, clip-path)
 - Add a new JS lesson (objects, classes, localStorage)
