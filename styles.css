@@ -384,10 +384,6 @@ header {
   justify-content: center;
 }
 
-.sidebar.collapsed .sidebar-toggle {
-  transform: rotate(180deg);
-}
-
 /* Search input */
 .search-wrap {
   position: relative;

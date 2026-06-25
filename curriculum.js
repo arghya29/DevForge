@@ -4,15 +4,37 @@
    Each lesson has: id, tag, title, xp, instruction HTML,
    and starter code for html / css / js tabs.
 ═══════════════════════════════════════════════════════════════ */
+// function toggleSidebar() {
+//   const app = document.querySelector(".workspace");
+//   const sidebar = document.querySelector(".sidebar");
+//   const toggleBtn = document.getElementById("sidebarToggle");
+
+//   sidebar.classList.toggle("collapsed");
+//   app.classList.toggle("sidebar-collapsed");
+
+//   const isCollapsed = sidebar.classList.contains("collapsed");
+//   toggleBtn.textContent = isCollapsed ? "▶" : "◀";
+// }
+
 function toggleSidebar() {
-  const app = document.querySelector(".workspace");
+  const workspace = document.querySelector(".workspace");
   const sidebar = document.querySelector(".sidebar");
   const toggleBtn = document.getElementById("sidebarToggle");
 
+  if (!workspace || !sidebar || !toggleBtn) return;
+
   sidebar.classList.toggle("collapsed");
-  app.classList.toggle("sidebar-collapsed");
+  workspace.classList.toggle("sidebar-collapsed");
 
   const isCollapsed = sidebar.classList.contains("collapsed");
+
+  const cols = getComputedStyle(workspace).gridTemplateColumns.split(" ");
+  const editorW = parseFloat(cols[1]) || 400;
+
+  workspace.style.gridTemplateColumns = isCollapsed
+    ? `52px ${editorW}px 6px 1fr`
+    : `280px ${editorW}px 6px 1fr`;
+
   toggleBtn.textContent = isCollapsed ? "▶" : "◀";
 }
 

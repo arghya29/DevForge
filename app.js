@@ -738,23 +738,42 @@ function initResizer() {
   let startEditorW = 0;
 
   resizer.addEventListener("mousedown", e => {
-    dragging      = true;
-    startX        = e.clientX;
-    const cols    = getComputedStyle(workspace).gridTemplateColumns.split(" ");
-    startEditorW  = parseFloat(cols[1]);
+    dragging = true;
+    startX = e.clientX;
+
+    const cols = getComputedStyle(workspace).gridTemplateColumns.split(" ");
+    startEditorW = parseFloat(cols[1]);
+
     resizer.classList.add("dragging");
     document.body.style.userSelect = "none";
-    document.body.style.cursor     = "col-resize";
+    document.body.style.cursor = "col-resize";
   });
 
   document.addEventListener("mousemove", e => {
     if (!dragging) return;
-    const dx          = e.clientX - startX;
-    const sidebarW    = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--sidebar-w"));
-    const totalW      = workspace.offsetWidth - sidebarW - 4; // 4px resizer
-    const newEditorW  = Math.max(200, Math.min(startEditorW + dx, totalW - 200));
-    workspace.style.gridTemplateColumns = `${sidebarW}px ${newEditorW}px 4px 1fr`;
+
+    const dx = e.clientX - startX;
+
+    const defaultSidebarW = parseFloat(
+      getComputedStyle(document.documentElement).getPropertyValue("--sidebar-w")
+    );
+
+    const sidebarW = workspace.classList.contains("sidebar-collapsed")
+      ? 52
+      : defaultSidebarW;
+
+    const resizerW = 4;
+    const totalW = workspace.offsetWidth - sidebarW - resizerW;
+
+    const newEditorW = Math.max(
+      200,
+      Math.min(startEditorW + dx, totalW - 200)
+    );
+
+    workspace.style.gridTemplateColumns = `${sidebarW}px ${newEditorW}px ${resizerW}px 1fr`;
   });
+
+  
 
   document.addEventListener("mouseup", () => {
     if (!dragging) return;
