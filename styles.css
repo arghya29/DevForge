@@ -337,7 +337,7 @@ header {
 }
 
 .sidebar-title {
-  font-size: 0.62rem;
+  font-size: 0.72rem;
   font-family: var(--font-code);
   color: var(--muted);
   letter-spacing: 1.8px;
@@ -397,10 +397,10 @@ header {
   margin-bottom: 4px;
 }
 .chapter-label {
-  font-size: 0.62rem;
+  font-size: 0.72rem;
   font-family: var(--font-code);
   color: var(--amber);
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
   padding: 8px 8px 4px;
   display: flex;
@@ -456,7 +456,7 @@ header {
   min-width: 0;
 }
 .lesson-title {
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   color: var(--text);
   line-height: 1.3;
   white-space: nowrap;
@@ -469,7 +469,7 @@ header {
 }
 
 .lesson-tag {
-  font-size: 0.58rem;
+  font-size: 0.66rem;
   font-family: var(--font-code);
   padding: 1px 5px;
   border-radius: 3px;
