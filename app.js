@@ -427,7 +427,7 @@ function extractBody(html) {
 
 function buildPreviewDoc(bodyContent, css, js) {
   // Escape any </script> in user code so it can't break out of the script block.
-  const safeJs = (js || "").replace(/<\/script>/gi, "<\\/script>");
+  const safeJs = (js || "").replace(/<\/script/gi, "<\\/script");
   // Intercept console.* inside the iframe and forward to parent via postMessage
   const consoleIntercept = `
 (function () {
