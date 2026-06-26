@@ -31,17 +31,16 @@ const buffers = {}; // { [lessonId]: { html, css, js } }  — user edits
    HELPERS — curriculum lookups
 ══════════════════════════════════════════════════════════ */
 function getLesson(id) {
-  for (const ch of CURRICULUM)
-    for (const l of ch.lessons) if (l.id === id) return l;
+  for (const ch of CURRICULUM) for (const l of ch.lessons) if (l.id === id) return l;
   return null;
 }
 
 function getAllLessons() {
-  return CURRICULUM.flatMap((ch) => ch.lessons);
+  return CURRICULUM.flatMap(ch => ch.lessons);
 }
 
 function getLessonIndex(id) {
-  return getAllLessons().findIndex((l) => l.id === id);
+  return getAllLessons().findIndex(l => l.id === id);
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -52,9 +51,7 @@ function init() {
   loadLesson(currentLessonId);
   updateProgress();
   initResizer();
-  console.info(
-    "DevForge initialised — " + getAllLessons().length + " lessons ready.",
-  );
+  console.info("DevForge initialised — " + getAllLessons().length + " lessons ready.");
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -65,12 +62,9 @@ function buildSidebar(filter = "") {
   listEl.innerHTML = "";
   const q = filter.toLowerCase();
 
-  CURRICULUM.forEach((ch) => {
+  CURRICULUM.forEach(ch => {
     const matching = ch.lessons.filter(
-      (l) =>
-        !q ||
-        l.title.toLowerCase().includes(q) ||
-        l.tag.toLowerCase().includes(q),
+      l => !q || l.title.toLowerCase().includes(q) || l.tag.toLowerCase().includes(q)
     );
     if (!matching.length) return;
 
@@ -78,7 +72,7 @@ function buildSidebar(filter = "") {
     chDiv.className = "chapter";
     chDiv.innerHTML = `<div class="chapter-label">${ch.chapter}</div>`;
 
-    matching.forEach((l) => {
+    matching.forEach(l => {
       const item = document.createElement("div");
       item.className =
         "lesson-item" +
@@ -126,9 +120,7 @@ function loadLesson(id) {
   }
 
   // Highlight active sidebar item
-  document
-    .querySelectorAll(".lesson-item")
-    .forEach((el) => el.classList.remove("active"));
+  document.querySelectorAll(".lesson-item").forEach(el => el.classList.remove("active"));
   const sideEl = document.getElementById("sidebar-" + id);
   if (sideEl) {
     sideEl.classList.add("active");
@@ -136,15 +128,12 @@ function loadLesson(id) {
   }
 
   // Lesson instruction pane
-  document.getElementById("lessonPaneTitle").textContent =
-    "📖 " + lesson.paneTitle;
+  document.getElementById("lessonPaneTitle").textContent = "📖 " + lesson.paneTitle;
   document.getElementById("lessonContent").innerHTML = lesson.instruction;
 
   // Challenge badge in header
   const hasChal = lesson.instruction.includes("challenge-box");
-  document
-    .getElementById("challengeIndicator")
-    .classList.toggle("show", hasChal);
+  document.getElementById("challengeIndicator").classList.toggle("show", hasChal);
 
   // File tabs & editor
   buildFileTabs();
@@ -155,8 +144,7 @@ function loadLesson(id) {
 
 function saveCurrentBuffer() {
   if (!currentLessonId || !buffers[currentLessonId]) return;
-  buffers[currentLessonId][activeTab] =
-    document.getElementById("codeEditor").value;
+  buffers[currentLessonId][activeTab] = document.getElementById("codeEditor").value;
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -168,13 +156,13 @@ function buildFileTabs() {
   const container = document.getElementById("fileTabs");
   container.innerHTML = ["html", "css", "js"]
     .map(
-      (t) => `
+      t => `
     <div class="file-tab ${activeTab === t ? "active" : ""}"
          id="fileTab-${t}"
          onclick="switchTab('${t}')">
       <span class="file-dot" style="background:${TAB_DOT_COLORS[t]}"></span>
       index.${t}
-    </div>`,
+    </div>`
     )
     .join("");
 }
@@ -184,7 +172,7 @@ function switchTab(tab) {
   activeTab = tab;
 
   // Sync header tab buttons
-  ["html", "css", "js"].forEach((t) => {
+  ["html", "css", "js"].forEach(t => {
     const btn = document.getElementById("tab" + t.toUpperCase());
     if (btn) btn.classList.toggle("active", t === tab);
   });
@@ -212,8 +200,7 @@ function loadTab(tab) {
 ══════════════════════════════════════════════════════════ */
 function onEditorInput() {
   if (!buffers[currentLessonId]) return;
-  buffers[currentLessonId][activeTab] =
-    document.getElementById("codeEditor").value;
+  buffers[currentLessonId][activeTab] = document.getElementById("codeEditor").value;
   updateLineNums();
   highlight();
 
@@ -227,10 +214,7 @@ function updateLineNums() {
   const editor = document.getElementById("codeEditor");
   const count = editor.value.split("\n").length;
   const nums = document.getElementById("lineNums");
-  nums.innerHTML = Array.from(
-    { length: count },
-    (_, i) => `<span>${i + 1}</span>`,
-  ).join("");
+  nums.innerHTML = Array.from({ length: count }, (_, i) => `<span>${i + 1}</span>`).join("");
 }
 
 function syncScroll(el) {
@@ -301,19 +285,13 @@ function highlightHTML(code) {
       // Comments
       .replace(/(&lt;!--[\s\S]*?--&gt;)/g, `<span class="tok-cmt">$1</span>`)
       // Tags: opening/closing brackets + tag name
-      .replace(
-        /(&lt;\/?)([\w-]+)/g,
-        (_, p1, p2) => `${p1}<span class="tok-tag">${p2}</span>`,
-      )
+      .replace(/(&lt;\/?)([\w-]+)/g, (_, p1, p2) => `${p1}<span class="tok-tag">${p2}</span>`)
       // Attributes
-      .replace(
-        / ([\w-]+)=/g,
-        (_, p1) => ` <span class="tok-attr">${p1}</span>=`,
-      )
+      .replace(/ ([\w-]+)=/g, (_, p1) => ` <span class="tok-attr">${p1}</span>=`)
       // Attribute values (quoted)
       .replace(
         /=(&quot;[^&"]*&quot;|&#039;[^']*&#039;)/g,
-        (_, p1) => `=<span class="tok-val">${p1}</span>`,
+        (_, p1) => `=<span class="tok-val">${p1}</span>`
       )
   );
 }
@@ -330,15 +308,12 @@ function highlightCSS(code) {
       // Selectors (before {)
       .replace(
         /([.#]?[\w-]+(?:\s*,\s*[.#]?[\w-]+)*)\s*\{/g,
-        (m, sel) => `<span class="tok-sel">${sel}</span> {`,
+        (m, sel) => `<span class="tok-sel">${sel}</span> {`
       )
       // Properties (before :)
       .replace(/([\w-]+)\s*:/g, (_, p) => `<span class="tok-prop">${p}</span>:`)
       // Values (after :, before ; or })
-      .replace(
-        /:\s*([^;{}\n]+)/g,
-        (_, v) => `: <span class="tok-unit">${v}</span>`,
-      )
+      .replace(/:\s*([^;{}\n]+)/g, (_, v) => `: <span class="tok-unit">${v}</span>`)
   );
 }
 
@@ -419,8 +394,7 @@ function runCode() {
       xp += lesson.xp;
       streak += 1;
       document.getElementById("xpVal").textContent = xp;
-      document.getElementById("streakLabel").textContent =
-        `🔥 ${streak} streak`;
+      document.getElementById("streakLabel").textContent = `🔥 ${streak} streak`;
       showToast(`+${lesson.xp} XP earned! 🎉`, "success", "🏅");
     }
     lastRunLesson = currentLessonId;
@@ -503,8 +477,7 @@ function updateNav() {
   const idx = getLessonIndex(currentLessonId);
   document.getElementById("prevBtn").disabled = idx <= 0;
   document.getElementById("nextBtn").disabled = idx >= all.length - 1;
-  document.getElementById("lessonPos").textContent =
-    `${idx + 1} / ${all.length}`;
+  document.getElementById("lessonPos").textContent = `${idx + 1} / ${all.length}`;
 }
 
 function navLesson(dir) {
@@ -518,9 +491,8 @@ function navLesson(dir) {
    CONSOLE PANEL
 ══════════════════════════════════════════════════════════ */
 // Receive console messages forwarded from the iframe
-window.addEventListener("message", (e) => {
-  if (!e.data || !["log", "error", "warn", "info"].includes(e.data.type))
-    return;
+window.addEventListener("message", e => {
+  if (!e.data || !["log", "error", "warn", "info"].includes(e.data.type)) return;
   addConsoleLog(e.data.type, e.data.args.join(" "), e.data.ts);
 });
 
@@ -535,21 +507,8 @@ function addConsoleLog(type, text, ts) {
   const body = document.getElementById("consoleBody");
   const el = document.createElement("div");
   const cls =
-    type === "error"
-      ? "err"
-      : type === "warn"
-        ? "warn"
-        : type === "info"
-          ? "info"
-          : "log";
-  const prefix =
-    type === "error"
-      ? "✖"
-      : type === "warn"
-        ? "⚠"
-        : type === "info"
-          ? "ℹ"
-          : "›";
+    type === "error" ? "err" : type === "warn" ? "warn" : type === "info" ? "info" : "log";
+  const prefix = type === "error" ? "✖" : type === "warn" ? "⚠" : type === "info" ? "ℹ" : "›";
   const time = ts
     ? new Date(ts).toLocaleTimeString("en-US", {
         hour12: false,
@@ -578,9 +537,7 @@ function addConsoleLog(type, text, ts) {
 
 function toggleConsole() {
   consolePaneOpen = !consolePaneOpen;
-  document
-    .getElementById("consolePane")
-    .classList.toggle("collapsed", !consolePaneOpen);
+  document.getElementById("consolePane").classList.toggle("collapsed", !consolePaneOpen);
   document.getElementById("consolCollapseBtn").style.transform = consolePaneOpen
     ? ""
     : "rotate(180deg)";
@@ -591,12 +548,8 @@ function toggleConsole() {
 ══════════════════════════════════════════════════════════ */
 function toggleLessonPane() {
   lessonPaneOpen = !lessonPaneOpen;
-  document
-    .getElementById("lessonPane")
-    .classList.toggle("collapsed", !lessonPaneOpen);
-  document.getElementById("collapseBtn").style.transform = lessonPaneOpen
-    ? ""
-    : "rotate(180deg)";
+  document.getElementById("lessonPane").classList.toggle("collapsed", !lessonPaneOpen);
+  document.getElementById("collapseBtn").style.transform = lessonPaneOpen ? "" : "rotate(180deg)";
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -606,8 +559,7 @@ function updateProgress() {
   const total = getAllLessons().length;
   const done = doneSet.size;
   document.getElementById("progressText").textContent = `${done}/${total}`;
-  document.getElementById("progressFill").style.width =
-    `${(done / total) * 100}%`;
+  document.getElementById("progressFill").style.width = `${(done / total) * 100}%`;
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -616,13 +568,11 @@ function updateProgress() {
 function toggleAutorun() {
   autorun = !autorun;
   document.getElementById("autorunToggle").classList.toggle("on", autorun);
-  document.getElementById("autorunLabel").textContent = autorun
-    ? "Auto ✓"
-    : "Auto";
+  document.getElementById("autorunLabel").textContent = autorun ? "Auto ✓" : "Auto";
   showToast(
     autorun ? "Auto-run ON — preview updates as you type" : "Auto-run OFF",
     autorun ? "success" : "warn",
-    autorun ? "⚡" : "⏸",
+    autorun ? "⚡" : "⏸"
   );
 }
 
@@ -634,7 +584,7 @@ function setPreviewSize(size) {
   const frame = document.getElementById("previewFrame");
   frame.className = "preview-iframe" + (size === "desktop" ? "" : " " + size);
 
-  ["desktop", "tablet", "mobile"].forEach((s) => {
+  ["desktop", "tablet", "mobile"].forEach(s => {
     const id = "size" + s.charAt(0).toUpperCase() + s.slice(1);
     const btn = document.getElementById(id);
     if (btn) btn.classList.toggle("active", s === size);
@@ -676,9 +626,7 @@ function copyAllCode() {
   navigator.clipboard
     .writeText(all)
     .then(() => showToast("All code copied to clipboard!", "success", "⎘"))
-    .catch(() =>
-      showToast("Copy failed — try Ctrl+A then Ctrl+C", "error", "✖"),
-    );
+    .catch(() => showToast("Copy failed — try Ctrl+A then Ctrl+C", "error", "✖"));
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -693,9 +641,7 @@ function changeFontSize(val) {
 function toggleFsPanel() {
   fsPanelVisible = !fsPanelVisible;
   document.getElementById("fsPanel").classList.toggle("show", fsPanelVisible);
-  document
-    .getElementById("fsSizeBtn")
-    .classList.toggle("active", fsPanelVisible);
+  document.getElementById("fsSizeBtn").classList.toggle("active", fsPanelVisible);
   if (shortcutsVisible) toggleShortcuts();
 }
 
@@ -704,12 +650,8 @@ function toggleFsPanel() {
 ══════════════════════════════════════════════════════════ */
 function toggleShortcuts() {
   shortcutsVisible = !shortcutsVisible;
-  document
-    .getElementById("shortcutsPanel")
-    .classList.toggle("show", shortcutsVisible);
-  document
-    .getElementById("shortcutsBtn")
-    .classList.toggle("active", shortcutsVisible);
+  document.getElementById("shortcutsPanel").classList.toggle("show", shortcutsVisible);
+  document.getElementById("shortcutsBtn").classList.toggle("active", shortcutsVisible);
   if (fsPanelVisible) toggleFsPanel();
 }
 
@@ -740,15 +682,7 @@ function restartAll() {
 }
 
 function spawnConfetti() {
-  const colors = [
-    "#58A6FF",
-    "#BC8CFF",
-    "#3FB950",
-    "#D29922",
-    "#F85149",
-    "#FF7B72",
-    "#FFA657",
-  ];
+  const colors = ["#58A6FF", "#BC8CFF", "#3FB950", "#D29922", "#F85149", "#FF7B72", "#FFA657"];
   for (let i = 0; i < 80; i++) {
     setTimeout(() => {
       const el = document.createElement("div");
@@ -793,7 +727,7 @@ function initResizer() {
   let startX = 0;
   let startEditorW = 0;
 
-  resizer.addEventListener("mousedown", (e) => {
+  resizer.addEventListener("mousedown", e => {
     dragging = true;
     startX = e.clientX;
     const cols = getComputedStyle(workspace).gridTemplateColumns.split(" ");
@@ -803,13 +737,11 @@ function initResizer() {
     document.body.style.cursor = "col-resize";
   });
 
-  document.addEventListener("mousemove", (e) => {
+  document.addEventListener("mousemove", e => {
     if (!dragging) return;
     const dx = e.clientX - startX;
     const sidebarW = parseFloat(
-      getComputedStyle(document.documentElement).getPropertyValue(
-        "--sidebar-w",
-      ),
+      getComputedStyle(document.documentElement).getPropertyValue("--sidebar-w")
     );
     const totalW = workspace.offsetWidth - sidebarW - 4; // 4px resizer
     const newEditorW = Math.max(200, Math.min(startEditorW + dx, totalW - 200));
@@ -828,7 +760,7 @@ function initResizer() {
 /* ══════════════════════════════════════════════════════════
    GLOBAL KEYBOARD SHORTCUTS
 ══════════════════════════════════════════════════════════ */
-document.addEventListener("keydown", (e) => {
+document.addEventListener("keydown", e => {
   const ctrl = e.ctrlKey || e.metaKey;
 
   if (ctrl && e.key === "Enter") {
@@ -874,7 +806,7 @@ document.addEventListener("keydown", (e) => {
 /* ══════════════════════════════════════════════════════════
    CLOSE FLOATING PANELS ON OUTSIDE CLICK
 ══════════════════════════════════════════════════════════ */
-document.addEventListener("click", (e) => {
+document.addEventListener("click", e => {
   if (
     shortcutsVisible &&
     !e.target.closest("#shortcutsPanel") &&
@@ -882,16 +814,11 @@ document.addEventListener("click", (e) => {
   ) {
     toggleShortcuts();
   }
-  if (
-    fsPanelVisible &&
-    !e.target.closest("#fsPanel") &&
-    !e.target.closest("#fsSizeBtn")
-  ) {
+  if (fsPanelVisible && !e.target.closest("#fsPanel") && !e.target.closest("#fsSizeBtn")) {
     toggleFsPanel();
   }
   if (e.target === document.getElementById("resetModal")) hideResetModal();
-  if (e.target === document.getElementById("completionBanner"))
-    hideCompletion();
+  if (e.target === document.getElementById("completionBanner")) hideCompletion();
 });
 
 /* ══════════════════════════════════════════════════════════

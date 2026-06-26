@@ -22,27 +22,24 @@
       </div>
 
       <div class="header-center">
-        <div id="challengeIndicator" class="challenge-indicator">
-          ⚔ CHALLENGE MODE
-        </div>
+        <div id="challengeIndicator" class="challenge-indicator">⚔ CHALLENGE MODE</div>
 
         <button class="tab-btn active" id="tabHTML" onclick="switchTab('html')">
-          <span class="tab-dot" style="background: #f0641e"></span>HTML
+          <span class="tab-dot" style="background: #f0641e"></span>
+          HTML
         </button>
         <button class="tab-btn" id="tabCSS" onclick="switchTab('css')">
-          <span class="tab-dot" style="background: #58a6ff"></span>CSS
+          <span class="tab-dot" style="background: #58a6ff"></span>
+          CSS
         </button>
         <button class="tab-btn" id="tabJS" onclick="switchTab('js')">
-          <span class="tab-dot" style="background: #d29922"></span>JS
+          <span class="tab-dot" style="background: #d29922"></span>
+          JS
         </button>
       </div>
 
       <div class="header-right">
-        <div
-          class="autorun-wrap"
-          onclick="toggleAutorun()"
-          title="Auto-run on edit"
-        >
+        <div class="autorun-wrap" onclick="toggleAutorun()" title="Auto-run on edit">
           <div class="toggle" id="autorunToggle"></div>
           <span id="autorunLabel">Auto</span>
         </div>
@@ -50,20 +47,11 @@
         <div class="progress-wrap">
           <span id="progressText">0/16</span>
           <div class="progress-bar">
-            <div
-              class="progress-fill"
-              id="progressFill"
-              style="width: 0%"
-            ></div>
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
           </div>
         </div>
 
-        <button
-          class="icon-btn"
-          id="fsSizeBtn"
-          title="Font size"
-          onclick="toggleFsPanel()"
-        >
+        <button class="icon-btn" id="fsSizeBtn" title="Font size" onclick="toggleFsPanel()">
           Aa
         </button>
         <button
@@ -94,22 +82,17 @@
               placeholder="Search lessons…"
               oninput="filterLessons(this.value)"
             />
-            <button
-              class="search-clear"
-              id="searchClear"
-              onclick="clearSearch()"
-            >
-              ✕
-            </button>
+            <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
           </div>
         </div>
 
         <div class="lesson-list" id="lessonList"></div>
 
         <div class="sidebar-footer">
-          <span class="xp-label"
-            >XP: <span class="xp-val" id="xpVal">0</span></span
-          >
+          <span class="xp-label">
+            XP:
+            <span class="xp-val" id="xpVal">0</span>
+          </span>
           <span class="xp-label" id="streakLabel">🔥 0 streak</span>
         </div>
       </aside>
@@ -123,11 +106,7 @@
         <div class="editor-wrap" id="editorWrap">
           <div class="line-nums" id="lineNums"></div>
           <div class="editor-inner">
-            <div
-              class="code-highlight"
-              id="codeHighlight"
-              aria-hidden="true"
-            ></div>
+            <div class="code-highlight" id="codeHighlight" aria-hidden="true"></div>
             <textarea
               class="code-editor"
               id="codeEditor"
@@ -144,9 +123,7 @@
         <!-- Lesson instruction pane (collapsible) -->
         <div class="lesson-pane" id="lessonPane">
           <div class="lesson-pane-head" onclick="toggleLessonPane()">
-            <span class="lesson-pane-title" id="lessonPaneTitle"
-              >📖 LESSON</span
-            >
+            <span class="lesson-pane-title" id="lessonPaneTitle">📖 LESSON</span>
             <button class="collapse-btn" id="collapseBtn">▼</button>
           </div>
           <div class="lesson-content" id="lessonContent"></div>
@@ -154,13 +131,9 @@
 
         <!-- Prev / Next navigation -->
         <div class="lesson-nav">
-          <button class="nav-btn" id="prevBtn" onclick="navLesson(-1)">
-            ← Prev
-          </button>
+          <button class="nav-btn" id="prevBtn" onclick="navLesson(-1)">← Prev</button>
           <span class="lesson-pos" id="lessonPos">1 / 16</span>
-          <button class="nav-btn primary" id="nextBtn" onclick="navLesson(1)">
-            Next →
-          </button>
+          <button class="nav-btn primary" id="nextBtn" onclick="navLesson(1)">Next →</button>
         </div>
       </div>
 
@@ -171,7 +144,8 @@
       <div class="preview-panel" id="previewPanel">
         <div class="preview-head">
           <div class="preview-label">
-            <span class="live-dot"></span>LIVE PREVIEW
+            <span class="live-dot"></span>
+            LIVE PREVIEW
           </div>
           <div class="preview-actions">
             <div class="preview-size-btns">
@@ -200,32 +174,14 @@
                 📲
               </button>
             </div>
-            <button class="icon-btn" title="Refresh" onclick="runCode()">
-              ↻
-            </button>
-            <button
-              class="icon-btn"
-              title="Reset code"
-              onclick="showResetModal()"
-            >
-              ⟳
-            </button>
-            <button
-              class="icon-btn"
-              title="Copy all code"
-              onclick="copyAllCode()"
-            >
-              ⎘
-            </button>
+            <button class="icon-btn" title="Refresh" onclick="runCode()">↻</button>
+            <button class="icon-btn" title="Reset code" onclick="showResetModal()">⟳</button>
+            <button class="icon-btn" title="Copy all code" onclick="copyAllCode()">⎘</button>
           </div>
         </div>
 
         <div class="preview-iframe-wrap" id="iframeWrap">
-          <iframe
-            class="preview-iframe"
-            id="previewFrame"
-            sandbox="allow-scripts"
-          ></iframe>
+          <iframe class="preview-iframe" id="previewFrame" sandbox="allow-scripts"></iframe>
           <div class="preview-overlay" id="previewOverlay">
             <div class="spinner"></div>
             Running…
@@ -290,61 +246,69 @@
       <div class="shortcut-row">
         <span class="shortcut-desc">Run code</span>
         <div class="shortcut-keys">
-          <span class="kbd">Ctrl</span><span class="kbd">Enter</span>
+          <span class="kbd">Ctrl</span>
+          <span class="kbd">Enter</span>
         </div>
       </div>
       <div class="shortcut-row">
         <span class="shortcut-desc">Next lesson</span>
         <div class="shortcut-keys">
-          <span class="kbd">Ctrl</span><span class="kbd">]</span>
+          <span class="kbd">Ctrl</span>
+          <span class="kbd">]</span>
         </div>
       </div>
       <div class="shortcut-row">
         <span class="shortcut-desc">Prev lesson</span>
         <div class="shortcut-keys">
-          <span class="kbd">Ctrl</span><span class="kbd">[</span>
+          <span class="kbd">Ctrl</span>
+          <span class="kbd">[</span>
         </div>
       </div>
       <div class="shortcut-row">
         <span class="shortcut-desc">Switch → HTML</span>
         <div class="shortcut-keys">
-          <span class="kbd">Ctrl</span><span class="kbd">1</span>
+          <span class="kbd">Ctrl</span>
+          <span class="kbd">1</span>
         </div>
       </div>
       <div class="shortcut-row">
         <span class="shortcut-desc">Switch → CSS</span>
         <div class="shortcut-keys">
-          <span class="kbd">Ctrl</span><span class="kbd">2</span>
+          <span class="kbd">Ctrl</span>
+          <span class="kbd">2</span>
         </div>
       </div>
       <div class="shortcut-row">
         <span class="shortcut-desc">Switch → JS</span>
         <div class="shortcut-keys">
-          <span class="kbd">Ctrl</span><span class="kbd">3</span>
+          <span class="kbd">Ctrl</span>
+          <span class="kbd">3</span>
         </div>
       </div>
       <div class="shortcut-row">
         <span class="shortcut-desc">Reset code</span>
         <div class="shortcut-keys">
-          <span class="kbd">Ctrl</span><span class="kbd">⇧</span
-          ><span class="kbd">R</span>
+          <span class="kbd">Ctrl</span>
+          <span class="kbd">⇧</span>
+          <span class="kbd">R</span>
         </div>
       </div>
       <div class="shortcut-row">
         <span class="shortcut-desc">Copy code</span>
         <div class="shortcut-keys">
-          <span class="kbd">Ctrl</span><span class="kbd">⇧</span
-          ><span class="kbd">C</span>
+          <span class="kbd">Ctrl</span>
+          <span class="kbd">⇧</span>
+          <span class="kbd">C</span>
         </div>
       </div>
     </div>
 
     <!-- Font Size Panel -->
     <div class="fs-panel" id="fsPanel">
-      <label
-        >Editor font size:
-        <span class="fs-val" id="fsValLabel">13px</span></label
-      >
+      <label>
+        Editor font size:
+        <span class="fs-val" id="fsValLabel">13px</span>
+      </label>
       <input
         type="range"
         class="fs-slider"
@@ -367,8 +331,8 @@
       <div class="modal">
         <h3>Reset to starter code?</h3>
         <p>
-          This will discard your current edits for this lesson and restore the
-          original starter code.
+          This will discard your current edits for this lesson and restore the original starter
+          code.
         </p>
         <div class="modal-btns">
           <button class="btn-cancel" onclick="hideResetModal()">Cancel</button>
@@ -383,14 +347,13 @@
         <span class="completion-emoji">🏆</span>
         <h2>All Lessons Complete!</h2>
         <p>
-          You've finished every lesson in the DevForge curriculum.<br />
+          You've finished every lesson in the DevForge curriculum.
+          <br />
           Total XP earned:
           <strong id="finalXp" style="color: var(--purple)">0</strong>
         </p>
         <div class="completion-btns">
-          <button class="btn-green" onclick="hideCompletion()">
-            Keep Exploring
-          </button>
+          <button class="btn-green" onclick="hideCompletion()">Keep Exploring</button>
           <button class="btn-outline" onclick="restartAll()">Restart</button>
         </div>
       </div>
