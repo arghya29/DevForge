@@ -1,6 +1,6 @@
-# Dependencies — never commit these
+# Dependencies — install with: npm install
+# Commit package-lock.json so CI installs are reproducible
 node_modules/
-package-lock.json
 
 # OS files
 .DS_Store

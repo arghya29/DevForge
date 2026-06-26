@@ -5,17 +5,17 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "lint:js": "eslint app.js curriculum.js --max-warnings 0",
-    "lint:html": "html-validate index.html",
-    "format:check": "prettier --check \"*.html\" \"*.css\" \"*.js\" \"*.md\"",
-    "format:fix": "prettier --write \"*.html\" \"*.css\" \"*.js\" \"*.md\"",
-    "check": "npm run lint:js && npm run lint:html && npm run format:check"
+    "lint:js":      "eslint app.js curriculum.js --max-warnings 0",
+    "lint:html":    "html-validate index.html",
+    "format:check": "prettier --check \"*.html\" \"*.css\" \"*.js\" \"*.md\" \".github/**/*.md\"",
+    "format:fix":   "prettier --write \"*.html\" \"*.css\" \"*.js\" \"*.md\" \".github/**/*.md\"",
+    "check":        "npm run lint:js && npm run lint:html && npm run format:check"
   },
   "devDependencies": {
-    "@eslint/js": "^9.0.0",
-    "eslint": "^9.0.0",
+    "@eslint/js":    "^9.0.0",
+    "eslint":        "^9.0.0",
     "html-validate": "^9.0.0",
-    "prettier": "^3.0.0"
+    "prettier":      "^3.0.0"
   },
   "keywords": [
     "html",
