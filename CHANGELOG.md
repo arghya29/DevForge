@@ -8,6 +8,7 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [1.0.0] — 2025-06-19
 
 ### Added
+
 - 16 interactive lessons across 3 chapters: HTML Foundations, CSS Styling, JavaScript
 - Live preview iframe that renders HTML + CSS + JS instantly on Run
 - Regex-based syntax highlighting for HTML, CSS, and JavaScript (no external libraries)
@@ -34,6 +35,7 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - GitHub Pages deployment support
 
 ### Fixed
+
 - Editor cursor misalignment caused by `word-break: break-all` on highlight layer
 - Hex color swatches in CSS highlighter no longer shift text layout
 - Scroll sync between textarea and highlight layer now uses requestAnimationFrame

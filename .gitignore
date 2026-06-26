@@ -1,3 +1,7 @@
+# Dependencies — install with: npm install
+# Commit package-lock.json so CI installs are reproducible
+node_modules/
+
 # OS files
 .DS_Store
 .DS_Store?
@@ -20,9 +24,6 @@ Desktop.ini
 # Logs
 *.log
 npm-debug.log*
-
-# No node_modules — this project has zero dependencies
-node_modules/
 
 # Env files
 .env

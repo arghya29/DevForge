@@ -6,14 +6,12 @@
 ═══════════════════════════════════════════════════════════════ */
 
 const CURRICULUM = [
-
   /* ══════════════════════════════════════════
      CHAPTER 1 — HTML FOUNDATIONS
   ══════════════════════════════════════════ */
   {
     chapter: "HTML Foundations",
     lessons: [
-
       {
         id: "html-01",
         tag: "HTML",
@@ -53,7 +51,7 @@ const CURRICULUM = [
 h1 {
   color: #1a73e8;
 }`,
-        js: `console.log("Page loaded successfully!");`
+        js: `console.log("Page loaded successfully!");`,
       },
 
       {
@@ -114,7 +112,7 @@ blockquote {
   color: #666;
   font-style: italic;
 }`,
-        js: ``
+        js: ``,
       },
 
       {
@@ -170,7 +168,7 @@ a:hover {
 li {
   margin: 7px 0;
 }`,
-        js: ``
+        js: ``,
       },
 
       {
@@ -232,7 +230,7 @@ figcaption {
   font-size: .85rem;
   margin-top: 6px;
 }`,
-        js: ``
+        js: ``,
       },
 
       {
@@ -340,12 +338,10 @@ button {
 button:hover {
   background: #2566a8;
 }`,
-        js: ``
-      }
-
-    ] /* end HTML lessons */
+        js: ``,
+      },
+    ] /* end HTML lessons */,
   },
-
 
   /* ══════════════════════════════════════════
      CHAPTER 2 — CSS STYLING
@@ -353,7 +349,6 @@ button:hover {
   {
     chapter: "CSS Styling",
     lessons: [
-
       {
         id: "css-01",
         tag: "CSS",
@@ -411,7 +406,7 @@ li.special {
   font-weight: bold;
   list-style-type: "★ ";
 }`,
-        js: ``
+        js: ``,
       },
 
       {
@@ -477,7 +472,7 @@ h2 {
   border-color: #aaa;
   color: #888;
 }`,
-        js: ``
+        js: ``,
       },
 
       {
@@ -578,7 +573,7 @@ h2 {
   color: #a7a9be;
   font-size: .85rem;
 }`,
-        js: ``
+        js: ``,
       },
 
       {
@@ -640,7 +635,7 @@ h2 {
 .sidebar { grid-row: span 2; background: #1e1e2e; }
 .main    { grid-column: span 2; background: #1a2e1a; color: #3fb950; }
 .footer  { grid-column: span 3; background: #2a1a1a; color: #f85149; }`,
-        js: ``
+        js: ``,
       },
 
       {
@@ -760,12 +755,10 @@ h2 {
 
 .btn:hover  { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(88,166,255,.35); }
 .btn:active { transform: scale(.97); }`,
-        js: ``
-      }
-
-    ] /* end CSS lessons */
+        js: ``,
+      },
+    ] /* end CSS lessons */,
   },
-
 
   /* ══════════════════════════════════════════
      CHAPTER 3 — JAVASCRIPT
@@ -773,7 +766,6 @@ h2 {
   {
     chapter: "JavaScript",
     lessons: [
-
       {
         id: "js-01",
         tag: "JS",
@@ -838,7 +830,7 @@ document.getElementById("output").textContent = message;
 document.getElementById("info").textContent =
   \`score       = \${score}
 isAwesome   = \${isAwesome}
-typeof year = "\${typeof year}"\`;`
+typeof year = "\${typeof year}"\`;`,
       },
 
       {
@@ -915,7 +907,7 @@ function log(label, val) {
 log("greet('World')",    greet("World"));
 log("square(7)",         square(7));
 log("add(10, 5)",        add(10, 5));
-log("hypotenuse(3, 4)",  hypotenuse(3, 4));`
+log("hypotenuse(3, 4)",  hypotenuse(3, 4));`,
       },
 
       {
@@ -1004,7 +996,7 @@ fruits.forEach((fruit, i) => {
 });
 
 document.getElementById("stats").textContent =
-  \`\${fruits.length} fruits · \${totalChars} total chars · \${longNames.length} with long names\`;`
+  \`\${fruits.length} fruits · \${totalChars} total chars · \${longNames.length} with long names\`;`,
       },
 
       {
@@ -1118,7 +1110,7 @@ document.querySelector("#addBtn").addEventListener("click", () => {
   const li = document.createElement("li");
   li.textContent = \`Item #\${itemNum++} added at \${new Date().toLocaleTimeString()}\`;
   list.appendChild(li);
-});`
+});`,
       },
 
       {
@@ -1248,7 +1240,7 @@ document.getElementById("refreshUser").addEventListener("click", loadUser);
 
 // Load on start
 loadFact();
-loadUser();`
+loadUser();`,
       },
 
       {
@@ -1495,10 +1487,8 @@ todos = [
   { id: nextId++, text: "Style with CSS",        done: false },
   { id: nextId++, text: "Add JavaScript logic",  done: false }
 ];
-render();`
-      }
-
-    ] /* end JS lessons */
-  }
-
+render();`,
+      },
+    ] /* end JS lessons */,
+  },
 ]; /* end CURRICULUM */
