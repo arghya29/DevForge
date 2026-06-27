@@ -5,7 +5,7 @@
    and starter code for html / css / js tabs.
 ═══════════════════════════════════════════════════════════════ */
 
-const CURRICULUM = [
+window.CURRICULUM = [
   /* ══════════════════════════════════════════
      CHAPTER 1 — HTML FOUNDATIONS
   ══════════════════════════════════════════ */

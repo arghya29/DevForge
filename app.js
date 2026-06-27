@@ -18,7 +18,6 @@ let autorun = false;
 let autorunTimer = null;
 let shortcutsVisible = false;
 let fsPanelVisible = false;
-let previewSize = "desktop";
 let xp = 0;
 let streak = 0;
 let lastRunLesson = null;
@@ -650,7 +649,6 @@ function toggleAutorun() {
    PREVIEW SIZE  (desktop / tablet / mobile)
 ══════════════════════════════════════════════════════════ */
 function setPreviewSize(size) {
-  previewSize = size;
   const frame = document.getElementById("previewFrame");
   frame.className = "preview-iframe" + (size === "desktop" ? "" : " " + size);
 
@@ -895,3 +893,20 @@ document.addEventListener("click", e => {
    BOOT
 ══════════════════════════════════════════════════════════ */
 init();
+
+/* ════════════════════════════════════════════════════════════
+   Expose handlers referenced by inline HTML event attributes
+   (onclick / oninput / onkeydown / onscroll) on window, so they
+   are reachable from the markup and recognised as used by lint.
+════════════════════════════════════════════════════════════ */
+window.filterLessons = filterLessons;
+window.clearSearch = clearSearch;
+window.syncScroll = syncScroll;
+window.handleEditorKey = handleEditorKey;
+window.toggleConsole = toggleConsole;
+window.toggleLessonPane = toggleLessonPane;
+window.toggleAutorun = toggleAutorun;
+window.setPreviewSize = setPreviewSize;
+window.confirmReset = confirmReset;
+window.changeFontSize = changeFontSize;
+window.restartAll = restartAll;
