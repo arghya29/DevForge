@@ -895,18 +895,43 @@ document.addEventListener("click", e => {
 init();
 
 /* ════════════════════════════════════════════════════════════
-   Expose handlers referenced by inline HTML event attributes
-   (onclick / oninput / onkeydown / onscroll) on window, so they
-   are reachable from the markup and recognised as used by lint.
+   Expose EVERY handler referenced by an inline HTML event
+   attribute (onclick / oninput / onkeydown / onscroll) on window.
+   In script mode these top-level functions are already global, so
+   this changes no behaviour — it documents the markup contract
+   explicitly and makes every handler visibly "used" to ESLint.
+   The list below mirrors the on*="…" attributes in index.html,
+   in document order; keep it in sync when markup handlers change.
+   (window.onerror, set in buildPreviewDoc, is the browser error
+   hook — not an inline handler — and is intentionally not listed.)
 ════════════════════════════════════════════════════════════ */
+// Toolbar
+window.switchTab = switchTab;
+window.toggleAutorun = toggleAutorun;
+window.toggleFsPanel = toggleFsPanel;
+window.toggleShortcuts = toggleShortcuts;
+window.runCode = runCode;
+// Lesson search
 window.filterLessons = filterLessons;
 window.clearSearch = clearSearch;
-window.syncScroll = syncScroll;
+// Editor
 window.handleEditorKey = handleEditorKey;
-window.toggleConsole = toggleConsole;
+window.onEditorInput = onEditorInput;
+window.syncScroll = syncScroll;
+// Lesson pane / navigation
 window.toggleLessonPane = toggleLessonPane;
-window.toggleAutorun = toggleAutorun;
+window.navLesson = navLesson;
+// Preview size + actions
 window.setPreviewSize = setPreviewSize;
-window.confirmReset = confirmReset;
+window.showResetModal = showResetModal;
+window.copyAllCode = copyAllCode;
+// Console
+window.toggleConsole = toggleConsole;
+// Font size
 window.changeFontSize = changeFontSize;
+// Reset modal
+window.hideResetModal = hideResetModal;
+window.confirmReset = confirmReset;
+// Completion modal
+window.hideCompletion = hideCompletion;
 window.restartAll = restartAll;

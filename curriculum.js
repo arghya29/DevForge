@@ -1492,3 +1492,19 @@ render();`,
     ] /* end JS lessons */,
   },
 ]; /* end CURRICULUM */
+
+/* ───────────────────────────────────────────────────────────────
+   Lock CURRICULUM to its readonly contract. It is declared
+   readonly in eslint.config.js and consumed (never reassigned) by
+   app.js, so we (1) freeze the array so its contents can't be
+   mutated, and (2) redefine the window property as non-writable /
+   non-configurable so no later script can clobber window.CURRICULUM.
+   Done as a post-assignment lock rather than wrapping the ~1,400-line
+   literal in Object.defineProperty({ value: … }) so this stays a
+   minimal diff and avoids a whole-file Prettier re-indent.
+─────────────────────────────────────────────────────────────── */
+Object.freeze(window.CURRICULUM);
+Object.defineProperty(window, "CURRICULUM", {
+  writable: false,
+  configurable: false,
+});
