@@ -18,7 +18,6 @@ let autorun = false;
 let autorunTimer = null;
 let shortcutsVisible = false;
 let fsPanelVisible = false;
-let previewSize = "desktop";
 let xp = 0;
 let streak = 0;
 let lastRunLesson = null;
@@ -252,6 +251,76 @@ function handleEditorKey(e) {
     el.value = el.value.substring(0, s) + ins + el.value.substring(end);
     el.selectionStart = el.selectionEnd = s + ins.length;
     onEditorInput();
+    return;
+  }
+
+  // Don't hijack keyboard shortcuts (e.g. Cmd+[, Ctrl+], Alt+combos) or mangle
+  // their input. Shift is intentionally NOT included — "(", "{", '"', etc. are
+  // shifted characters and must still auto-close.
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+  // Auto-close brackets and quotes (as advertised in the README feature table).
+  const PAIRS = { "(": ")", "[": "]", "{": "}", '"': '"', "'": "'", "`": "`" };
+  const CLOSERS = new Set(Object.values(PAIRS));
+  const nextChar = el.value.charAt(end);
+
+  // Typing a closing char when the same char is already next → step over it
+  // instead of inserting a duplicate. This is what makes auto-close feel
+  // natural rather than producing ")) " when you "close" a pair yourself.
+  if (CLOSERS.has(e.key) && nextChar === e.key && s === end) {
+    e.preventDefault();
+    el.selectionStart = el.selectionEnd = end + 1;
+    return;
+  }
+
+  // Typing an opening char (or a quote): insert the matching closer.
+  if (Object.prototype.hasOwnProperty.call(PAIRS, e.key)) {
+    const close = PAIRS[e.key];
+
+    // If there's a selection, wrap it in the pair (e.g. select foo, press "(" → (foo)).
+    if (s !== end) {
+      e.preventDefault();
+      const selected = el.value.substring(s, end);
+      el.value = el.value.substring(0, s) + e.key + selected + close + el.value.substring(end);
+      // Keep the original text selected, now sitting between the pair.
+      el.selectionStart = s + 1;
+      el.selectionEnd = end + 1;
+      onEditorInput();
+      return;
+    }
+
+    // For quotes, don't auto-close when typing directly after a word character
+    // (e.g. the apostrophe in don't) or before one — only the single quote is
+    // inserted in those cases so we don't mangle contractions or identifiers.
+    const isQuote = e.key === '"' || e.key === "'" || e.key === "`";
+    if (isQuote) {
+      const prevChar = el.value.charAt(s - 1);
+      const wordBefore = /[\w]/.test(prevChar);
+      const wordAfter = /[\w]/.test(nextChar);
+      // Also avoid doubling when the cursor is right before the same quote.
+      if (wordBefore || wordAfter || nextChar === e.key) {
+        return; // let the single character insert normally
+      }
+    }
+
+    e.preventDefault();
+    el.value = el.value.substring(0, s) + e.key + close + el.value.substring(end);
+    el.selectionStart = el.selectionEnd = s + 1; // caret between the pair
+    onEditorInput();
+    return;
+  }
+
+  // Backspace between an empty auto-closed pair → delete both characters,
+  // so deleting the opener you just typed also removes the inserted closer.
+  if (e.key === "Backspace" && s === end && s > 0) {
+    const prevChar = el.value.charAt(s - 1);
+    if (Object.prototype.hasOwnProperty.call(PAIRS, prevChar) && PAIRS[prevChar] === nextChar) {
+      e.preventDefault();
+      el.value = el.value.substring(0, s - 1) + el.value.substring(s + 1);
+      el.selectionStart = el.selectionEnd = s - 1;
+      onEditorInput();
+      return;
+    }
   }
 }
 
@@ -580,7 +649,6 @@ function toggleAutorun() {
    PREVIEW SIZE  (desktop / tablet / mobile)
 ══════════════════════════════════════════════════════════ */
 function setPreviewSize(size) {
-  previewSize = size;
   const frame = document.getElementById("previewFrame");
   frame.className = "preview-iframe" + (size === "desktop" ? "" : " " + size);
 
@@ -825,3 +893,45 @@ document.addEventListener("click", e => {
    BOOT
 ══════════════════════════════════════════════════════════ */
 init();
+
+/* ════════════════════════════════════════════════════════════
+   Expose EVERY handler referenced by an inline HTML event
+   attribute (onclick / oninput / onkeydown / onscroll) on window.
+   In script mode these top-level functions are already global, so
+   this changes no behaviour — it documents the markup contract
+   explicitly and makes every handler visibly "used" to ESLint.
+   The list below mirrors the on*="…" attributes in index.html,
+   in document order; keep it in sync when markup handlers change.
+   (window.onerror, set in buildPreviewDoc, is the browser error
+   hook — not an inline handler — and is intentionally not listed.)
+════════════════════════════════════════════════════════════ */
+// Toolbar
+window.switchTab = switchTab;
+window.toggleAutorun = toggleAutorun;
+window.toggleFsPanel = toggleFsPanel;
+window.toggleShortcuts = toggleShortcuts;
+window.runCode = runCode;
+// Lesson search
+window.filterLessons = filterLessons;
+window.clearSearch = clearSearch;
+// Editor
+window.handleEditorKey = handleEditorKey;
+window.onEditorInput = onEditorInput;
+window.syncScroll = syncScroll;
+// Lesson pane / navigation
+window.toggleLessonPane = toggleLessonPane;
+window.navLesson = navLesson;
+// Preview size + actions
+window.setPreviewSize = setPreviewSize;
+window.showResetModal = showResetModal;
+window.copyAllCode = copyAllCode;
+// Console
+window.toggleConsole = toggleConsole;
+// Font size
+window.changeFontSize = changeFontSize;
+// Reset modal
+window.hideResetModal = hideResetModal;
+window.confirmReset = confirmReset;
+// Completion modal
+window.hideCompletion = hideCompletion;
+window.restartAll = restartAll;

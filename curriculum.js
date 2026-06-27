@@ -5,7 +5,7 @@
    and starter code for html / css / js tabs.
 ═══════════════════════════════════════════════════════════════ */
 
-const CURRICULUM = [
+window.CURRICULUM = [
   /* ══════════════════════════════════════════
      CHAPTER 1 — HTML FOUNDATIONS
   ══════════════════════════════════════════ */
@@ -1492,3 +1492,30 @@ render();`,
     ] /* end JS lessons */,
   },
 ]; /* end CURRICULUM */
+
+/* ───────────────────────────────────────────────────────────────
+   Lock CURRICULUM to its readonly contract. It is declared readonly
+   in eslint.config.js and is only ever READ by app.js — lesson
+   values are copied into the separate `buffers` object and progress
+   lives in a separate `doneSet`, so nothing mutates the curriculum
+   graph. We therefore (1) DEEP-freeze the whole graph (array +
+   chapter objects + lesson arrays + lesson objects) so titles /
+   starter code can't be silently changed, and (2) redefine the
+   window property as non-writable / non-configurable so no later
+   script can clobber window.CURRICULUM. Done as a post-assignment
+   lock rather than wrapping the ~1,400-line literal in
+   Object.defineProperty({ value: … }) so this stays a minimal diff
+   and avoids a whole-file Prettier re-indent.
+─────────────────────────────────────────────────────────────── */
+function deepFreeze(value) {
+  if (!value || typeof value !== "object" || Object.isFrozen(value)) return value;
+  Object.freeze(value);
+  Object.values(value).forEach(deepFreeze);
+  return value;
+}
+
+deepFreeze(window.CURRICULUM);
+Object.defineProperty(window, "CURRICULUM", {
+  writable: false,
+  configurable: false,
+});
