@@ -18,7 +18,6 @@ let autorun = false;
 let autorunTimer = null;
 let shortcutsVisible = false;
 let fsPanelVisible = false;
-let previewSize = "desktop";
 let xp = 0;
 let streak = 0;
 let lastRunLesson = null;
@@ -650,7 +649,6 @@ function toggleAutorun() {
    PREVIEW SIZE  (desktop / tablet / mobile)
 ══════════════════════════════════════════════════════════ */
 function setPreviewSize(size) {
-  previewSize = size;
   const frame = document.getElementById("previewFrame");
   frame.className = "preview-iframe" + (size === "desktop" ? "" : " " + size);
 
@@ -895,3 +893,45 @@ document.addEventListener("click", e => {
    BOOT
 ══════════════════════════════════════════════════════════ */
 init();
+
+/* ════════════════════════════════════════════════════════════
+   Expose EVERY handler referenced by an inline HTML event
+   attribute (onclick / oninput / onkeydown / onscroll) on window.
+   In script mode these top-level functions are already global, so
+   this changes no behaviour — it documents the markup contract
+   explicitly and makes every handler visibly "used" to ESLint.
+   The list below mirrors the on*="…" attributes in index.html,
+   in document order; keep it in sync when markup handlers change.
+   (window.onerror, set in buildPreviewDoc, is the browser error
+   hook — not an inline handler — and is intentionally not listed.)
+════════════════════════════════════════════════════════════ */
+// Toolbar
+window.switchTab = switchTab;
+window.toggleAutorun = toggleAutorun;
+window.toggleFsPanel = toggleFsPanel;
+window.toggleShortcuts = toggleShortcuts;
+window.runCode = runCode;
+// Lesson search
+window.filterLessons = filterLessons;
+window.clearSearch = clearSearch;
+// Editor
+window.handleEditorKey = handleEditorKey;
+window.onEditorInput = onEditorInput;
+window.syncScroll = syncScroll;
+// Lesson pane / navigation
+window.toggleLessonPane = toggleLessonPane;
+window.navLesson = navLesson;
+// Preview size + actions
+window.setPreviewSize = setPreviewSize;
+window.showResetModal = showResetModal;
+window.copyAllCode = copyAllCode;
+// Console
+window.toggleConsole = toggleConsole;
+// Font size
+window.changeFontSize = changeFontSize;
+// Reset modal
+window.hideResetModal = hideResetModal;
+window.confirmReset = confirmReset;
+// Completion modal
+window.hideCompletion = hideCompletion;
+window.restartAll = restartAll;
