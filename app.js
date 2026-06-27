@@ -252,6 +252,71 @@ function handleEditorKey(e) {
     el.value = el.value.substring(0, s) + ins + el.value.substring(end);
     el.selectionStart = el.selectionEnd = s + ins.length;
     onEditorInput();
+    return;
+  }
+
+  // Auto-close brackets and quotes (as advertised in the README feature table).
+  const PAIRS = { "(": ")", "[": "]", "{": "}", '"': '"', "'": "'", "`": "`" };
+  const CLOSERS = new Set(Object.values(PAIRS));
+  const nextChar = el.value.charAt(end);
+
+  // Typing a closing char when the same char is already next → step over it
+  // instead of inserting a duplicate. This is what makes auto-close feel
+  // natural rather than producing ")) " when you "close" a pair yourself.
+  if (CLOSERS.has(e.key) && nextChar === e.key && s === end) {
+    e.preventDefault();
+    el.selectionStart = el.selectionEnd = end + 1;
+    return;
+  }
+
+  // Typing an opening char (or a quote): insert the matching closer.
+  if (Object.prototype.hasOwnProperty.call(PAIRS, e.key)) {
+    const close = PAIRS[e.key];
+
+    // If there's a selection, wrap it in the pair (e.g. select foo, press "(" → (foo)).
+    if (s !== end) {
+      e.preventDefault();
+      const selected = el.value.substring(s, end);
+      el.value = el.value.substring(0, s) + e.key + selected + close + el.value.substring(end);
+      // Keep the original text selected, now sitting between the pair.
+      el.selectionStart = s + 1;
+      el.selectionEnd = end + 1;
+      onEditorInput();
+      return;
+    }
+
+    // For quotes, don't auto-close when typing directly after a word character
+    // (e.g. the apostrophe in don't) or before one — only the single quote is
+    // inserted in those cases so we don't mangle contractions or identifiers.
+    const isQuote = e.key === '"' || e.key === "'" || e.key === "`";
+    if (isQuote) {
+      const prevChar = el.value.charAt(s - 1);
+      const wordBefore = /[\w]/.test(prevChar);
+      const wordAfter = /[\w]/.test(nextChar);
+      // Also avoid doubling when the cursor is right before the same quote.
+      if (wordBefore || wordAfter || nextChar === e.key) {
+        return; // let the single character insert normally
+      }
+    }
+
+    e.preventDefault();
+    el.value = el.value.substring(0, s) + e.key + close + el.value.substring(end);
+    el.selectionStart = el.selectionEnd = s + 1; // caret between the pair
+    onEditorInput();
+    return;
+  }
+
+  // Backspace between an empty auto-closed pair → delete both characters,
+  // so deleting the opener you just typed also removes the inserted closer.
+  if (e.key === "Backspace" && s === end && s > 0) {
+    const prevChar = el.value.charAt(s - 1);
+    if (Object.prototype.hasOwnProperty.call(PAIRS, prevChar) && PAIRS[prevChar] === nextChar) {
+      e.preventDefault();
+      el.value = el.value.substring(0, s - 1) + el.value.substring(s + 1);
+      el.selectionStart = el.selectionEnd = s - 1;
+      onEditorInput();
+      return;
+    }
   }
 }
 
