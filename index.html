@@ -24,15 +24,15 @@
       <div class="header-center">
         <div id="challengeIndicator" class="challenge-indicator">⚔ CHALLENGE MODE</div>
 
-        <button class="tab-btn active" id="tabHTML" onclick="switchTab('html')">
+        <button type="button" class="tab-btn active" id="tabHTML" onclick="switchTab('html')">
           <span class="tab-dot" style="background: #f0641e"></span>
           HTML
         </button>
-        <button class="tab-btn" id="tabCSS" onclick="switchTab('css')">
+        <button type="button" class="tab-btn" id="tabCSS" onclick="switchTab('css')">
           <span class="tab-dot" style="background: #58a6ff"></span>
           CSS
         </button>
-        <button class="tab-btn" id="tabJS" onclick="switchTab('js')">
+        <button type="button" class="tab-btn" id="tabJS" onclick="switchTab('js')">
           <span class="tab-dot" style="background: #d29922"></span>
           JS
         </button>
@@ -51,10 +51,17 @@
           </div>
         </div>
 
-        <button class="icon-btn" id="fsSizeBtn" title="Font size" onclick="toggleFsPanel()">
+        <button
+          type="button"
+          class="icon-btn"
+          id="fsSizeBtn"
+          title="Font size"
+          onclick="toggleFsPanel()"
+        >
           Aa
         </button>
         <button
+          type="button"
           class="icon-btn"
           id="shortcutsBtn"
           title="Keyboard shortcuts"
@@ -62,7 +69,7 @@
         >
           ⌨
         </button>
-        <button class="run-btn" id="runBtn" onclick="runCode()">▶ Run</button>
+        <button type="button" class="run-btn" id="runBtn" onclick="runCode()">▶ Run</button>
       </div>
     </header>
 
@@ -77,12 +84,15 @@
           <div class="search-wrap">
             <span class="search-icon">🔍</span>
             <input
+              type="search"
               class="search-input"
               id="searchInput"
               placeholder="Search lessons…"
               oninput="filterLessons(this.value)"
             />
-            <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
+            <button type="button" class="search-clear" id="searchClear" onclick="clearSearch()">
+              ✕
+            </button>
           </div>
         </div>
 
@@ -124,16 +134,18 @@
         <div class="lesson-pane" id="lessonPane">
           <div class="lesson-pane-head" onclick="toggleLessonPane()">
             <span class="lesson-pane-title" id="lessonPaneTitle">📖 LESSON</span>
-            <button class="collapse-btn" id="collapseBtn">▼</button>
+            <button type="button" class="collapse-btn" id="collapseBtn">▼</button>
           </div>
           <div class="lesson-content" id="lessonContent"></div>
         </div>
 
         <!-- Prev / Next navigation -->
         <div class="lesson-nav">
-          <button class="nav-btn" id="prevBtn" onclick="navLesson(-1)">← Prev</button>
+          <button type="button" class="nav-btn" id="prevBtn" onclick="navLesson(-1)">← Prev</button>
           <span class="lesson-pos" id="lessonPos">1 / 16</span>
-          <button class="nav-btn primary" id="nextBtn" onclick="navLesson(1)">Next →</button>
+          <button type="button" class="nav-btn primary" id="nextBtn" onclick="navLesson(1)">
+            Next →
+          </button>
         </div>
       </div>
 
@@ -150,6 +162,7 @@
           <div class="preview-actions">
             <div class="preview-size-btns">
               <button
+                type="button"
                 class="size-btn active"
                 id="sizeDesktop"
                 onclick="setPreviewSize('desktop')"
@@ -158,6 +171,7 @@
                 🖥
               </button>
               <button
+                type="button"
                 class="size-btn"
                 id="sizeTablet"
                 onclick="setPreviewSize('tablet')"
@@ -166,6 +180,7 @@
                 📱
               </button>
               <button
+                type="button"
                 class="size-btn"
                 id="sizeMobile"
                 onclick="setPreviewSize('mobile')"
@@ -174,14 +189,23 @@
                 📲
               </button>
             </div>
-            <button class="icon-btn" title="Refresh" onclick="runCode()">↻</button>
-            <button class="icon-btn" title="Reset code" onclick="showResetModal()">⟳</button>
-            <button class="icon-btn" title="Copy all code" onclick="copyAllCode()">⎘</button>
+            <button type="button" class="icon-btn" title="Refresh" onclick="runCode()">↻</button>
+            <button type="button" class="icon-btn" title="Reset code" onclick="showResetModal()">
+              ⟳
+            </button>
+            <button type="button" class="icon-btn" title="Copy all code" onclick="copyAllCode()">
+              ⎘
+            </button>
           </div>
         </div>
 
         <div class="preview-iframe-wrap" id="iframeWrap">
-          <iframe class="preview-iframe" id="previewFrame" sandbox="allow-scripts"></iframe>
+          <iframe
+            class="preview-iframe"
+            id="previewFrame"
+            sandbox="allow-scripts"
+            title="Live preview"
+          ></iframe>
           <div class="preview-overlay" id="previewOverlay">
             <div class="spinner"></div>
             Running…
@@ -197,6 +221,7 @@
             </div>
             <div class="console-actions">
               <button
+                type="button"
                 class="tiny-btn"
                 onclick="
                   event.stopPropagation();
@@ -206,6 +231,7 @@
                 Clear
               </button>
               <button
+                type="button"
                 class="collapse-btn"
                 id="consolCollapseBtn"
                 style="
@@ -335,8 +361,8 @@
           code.
         </p>
         <div class="modal-btns">
-          <button class="btn-cancel" onclick="hideResetModal()">Cancel</button>
-          <button class="btn-confirm" onclick="confirmReset()">Reset</button>
+          <button type="button" class="btn-cancel" onclick="hideResetModal()">Cancel</button>
+          <button type="button" class="btn-confirm" onclick="confirmReset()">Reset</button>
         </div>
       </div>
     </div>
@@ -353,8 +379,8 @@
           <strong id="finalXp" style="color: var(--purple)">0</strong>
         </p>
         <div class="completion-btns">
-          <button class="btn-green" onclick="hideCompletion()">Keep Exploring</button>
-          <button class="btn-outline" onclick="restartAll()">Restart</button>
+          <button type="button" class="btn-green" onclick="hideCompletion()">Keep Exploring</button>
+          <button type="button" class="btn-outline" onclick="restartAll()">Restart</button>
         </div>
       </div>
     </div>
