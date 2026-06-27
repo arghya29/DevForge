@@ -255,6 +255,11 @@ function handleEditorKey(e) {
     return;
   }
 
+  // Don't hijack keyboard shortcuts (e.g. Cmd+[, Ctrl+], Alt+combos) or mangle
+  // their input. Shift is intentionally NOT included — "(", "{", '"', etc. are
+  // shifted characters and must still auto-close.
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+
   // Auto-close brackets and quotes (as advertised in the README feature table).
   const PAIRS = { "(": ")", "[": "]", "{": "}", '"': '"', "'": "'", "`": "`" };
   const CLOSERS = new Set(Object.values(PAIRS));
