@@ -83,10 +83,18 @@
           <div class="sidebar-title">Curriculum</div>
           <div class="search-wrap">
             <span class="search-icon">🔍</span>
-            <label for="searchInput"
-            style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);" >
-    Search lessons
-</label>
+            <label
+              for="searchInput"
+              style="
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+                clip: rect(0, 0, 0, 0);
+              "
+            >
+              Search lessons
+            </label>
 
             <input
               type="search"
@@ -95,8 +103,14 @@
               placeholder="Search lessons…"
               oninput="filterLessons(this.value)"
             />
-            <button type="button" class="search-clear" id="searchClear" onclick="clearSearch()">
-              
+            <button
+              type="button"
+              class="search-clear"
+              id="searchClear"
+              onclick="clearSearch()"
+              aria-label="Clear search"
+            >
+              &times;
             </button>
           </div>
         </div>
