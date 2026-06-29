@@ -272,7 +272,13 @@ function handleEditorKey(e) {
     el.selectionStart = el.selectionEnd = end + 1;
     return;
   }
-
+const isQuote =e.key === '"' || e.key === "'" || e.key === "`";
+   if(isQuote){
+      const prevChar =el.value.charAt(s-1);
+      const wordBefore = /[\w]/.test(prevChar);
+      const wordAfter = /[\w]/.test(nextChar);
+      if (wordBefore || wordAfter || nextChar === e.key) return;
+  }
   // Typing an opening char (or a quote): insert the matching closer.
    if (Object.prototype.hasOwnProperty.call(PAIRS, e.key)) {
        const close = PAIRS[e.key];
@@ -296,7 +302,7 @@ function handleEditorKey(e) {
       // 3. Insert the closing char
       document.execCommand('insertText', false, close);
       // 4. Move caret back inside
-      el.setSelectionRange(newPos, newPos);
+      el.setSelectionRange(newPos,newPos);
       onEditorInput();
     }, 0);
 
