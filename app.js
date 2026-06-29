@@ -273,7 +273,7 @@ function handleEditorKey(e) {
     return;
   }
 const isQuote =e.key === '"' || e.key === "'" || e.key === "`";
-   if(isQuote){
+   if (isQuote && s === end) {
       const prevChar =el.value.charAt(s-1);
       const wordBefore = /[\w]/.test(prevChar);
       const wordAfter = /[\w]/.test(nextChar);
