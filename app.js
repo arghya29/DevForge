@@ -227,7 +227,7 @@ function syncScroll(el) {
 }
 
 function handleEditorKey(e) {
-  const el = e.target;  
+  const el = e.target;
   const s = el.selectionStart;
   const end = el.selectionEnd;
 
@@ -292,8 +292,8 @@ function handleEditorKey(e) {
      e.preventDefault();
 
     // 1. First, insert the opening char and any selected text
-    const firstPart = e.key + selected;
-    document.execCommand('insertText', false, firstPart);
+     const firstPart = e.key + selected;
+     document.execCommand('insertText', false, firstPart);
 
     // 2. Use a timeout to force the closer as a separate undoable action
     setTimeout(() => {
@@ -306,7 +306,6 @@ function handleEditorKey(e) {
       el.setSelectionRange(newPos,newPos);
       onEditorInput();
     }, 0);
-
     return;
   }
     // For quotes, don't auto-close when typing directly after a word character
