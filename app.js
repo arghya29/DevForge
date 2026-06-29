@@ -231,7 +231,6 @@ function handleEditorKey(e) {
   const s = el.selectionStart;
   const end = el.selectionEnd;
 
-   
   // Tab → insert 2 spaces
   if (e.key === "Tab") {
     e.preventDefault();
