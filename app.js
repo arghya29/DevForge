@@ -227,10 +227,11 @@ function syncScroll(el) {
 }
 
 function handleEditorKey(e) {
-  const el = e.target;
+  const el = e.target;  
   const s = el.selectionStart;
   const end = el.selectionEnd;
 
+   
   // Tab → insert 2 spaces
   if (e.key === "Tab") {
     e.preventDefault();
@@ -272,7 +273,7 @@ function handleEditorKey(e) {
     el.selectionStart = el.selectionEnd = end + 1;
     return;
   }
-const isQuote =e.key === '"' || e.key === "'" || e.key === "`";
+   const isQuote =e.key === '"' || e.key === "'" || e.key === "`";
    if (isQuote && s === end) {
       const prevChar =el.value.charAt(s-1);
       const wordBefore = /[\w]/.test(prevChar);
@@ -287,8 +288,8 @@ const isQuote =e.key === '"' || e.key === "'" || e.key === "`";
 // Typing an opening char: insert the matching closer.
    if (Object.prototype.hasOwnProperty.call(PAIRS, e.key)) {
      const close = PAIRS[e.key];
-    const selected = (s !== end) ? el.value.substring(s, end) : "";
-    e.preventDefault();
+     const selected = (s !== end) ? el.value.substring(s, end) : "";
+     e.preventDefault();
 
     // 1. First, insert the opening char and any selected text
     const firstPart = e.key + selected;
