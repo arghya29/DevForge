@@ -274,21 +274,34 @@ function handleEditorKey(e) {
   }
 
   // Typing an opening char (or a quote): insert the matching closer.
-  if (Object.prototype.hasOwnProperty.call(PAIRS, e.key)) {
-    const close = PAIRS[e.key];
+   if (Object.prototype.hasOwnProperty.call(PAIRS, e.key)) {
+       const close = PAIRS[e.key];
 
     // If there's a selection, wrap it in the pair (e.g. select foo, press "(" → (foo)).
-    if (s !== end) {
-      e.preventDefault();
-      const selected = el.value.substring(s, end);
-      el.value = el.value.substring(0, s) + e.key + selected + close + el.value.substring(end);
-      // Keep the original text selected, now sitting between the pair.
-      el.selectionStart = s + 1;
-      el.selectionEnd = end + 1;
-      onEditorInput();
-      return;
-    }
+// Typing an opening char: insert the matching closer.
+   if (Object.prototype.hasOwnProperty.call(PAIRS, e.key)) {
+     const close = PAIRS[e.key];
+    const selected = (s !== end) ? el.value.substring(s, end) : "";
+    e.preventDefault();
 
+    // 1. First, insert the opening char and any selected text
+    const firstPart = e.key + selected;
+    document.execCommand('insertText', false, firstPart);
+
+    // 2. Use a timeout to force the closer as a separate undoable action
+    setTimeout(() => {
+      // Move caret to after the first part
+      const newPos = s + firstPart.length;
+      el.setSelectionRange(newPos, newPos);
+      // 3. Insert the closing char
+      document.execCommand('insertText', false, close);
+      // 4. Move caret back inside
+      el.setSelectionRange(s + 1, s + 1);
+      onEditorInput();
+    }, 0);
+
+    return;
+  }
     // For quotes, don't auto-close when typing directly after a word character
     // (e.g. the apostrophe in don't) or before one — only the single quote is
     // inserted in those cases so we don't mangle contractions or identifiers.
@@ -323,6 +336,7 @@ function handleEditorKey(e) {
     }
   }
 }
+
 
 /* ══════════════════════════════════════════════════════════
    SYNTAX HIGHLIGHTING
