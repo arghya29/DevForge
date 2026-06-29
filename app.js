@@ -296,7 +296,7 @@ function handleEditorKey(e) {
       // 3. Insert the closing char
       document.execCommand('insertText', false, close);
       // 4. Move caret back inside
-      el.setSelectionRange(s + 1, s + 1);
+      el.setSelectionRange(newPos, newPos);
       onEditorInput();
     }, 0);
 
