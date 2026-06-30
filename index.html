@@ -39,6 +39,7 @@
       </div>
 
       <div class="header-right">
+        <button type="button" class="sidebar-toggle icon-btn" id="sidebarToggleBtn" onclick="toggleSidebar()" title="Toggle sidebar" aria-label="Toggle sidebar">☰</button>
         <div class="autorun-wrap" onclick="toggleAutorun()" title="Auto-run on edit">
           <div class="toggle" id="autorunToggle"></div>
           <span id="autorunLabel">Auto</span>
@@ -80,7 +81,10 @@
       <!-- ── SIDEBAR ── -->
       <aside class="sidebar">
         <div class="sidebar-head">
-          <div class="sidebar-title">Curriculum</div>
+          <div class="sidebar-title">
+          <span>Curriculum</span>
+          <button type="button" class="sidebar-close-btn" id="sidebarCloseBtn" onclick="toggleSidebar()" aria-label="Close sidebar">&times;</button>
+        </div>
           <div class="search-wrap">
             <span class="search-icon">🔍</span>
             <label

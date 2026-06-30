@@ -5,6 +5,22 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.1.0] — 2026-06-30
+
+### Added
+
+- Touch event support for the drag resizer — enables column resizing on tablets and phones
+- Responsive sidebar toggle: sidebar collapses on screens ≤768px with a ☰ toggle button
+- Mobile-optimized layout: sidebar slides in/out, resizer hidden on mobile, progress bar hidden
+- `toggleSidebar()` function and `sidebarOpen` state variable
+- Automatic sidebar collapse on load for narrow viewports
+
+### Changed
+
+- `initResizer()` refactored to use shared `getPointerX`, `startDrag`, `moveDrag`, `stopDrag` helpers
+- Sidebar title now includes a close button for mobile dismiss
+- Added `touchstart`/`touchmove`/`touchend` listeners alongside mouse events
+
 ## [1.0.0] — 2025-06-19
 
 ### Added
