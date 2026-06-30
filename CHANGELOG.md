@@ -5,6 +5,16 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.1.0] — 2026-06-30
+
+### Added
+
+- Light theme with full color palette override via `[data-theme="light"]`
+- Theme toggle button in header (🌙/☀️) with localStorage persistence
+- `toggleTheme()` and `applySavedTheme()` functions
+- Theme preference saved as `devforge_theme` in localStorage
+- Dark/Light Theme entry in README features table
+
 ## [1.0.0] — 2025-06-19
 
 ### Added

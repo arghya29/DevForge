@@ -22,6 +22,7 @@ let xp = 0;
 let streak = 0;
 let lastRunLesson = null;
 let errorCount = 0;
+let darkTheme = true;
 
 const doneSet = new Set(); // lesson ids that have been run at least once
 const buffers = {}; // { [lessonId]: { html, css, js } }  — user edits
@@ -46,6 +47,7 @@ function getLessonIndex(id) {
    BOOTSTRAP
 ══════════════════════════════════════════════════════════ */
 function init() {
+  applySavedTheme();
   buildSidebar();
   loadLesson(currentLessonId);
   updateProgress();
@@ -743,6 +745,28 @@ function toggleShortcuts() {
 }
 
 /* ══════════════════════════════════════════════════════════
+   THEME TOGGLE
+══════════════════════════════════════════════════════════ */
+function toggleTheme() {
+  darkTheme = !darkTheme;
+  document.documentElement.setAttribute("data-theme", darkTheme ? "" : "light");
+  document.getElementById("themeToggleBtn").textContent = darkTheme ? "🌙" : "☀️";
+  try { localStorage.setItem("devforge_theme", darkTheme ? "dark" : "light"); } catch () {}
+}
+
+function applySavedTheme() {
+  try {
+    const saved = localStorage.getItem("devforge_theme");
+    if (saved === "light") {
+      darkTheme = false;
+      document.documentElement.setAttribute("data-theme", "light");
+      const btn = document.getElementById("themeToggleBtn");
+      if (btn) btn.textContent = "☀️";
+    }
+  } catch () {}
+}
+
+/* ══════════════════════════════════════════════════════════
    COMPLETION BANNER + CONFETTI
 ══════════════════════════════════════════════════════════ */
 function showCompletion() {
@@ -926,6 +950,7 @@ init();
 ════════════════════════════════════════════════════════════ */
 // Toolbar
 window.switchTab = switchTab;
+window.toggleTheme = toggleTheme;
 window.toggleAutorun = toggleAutorun;
 window.toggleFsPanel = toggleFsPanel;
 window.toggleShortcuts = toggleShortcuts;

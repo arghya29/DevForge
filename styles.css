@@ -13,7 +13,7 @@
 }
 
 :root {
-  /* Color palette */
+  /* Color palette — dark theme */
   --bg: #0d1117;
   --surface: #161b22;
   --surface2: #1c2128;
@@ -44,6 +44,29 @@
   /* Layout */
   --sidebar-w: 272px;
   --header-h: 52px;
+}
+
+/* Light theme overrides */
+[data-theme="light"] {
+  --bg: #ffffff;
+  --surface: #f6f8fa;
+  --surface2: #eaeef2;
+  --surface3: #d0d7de;
+  --border: #d0d7de;
+  --text: #1f2328;
+  --muted: #656d76;
+  --cyan: #0969da;
+  --cyan-dim: #ddf4ff;
+  --amber: #9a6700;
+  --amber-dim: #fff8c5;
+  --green: #1a7f37;
+  --green-dim: #dafbe1;
+  --red: #cf222e;
+  --red-dim: #ffebe9;
+  --purple: #8250df;
+  --purple-dim: #fbefff;
+  --pink: #bf3989;
+  --orange: #bd5612;
 }
 
 html,

@@ -155,6 +155,7 @@ DevForge/
 | **Auto-indent**         | Enter key matches current line indentation                        |
 | **Auto-close**          | Brackets and quotes auto-close as you type                        |
 | **Keyboard Shortcuts**  | Full set — see table below                                        |
+| **Dark/Light Theme**    | Toggle between dark and light mode with a persistent preference   |
 | **Completion Confetti** | Celebration when all 16 lessons are done                          |
 
 ### ⌨ Keyboard Shortcuts
