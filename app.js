@@ -25,6 +25,10 @@ let errorCount = 0;
 
 const doneSet = new Set(); // lesson ids that have been run at least once
 const buffers = {}; // { [lessonId]: { html, css, js } }  — user edits
+const scrollPositions = {}; // { [lessonId_tab]: scrollTop }
+const undoStacks = {}; // { [lessonId_tab]: [string] }
+const redoStacks = {}; // { [lessonId_tab]: [string] }
+const UNDO_MAX = 50;
 
 /* ══════════════════════════════════════════════════════════
    HELPERS — curriculum lookups
@@ -143,7 +147,9 @@ function loadLesson(id) {
 
 function saveCurrentBuffer() {
   if (!currentLessonId || !buffers[currentLessonId]) return;
-  buffers[currentLessonId][activeTab] = document.getElementById("codeEditor").value;
+  const editor = document.getElementById("codeEditor");
+  buffers[currentLessonId][activeTab] = editor.value;
+  scrollPositions[currentLessonId + "_" + activeTab] = editor.scrollTop;
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -189,17 +195,65 @@ function loadTab(tab) {
   updateLineNums();
   highlight();
 
-  // Glitch-in animation on switch
+  requestAnimationFrame(() => {
+    const key = currentLessonId + "_" + tab;
+    if (scrollPositions[key] !== undefined) {
+      editor.scrollTop = scrollPositions[key];
+    }
+  });
+
   editor.classList.add("glitch-in");
   setTimeout(() => editor.classList.remove("glitch-in"), 400);
 }
 
 /* ══════════════════════════════════════════════════════════
+   UNDO / REDO
+══════════════════════════════════════════════════════════ */
+function editorUndo() {
+  const key = currentLessonId + "_" + activeTab;
+  const stack = undoStacks[key];
+  if (!stack || stack.length < 2) return;
+  const current = stack.pop();
+  if (!redoStacks[key]) redoStacks[key] = [];
+  redoStacks[key].push(current);
+  const prev = stack[stack.length - 1];
+  applyEditorState(prev);
+}
+
+function editorRedo() {
+  const key = currentLessonId + "_" + activeTab;
+  const stack = redoStacks[key];
+  if (!stack || stack.length === 0) return;
+  const next = stack.pop();
+  if (!undoStacks[key]) undoStacks[key] = [];
+  undoStacks[key].push(next);
+  applyEditorState(next);
+}
+
+function applyEditorState(val) {
+  if (val === undefined) return;
+  const editor = document.getElementById("codeEditor");
+  editor.value = val;
+  buffers[currentLessonId][activeTab] = val;
+  updateLineNums();
+  highlight();
+  if (autorun) {
+    clearTimeout(autorunTimer);
+    autorunTimer = setTimeout(runCode, 900);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
    EDITOR EVENTS
 ══════════════════════════════════════════════════════════ */
+let undoPushTimer = null;
+
 function onEditorInput() {
   if (!buffers[currentLessonId]) return;
-  buffers[currentLessonId][activeTab] = document.getElementById("codeEditor").value;
+  const editor = document.getElementById("codeEditor");
+  const newVal = editor.value;
+  const key = currentLessonId + "_" + activeTab;
+  buffers[currentLessonId][activeTab] = newVal;
   updateLineNums();
   highlight();
 
@@ -207,6 +261,22 @@ function onEditorInput() {
     clearTimeout(autorunTimer);
     autorunTimer = setTimeout(runCode, 900);
   }
+
+  pushUndoState(key, newVal);
+}
+
+function pushUndoState(key, val) {
+  clearTimeout(undoPushTimer);
+  undoPushTimer = setTimeout(() => {
+    if (!undoStacks[key]) undoStacks[key] = [];
+    if (!redoStacks[key]) redoStacks[key] = [];
+    const last = undoStacks[key][undoStacks[key].length - 1];
+    if (last !== val && val !== undefined) {
+      undoStacks[key].push(val);
+      redoStacks[key] = [];
+      if (undoStacks[key].length > UNDO_MAX) undoStacks[key].shift();
+    }
+  }, 100);
 }
 
 function updateLineNums() {
@@ -883,6 +953,15 @@ document.addEventListener("keydown", e => {
     copyAllCode();
   }
 
+  if (ctrl && e.key === "z" && !e.shiftKey) {
+    e.preventDefault();
+    editorUndo();
+  }
+  if ((ctrl && e.key === "y") || (ctrl && e.shiftKey && e.key === "z")) {
+    e.preventDefault();
+    editorRedo();
+  }
+
   if (e.key === "Escape") {
     if (shortcutsVisible) toggleShortcuts();
     if (fsPanelVisible) toggleFsPanel();
@@ -951,6 +1030,9 @@ window.changeFontSize = changeFontSize;
 // Reset modal
 window.hideResetModal = hideResetModal;
 window.confirmReset = confirmReset;
+// Undo/redo
+window.editorUndo = editorUndo;
+window.editorRedo = editorRedo;
 // Completion modal
 window.hideCompletion = hideCompletion;
 window.restartAll = restartAll;

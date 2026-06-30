@@ -154,6 +154,8 @@ DevForge/
 | **Font Size**           | Slider from 11px to 20px                                          |
 | **Auto-indent**         | Enter key matches current line indentation                        |
 | **Auto-close**          | Brackets and quotes auto-close as you type                        |
+| **Undo / Redo**         | Ctrl+Z / Ctrl+Y to undo and redo editor changes                  |
+| **Tab Scroll Preserved**| Scroll position is remembered when switching between HTML/CSS/JS  |
 | **Keyboard Shortcuts**  | Full set — see table below                                        |
 | **Completion Confetti** | Celebration when all 16 lessons are done                          |
 
@@ -169,6 +171,8 @@ DevForge/
 | `Ctrl + 3`         | Switch to JS tab      |
 | `Ctrl + Shift + R` | Reset code to starter |
 | `Ctrl + Shift + C` | Copy all code         |
+| `Ctrl + Z`         | Undo last edit        |
+| `Ctrl + Y`         | Redo last undo        |
 | `Escape`           | Close any open panel  |
 
 ---

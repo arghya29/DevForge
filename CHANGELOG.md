@@ -5,6 +5,21 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.1.0] — 2026-06-30
+
+### Added
+
+- Undo/redo support for the code editor (Ctrl+Z / Ctrl+Y or Ctrl+Shift+Z)
+- Scroll position preservation when switching between HTML/CSS/JS tabs
+- `undoStacks`, `redoStacks`, and `scrollPositions` state containers
+- `editorUndo()`, `editorRedo()`, `applyEditorState()` functions with debounced push
+- Keyboard shortcuts documented in README.md
+
+### Changed
+
+- `loadTab()` now restores the scroll position of each tab via `requestAnimationFrame`
+- `saveCurrentBuffer()` now captures `editor.scrollTop` into `scrollPositions`
+
 ## [1.0.0] — 2025-06-19
 
 ### Added
