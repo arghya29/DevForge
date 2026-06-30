@@ -7,11 +7,13 @@
 
 "use strict";
 
+const STORAGE_KEY = "devforge_state";
+
 /* ══════════════════════════════════════════════════════════
    STATE
 ══════════════════════════════════════════════════════════ */
 let currentLessonId = CURRICULUM[0].lessons[0].id;
-let activeTab = "html"; // "html" | "css" | "js"
+let activeTab = "html";
 let lessonPaneOpen = true;
 let consolePaneOpen = true;
 let autorun = false;
@@ -23,8 +25,49 @@ let streak = 0;
 let lastRunLesson = null;
 let errorCount = 0;
 
-const doneSet = new Set(); // lesson ids that have been run at least once
-const buffers = {}; // { [lessonId]: { html, css, js } }  — user edits
+const doneSet = new Set();
+const buffers = {};
+
+/* ══════════════════════════════════════════════════════════
+   STATE PERSISTENCE (localStorage)
+══════════════════════════════════════════════════════════ */
+function saveState() {
+  try {
+    const data = {
+      version: 1,
+      xp,
+      streak,
+      doneSet: Array.from(doneSet),
+      autorun,
+      fontSize: document.documentElement.style.getPropertyValue("--fs"),
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch () {}
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (data.version !== 1) return;
+    xp = data.xp || 0;
+    streak = data.streak || 0;
+    if (Array.isArray(data.doneSet)) data.doneSet.forEach(id => doneSet.add(id));
+    if (data.autorun) {
+      autorun = true;
+      document.getElementById("autorunToggle").classList.add("on");
+      document.getElementById("autorunLabel").textContent = "Auto ✓";
+    }
+    if (data.fontSize) {
+      document.documentElement.style.setProperty("--fs", data.fontSize);
+      const slider = document.getElementById("fsSlider");
+      if (slider) slider.value = parseInt(data.fontSize);
+      const label = document.getElementById("fsValLabel");
+      if (label) label.textContent = data.fontSize;
+    }
+  } catch () {}
+}
 
 /* ══════════════════════════════════════════════════════════
    HELPERS — curriculum lookups
@@ -46,6 +89,7 @@ function getLessonIndex(id) {
    BOOTSTRAP
 ══════════════════════════════════════════════════════════ */
 function init() {
+  loadState();
   buildSidebar();
   loadLesson(currentLessonId);
   updateProgress();
@@ -484,6 +528,7 @@ function runCode() {
       document.getElementById("xpVal").textContent = xp;
       document.getElementById("streakLabel").textContent = `🔥 ${streak} streak`;
       showToast(`+${lesson.xp} XP earned! 🎉`, "success", "🏅");
+      saveState();
     }
     lastRunLesson = currentLessonId;
   }
@@ -657,6 +702,7 @@ function toggleAutorun() {
   autorun = !autorun;
   document.getElementById("autorunToggle").classList.toggle("on", autorun);
   document.getElementById("autorunLabel").textContent = autorun ? "Auto ✓" : "Auto";
+  saveState();
   showToast(
     autorun ? "Auto-run ON — preview updates as you type" : "Auto-run OFF",
     autorun ? "success" : "warn",
@@ -723,6 +769,7 @@ function changeFontSize(val) {
   document.documentElement.style.setProperty("--fs", val + "px");
   document.getElementById("fsValLabel").textContent = val + "px";
   updateLineNums();
+  saveState();
 }
 
 function toggleFsPanel() {
@@ -766,6 +813,8 @@ function restartAll() {
   buildSidebar();
   loadLesson(CURRICULUM[0].lessons[0].id);
   updateProgress();
+  saveState();
+  localStorage.removeItem(STORAGE_KEY);
 }
 
 function spawnConfetti() {
@@ -912,6 +961,7 @@ document.addEventListener("click", e => {
    BOOT
 ══════════════════════════════════════════════════════════ */
 init();
+window.addEventListener("beforeunload", saveState);
 
 /* ════════════════════════════════════════════════════════════
    Expose EVERY handler referenced by an inline HTML event

@@ -5,6 +5,16 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.1.0] — 2026-06-30
+
+### Added
+
+- State persistence system using localStorage (key: `devforge_state`)
+- XP, streak count, completed lessons, autorun toggle, and font size now survive page reload
+- `saveState()` and `loadState()` functions with version-gated schema
+- `beforeunload` event handler for state save on page close
+- `localStorage` declared as readonly global in ESLint config
+
 ## [1.0.0] — 2025-06-19
 
 ### Added
