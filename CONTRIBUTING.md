@@ -12,6 +12,9 @@ Thank you for your interest in contributing! DevForge is a beginner-friendly pro
 - [Project Structure](#project-structure)
 - [Adding a Lesson](#adding-a-lesson)
 - [Running CI Checks Locally](#running-ci-checks-locally)
+- [CI/CD and Deployment](#cicd-and-deployment)
+- [Automated Dependency Management](#automated-dependency-management)
+- [Issue Templates](#issue-templates)
 - [Reporting Bugs](#reporting-bugs)
 - [Pull Request Guidelines](#pull-request-guidelines)
 - [Style Guide](#style-guide)
@@ -229,6 +232,20 @@ npm run format:fix    # Prettier rewrites files in place
 | Format Check  | Prettier      | Inconsistent indentation, quote style, trailing commas                 |
 
 > **Note:** `node_modules/` is in `.gitignore` — never commit it.
+
+---
+
+## Issue Templates
+
+DevForge provides several issue templates to help you report problems effectively:
+
+| Template | File | When to use |
+| -------- | ---- | ----------- |
+| **Bug Report** | `.github/ISSUE_TEMPLATE/bug_report.md` | Something is broken or behaving incorrectly |
+| **Feature Request** | `.github/ISSUE_TEMPLATE/feature_request.md` | Suggest a new feature, lesson, or improvement |
+| **Documentation Request** | `.github/ISSUE_TEMPLATE/documentation_request.md` | Missing or unclear documentation |
+
+If your issue doesn't fit these templates, feel free to open a blank issue.
 
 ---
 
