@@ -683,10 +683,33 @@ function setPreviewSize(size) {
 ══════════════════════════════════════════════════════════ */
 function showResetModal() {
   document.getElementById("resetModal").classList.add("show");
+  document.getElementById("resetModal").focus();
+  // Trap focus inside modal
+  document.addEventListener("keydown", trapModalFocus);
 }
 
 function hideResetModal() {
   document.getElementById("resetModal").classList.remove("show");
+  document.removeEventListener("keydown", trapModalFocus);
+  document.getElementById("runBtn").focus();
+}
+
+function trapModalFocus(e) {
+  const modal = document.getElementById("resetModal");
+  if (!modal.classList.contains("show")) return;
+  const focusable = modal.querySelectorAll('button, [tabindex]:not([tabindex="-1"])');
+  if (focusable.length === 0) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (e.key === "Tab") {
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
 }
 
 function confirmReset() {
@@ -802,6 +825,15 @@ function showToast(msg, type = "info", icon = "") {
   toast.className = `toast show ${type}`;
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toast.classList.remove("show"), 3200);
+  announce(msg);
+}
+
+function announce(msg) {
+  const el = document.getElementById("srAnnouncer");
+  if (el) {
+    el.textContent = "";
+    requestAnimationFrame(() => { el.textContent = msg; });
+  }
 }
 
 /* ══════════════════════════════════════════════════════════

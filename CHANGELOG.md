@@ -5,6 +5,23 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.1.0] — 2026-06-30
+
+### Added
+
+- Keyboard focus trap in reset modal (Tab/Shift+Tab cycles within modal)
+- `trapModalFocus()` event handler for modal keyboard navigation
+- Screen reader announcer element with `aria-live="polite"` for dynamic content
+- `announce()` helper that updates the live region for toast messages
+- `.sr-only` utility class for visually hidden accessible content
+- `role="dialog"`, `aria-modal`, `aria-labelledby` on reset modal
+- `role="alert"` and `aria-live="assertive"` on toast notification
+
+### Fixed
+
+- Focus returns to Run button after modal closes
+- Modal receives focus when opened
+
 ## [1.0.0] — 2025-06-19
 
 ### Added

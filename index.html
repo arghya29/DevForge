@@ -366,15 +366,18 @@
     </div>
 
     <!-- Toast notification -->
-    <div class="toast" id="toast">
+    <div class="toast" id="toast" role="alert" aria-live="assertive">
       <span class="toast-icon" id="toastIcon"></span>
       <span id="toastMsg"></span>
     </div>
 
+    <!-- Screen reader announcer (visually hidden, always reads updates) -->
+    <div id="srAnnouncer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
     <!-- Reset confirmation modal -->
-    <div class="modal-overlay" id="resetModal">
+    <div class="modal-overlay" id="resetModal" role="dialog" aria-modal="true" aria-labelledby="resetModalTitle" tabindex="-1">
       <div class="modal">
-        <h3>Reset to starter code?</h3>
+        <h3 id="resetModalTitle">Reset to starter code?</h3>
         <p>
           This will discard your current edits for this lesson and restore the original starter
           code.
