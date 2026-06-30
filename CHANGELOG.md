@@ -5,6 +5,24 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.1.0] — 2026-06-30
+
+### Fixed
+
+- Critical bug in `handleEditorKey`: duplicate auto-close logic for brackets and quotes
+  caused redundant code paths with mismatched undo behavior. Refactored to a single
+  clean execution path with proper selection wrapping and fallback insertion.
+- Improved Escape key handling now also blurs the search input when open
+- Added missing ARIA roles (`role="banner"`, `role="tablist"`, `role="tab"`,
+  `role="switch"`, `role="progressbar"`) and `aria-live` regions for accessibility
+- Progress bar now updates `aria-valuenow` and `aria-valuetext` attributes dynamically
+- Autorun toggle now reflects its state in the `aria-checked` attribute
+
+### Changed
+
+- Restructured auto-close logic to eliminate nested duplicate `PAIRS` checks
+- Consolidated duplicate `isQuote` guard clauses into a single check
+
 ## [1.0.0] — 2025-06-19
 
 ### Added
