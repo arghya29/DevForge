@@ -5,6 +5,15 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.1.0] — 2026-06-30
+
+### Added
+
+- ARCHITECTURE.md with data flow diagrams, component boundaries, state management, and design rationale
+- API.md with complete reference of every global function, signature, and behaviour
+- Cross-reference links from README.md to ARCHITECTURE.md and API.md
+- Architecture & API Docs section in CONTRIBUTING.md
+
 ## [1.0.0] — 2025-06-19
 
 ### Added

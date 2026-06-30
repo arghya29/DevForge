@@ -102,6 +102,8 @@ DevForge/
 | `curriculum.js` | Single `CURRICULUM` array — add new lessons here, nothing else changes |
 | `app.js`        | Brain — sidebar, editor, run/preview, console, XP, keyboard shortcuts  |
 
+📖 **Detailed architecture and API docs:** [ARCHITECTURE.md](./ARCHITECTURE.md), [API.md](./API.md)
+
 ---
 
 ## 📚 Curriculum (16 lessons · 455 XP total)

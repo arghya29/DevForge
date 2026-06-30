@@ -10,6 +10,7 @@ Thank you for your interest in contributing! DevForge is a beginner-friendly pro
 - [Branching Strategy](#branching-strategy)
 - [How to Contribute](#how-to-contribute)
 - [Project Structure](#project-structure)
+- [Architecture & API Docs](#architecture--api-docs)
 - [Adding a Lesson](#adding-a-lesson)
 - [Running CI Checks Locally](#running-ci-checks-locally)
 - [Reporting Bugs](#reporting-bugs)
@@ -136,6 +137,15 @@ DevForge/
         ├── bug_report.md
         └── feature_request.md
 ```
+
+---
+
+## Architecture & API Docs
+
+For a deeper understanding of how DevForge works internally:
+
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** — data flow, component boundaries, state management, design decisions
+- **[API.md](./API.md)** — complete reference of every global function, its signature, and behaviour
 
 ---
 
