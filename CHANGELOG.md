@@ -5,6 +5,17 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.1.0] — 2026-06-30
+
+### Added
+
+- Console output truncation at 2000 characters with ellipsis
+- Console line limit (max 200 lines) with automatic oldest-line removal
+- Auto-scroll lock: console stops auto-scrolling when user scrolls up
+- Copy-to-clipboard button on each console line (appears on hover)
+- Console filter input to search/filter log output in real-time
+- `filterConsole()`, `clearConsoleFilter()`, `copyConsoleText()` functions
+
 ## [1.0.0] — 2025-06-19
 
 ### Added
