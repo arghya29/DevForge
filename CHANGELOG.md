@@ -5,6 +5,23 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.1.0] — 2026-06-30
+
+### Added
+
+- GitHub Pages deploy workflow (`.github/workflows/deploy.yml`) for automated deployment
+- Dependabot configuration (`.github/dependabot.yml`) for weekly dependency updates
+- `workflow_dispatch` trigger on CI workflow for manual re-runs
+
+### Fixed
+
+- Removed duplicate badge section in README.md that was rendering identical badges twice
+
+### Changed
+
+- Enhanced CI workflow with `workflow_dispatch` trigger for manual execution
+- Updated CONTRIBUTING.md with CI/CD and Dependabot documentation
+
 ## [1.0.0] — 2025-06-19
 
 ### Added

@@ -8,11 +8,11 @@ name: CI Checks
 
 on:
   pull_request:
-    branches: [dev] # contributor PR targeting dev
+    branches: [dev]
   push:
-    branches: [dev, main] # push to dev OR push dev→main
+    branches: [dev, main]
+  workflow_dispatch:
 
-# Minimal permissions — CI only needs to read the code
 permissions:
   contents: read
 
@@ -21,9 +21,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # ─────────────────────────────────────────
-  #  JOB 1 — JavaScript Lint  (ESLint)
-  # ─────────────────────────────────────────
   lint-js:
     name: JS Lint (ESLint)
     runs-on: ubuntu-latest
@@ -45,9 +42,6 @@ jobs:
       - name: Run ESLint
         run: npm run lint:js
 
-  # ─────────────────────────────────────────
-  #  JOB 2 — Format Check  (Prettier)
-  # ─────────────────────────────────────────
   format-check:
     name: Format Check (Prettier)
     runs-on: ubuntu-latest
@@ -69,9 +63,6 @@ jobs:
       - name: Run Prettier check
         run: npm run format:check
 
-  # ─────────────────────────────────────────
-  #  JOB 3 — HTML Validate
-  # ─────────────────────────────────────────
   validate-html:
     name: HTML Validate
     runs-on: ubuntu-latest
