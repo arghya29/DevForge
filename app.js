@@ -913,6 +913,11 @@ document.addEventListener("click", e => {
 ══════════════════════════════════════════════════════════ */
 init();
 
+// Register service worker for offline/PWA support
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+
 /* ════════════════════════════════════════════════════════════
    Expose EVERY handler referenced by an inline HTML event
    attribute (onclick / oninput / onkeydown / onscroll) on window.

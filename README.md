@@ -154,6 +154,7 @@ DevForge/
 | **Font Size**           | Slider from 11px to 20px                                          |
 | **Auto-indent**         | Enter key matches current line indentation                        |
 | **Auto-close**          | Brackets and quotes auto-close as you type                        |
+| **PWA Offline**         | Installable as standalone app; works offline once loaded          |
 | **Keyboard Shortcuts**  | Full set — see table below                                        |
 | **Completion Confetti** | Celebration when all 16 lessons are done                          |
 
