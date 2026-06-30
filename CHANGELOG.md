@@ -5,6 +5,22 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.1.0] — 2026-06-30
+
+### Added
+
+- Content-Security-Policy meta tag in index.html to mitigate XSS in parent page
+- SECURITY.md with vulnerability disclosure policy and supported versions table
+- SUPPORT.md with links to docs, bug reports, feature requests, and discussions
+- FUNDING.yml placeholder for sponsor platforms
+- Security and accessibility guidelines in CONTRIBUTING.md
+
+### Changed
+
+- `escapeHtml()` sanitizer now handles double and single quotes (previously only `&`, `<`, `>`)
+- `escHtml()` highlighter sanitizer now also escapes backticks for safer template literal injection
+- Both sanitizers now have a defensive `typeof` check to prevent crashes on non-string input
+
 ## [1.0.0] — 2025-06-19
 
 ### Added
