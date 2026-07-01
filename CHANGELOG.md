@@ -9,6 +9,12 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- Stale issue/PR management workflow (`.github/workflows/stale.yml`) — auto-closes after 60d (issues) / 90d (PRs) of inactivity
+- PR labeler workflow (`.github/workflows/labeler.yml`) — auto-labels PRs by changed file paths
+- Labeler configuration (`.github/labeler-config.yml`) with 8 category labels
+- Issue template config (`.github/ISSUE_TEMPLATE/config.yml`) directing users to Discussions for questions
+- Documentation request issue template (`.github/ISSUE_TEMPLATE/documentation_request.md`)
+- Issue Templates section in CONTRIBUTING.md explaining available templates
 - Content-Security-Policy meta tag in index.html to mitigate XSS in parent page
 - SECURITY.md with vulnerability disclosure policy and supported versions table
 - SUPPORT.md with links to docs, bug reports, feature requests, and discussions
