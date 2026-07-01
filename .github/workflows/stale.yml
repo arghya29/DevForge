@@ -1,0 +1,50 @@
+# ═══════════════════════════════════════════════════════════
+#  DevForge — Stale Issue & PR Management
+#  Automatically marks inactive issues/PRs as stale and
+#  closes them after a grace period to keep the tracker
+#  focused on active work.
+# ═══════════════════════════════════════════════════════════
+
+name: Stale Issue & PR Manager
+
+on:
+  schedule:
+    - cron: "30 6 * * 1" # every Monday at 06:30 UTC
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    name: Mark stale items
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@5bef64f19d7facfb25b37b414482c7164d639639 # v9.1.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+          # Issues
+          days-before-issue-stale: 60
+          days-before-issue-close: 14
+          stale-issue-message: >
+            This issue has been inactive for 60 days. If there is no further
+            activity in the next 14 days, it will be automatically closed.
+          close-issue-message: >
+            This issue has been automatically closed due to inactivity.
+            Feel free to re-open if it is still relevant.
+          stale-issue-label: stale
+          exempt-issue-labels: "bug,security,help-wanted,good-first-issue"
+
+          # PRs
+          days-before-pr-stale: 90
+          days-before-pr-close: 21
+          stale-pr-message: >
+            This PR has been inactive for 90 days. If there is no further
+            activity in the next 21 days, it will be automatically closed.
+          close-pr-message: >
+            This PR has been automatically closed due to inactivity.
+            Please re-open if you plan to continue working on it.
+          stale-pr-label: stale
+          exempt-pr-labels: "dependencies,automerge"

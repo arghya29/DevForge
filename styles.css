@@ -75,6 +75,17 @@ body {
   background: var(--muted);
 }
 
+/* Focus-visible ring for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+button:focus:not(:focus-visible),
+input:focus:not(:focus-visible),
+textarea:focus:not(:focus-visible) {
+  outline: none;
+}
+
 /* ══════════════════════════════════════════════
    HEADER
 ══════════════════════════════════════════════ */
@@ -549,11 +560,11 @@ header {
     bottom: 0;
     z-index: 150;
     width: var(--sidebar-w);
-    transform: translateX(-100%);
+    transform: translateX(0);
     transition: transform 0.25s ease;
   }
   .sidebar.collapsed {
-    transform: translateX(0);
+    transform: translateX(-100%);
   }
   .sidebar.collapsed ~ .editor-panel {
     grid-column: 1 / span 3;
