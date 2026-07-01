@@ -26,6 +26,13 @@ let errorCount = 0;
 const doneSet = new Set(); // lesson ids that have been run at least once
 const buffers = {}; // { [lessonId]: { html, css, js } }  — user edits
 
+// Accessible-name labels for the code editor, keyed by the active language tab.
+const EDITOR_ARIA_LABELS = {
+  html: "HTML code editor",
+  css: "CSS code editor",
+  js: "JS code editor",
+};
+
 /* ══════════════════════════════════════════════════════════
    HELPERS — curriculum lookups
 ══════════════════════════════════════════════════════════ */
@@ -186,6 +193,7 @@ function loadTab(tab) {
 
   const editor = document.getElementById("codeEditor");
   editor.value = buf[tab] || "";
+  editor.setAttribute("aria-label", EDITOR_ARIA_LABELS[tab] || "Code editor");
   updateLineNums();
   highlight();
 
