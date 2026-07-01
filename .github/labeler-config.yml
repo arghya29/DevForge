@@ -1,0 +1,38 @@
+# ═══════════════════════════════════════════════════════════
+#  DevForge — PR Labeler Configuration
+#  Maps changed file paths to GitHub labels.
+#  Used by .github/workflows/labeler.yml
+# ═══════════════════════════════════════════════════════════
+
+"lesson ✏️":
+  - curriculum.js
+
+"css 🎨":
+  - styles.css
+
+"ui/ux 🖥":
+  - index.html
+  - styles.css
+
+"logic ⚙️":
+  - app.js
+
+"documentation 📝":
+  - "*.md"
+  - .github/**/*.md
+
+"ci/cd 🔄":
+  - .github/workflows/*
+  - .github/dependabot.yml
+
+"security 🔒":
+  - .github/SECURITY.md
+  - .github/security.md
+
+"config ⚙️":
+  - .github/labeler-config.yml
+  - .prettierrc
+  - eslint.config.js
+  - html-validate.json
+  - package.json
+  - .gitignore

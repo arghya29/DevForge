@@ -20,6 +20,7 @@ let autorun = false;
 let autorunTimer = null;
 let shortcutsVisible = false;
 let fsPanelVisible = false;
+let sidebarOpen = true;
 let xp = 0;
 let streak = 0;
 let lastRunLesson = null;
@@ -42,7 +43,9 @@ function saveState() {
       fontSize: document.documentElement.style.getPropertyValue("--fs"),
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch () {}
+  } catch (error) {
+    console.warn("Unable to save DevForge state", error);
+  }
 }
 
 function loadState() {
@@ -66,8 +69,17 @@ function loadState() {
       const label = document.getElementById("fsValLabel");
       if (label) label.textContent = data.fontSize;
     }
-  } catch () {}
+  } catch (error) {
+    console.warn("Unable to load DevForge state", error);
+  }
 }
+
+// Accessible-name labels for the code editor, keyed by the active language tab.
+const EDITOR_ARIA_LABELS = {
+  html: "HTML code editor",
+  css: "CSS code editor",
+  js: "JS code editor",
+};
 
 /* ══════════════════════════════════════════════════════════
    HELPERS — curriculum lookups
@@ -94,6 +106,13 @@ function init() {
   loadLesson(currentLessonId);
   updateProgress();
   initResizer();
+  if (window.innerWidth <= 768) {
+    sidebarOpen = false;
+    document.querySelector(".sidebar").classList.add("collapsed");
+    const sidebarToggleBtn = document.getElementById("sidebarToggleBtn");
+    sidebarToggleBtn.classList.add("active");
+    sidebarToggleBtn.setAttribute("aria-expanded", "false");
+  }
   console.info("DevForge initialised — " + getAllLessons().length + " lessons ready.");
 }
 
@@ -200,12 +219,15 @@ function buildFileTabs() {
   container.innerHTML = ["html", "css", "js"]
     .map(
       t => `
-    <div class="file-tab ${activeTab === t ? "active" : ""}"
+    <button type="button" class="file-tab ${activeTab === t ? "active" : ""}"
          id="fileTab-${t}"
+         role="tab"
+         aria-selected="${activeTab === t ? "true" : "false"}"
+         aria-controls="codeEditor"
          onclick="switchTab('${t}')">
       <span class="file-dot" style="background:${TAB_DOT_COLORS[t]}"></span>
       index.${t}
-    </div>`
+    </button>`
     )
     .join("");
 }
@@ -230,6 +252,7 @@ function loadTab(tab) {
 
   const editor = document.getElementById("codeEditor");
   editor.value = buf[tab] || "";
+  editor.setAttribute("aria-label", EDITOR_ARIA_LABELS[tab] || "Code editor");
   updateLineNums();
   highlight();
 
@@ -275,25 +298,25 @@ function handleEditorKey(e) {
   const s = el.selectionStart;
   const end = el.selectionEnd;
 
-  // Tab → insert 2 spaces
+  // Tab → insert 2 spaces. Uses execCommand so the edit lands on the textarea's
+  // native undo stack (Ctrl+Z), consistent with the auto-close paths below.
   if (e.key === "Tab") {
     e.preventDefault();
-    el.value = el.value.substring(0, s) + "  " + el.value.substring(end);
-    el.selectionStart = el.selectionEnd = s + 2;
+    document.execCommand("insertText", false, "  ");
     onEditorInput();
     return;
   }
 
-  // Enter → auto-indent
+  // Enter → auto-indent, carrying the current line's leading whitespace (and an
+  // extra level after an opening "{" or ":"). Uses execCommand so it, too, is
+  // undoable.
   if (e.key === "Enter") {
     e.preventDefault();
     const lines = el.value.substring(0, s).split("\n");
     const lastLine = lines[lines.length - 1];
     const indent = lastLine.match(/^(\s*)/)[1];
     const extra = /[{:]$/.test(lastLine.trimEnd()) ? "  " : "";
-    const ins = "\n" + indent + extra;
-    el.value = el.value.substring(0, s) + ins + el.value.substring(end);
-    el.selectionStart = el.selectionEnd = s + ins.length;
+    document.execCommand("insertText", false, "\n" + indent + extra);
     onEditorInput();
     return;
   }
@@ -307,88 +330,63 @@ function handleEditorKey(e) {
   const PAIRS = { "(": ")", "[": "]", "{": "}", '"': '"', "'": "'", "`": "`" };
   const CLOSERS = new Set(Object.values(PAIRS));
   const nextChar = el.value.charAt(end);
+  const isPairKey = Object.prototype.hasOwnProperty.call(PAIRS, e.key);
 
   // Typing a closing char when the same char is already next → step over it
-  // instead of inserting a duplicate. This is what makes auto-close feel
-  // natural rather than producing ")) " when you "close" a pair yourself.
   if (CLOSERS.has(e.key) && nextChar === e.key && s === end) {
     e.preventDefault();
     el.selectionStart = el.selectionEnd = end + 1;
     return;
   }
-   const isQuote =e.key === '"' || e.key === "'" || e.key === "`";
-   if (isQuote && s === end) {
-      const prevChar =el.value.charAt(s-1);
-      const wordBefore = /[\w]/.test(prevChar);
-      const wordAfter = /[\w]/.test(nextChar);
-      if (wordBefore || wordAfter || nextChar === e.key) return;
+
+  // For quotes, skip auto-close when adjacent to word characters
+  // to avoid mangling contractions (e.g. "don't") or identifiers.
+  const isQuote = e.key === '"' || e.key === "'" || e.key === "`";
+  if (isQuote && s === end) {
+    const prevChar = el.value.charAt(s - 1);
+    const wordBefore = /[\w]/.test(prevChar);
+    const wordAfter = /[\w]/.test(nextChar);
+    if (wordBefore || wordAfter || nextChar === e.key) return;
   }
-  // Typing an opening char (or a quote): insert the matching closer.
-   if (Object.prototype.hasOwnProperty.call(PAIRS, e.key)) {
-       const close = PAIRS[e.key];
 
-    // If there's a selection, wrap it in the pair (e.g. select foo, press "(" → (foo)).
-// Typing an opening char: insert the matching closer.
-   if (Object.prototype.hasOwnProperty.call(PAIRS, e.key)) {
-     const close = PAIRS[e.key];
-     const selected = (s !== end) ? el.value.substring(s, end) : "";
-     e.preventDefault();
-
-    // 1. First, insert the opening char and any selected text
-     const firstPart = e.key + selected;
-     document.execCommand('insertText', false, firstPart);
-
-    // 2. Use a timeout to force the closer as a separate undoable action
-    setTimeout(() => {
-      // Move caret to after the first part
-      const newPos = s + firstPart.length;
-      el.setSelectionRange(newPos, newPos);
-      // 3. Insert the closing char
-      document.execCommand('insertText', false, close);
-      // 4. Move caret back inside
-      el.setSelectionRange(newPos,newPos);
-      onEditorInput();
-    }, 0);
-    return;
-  }
-    // For quotes, don't auto-close when typing directly after a word character
-    // (e.g. the apostrophe in don't) or before one — only the single quote is
-    // inserted in those cases so we don't mangle contractions or identifiers.
-    const isQuote = e.key === '"' || e.key === "'" || e.key === "`";
-    if (isQuote) {
-      const prevChar = el.value.charAt(s - 1);
-      const wordBefore = /[\w]/.test(prevChar);
-      const wordAfter = /[\w]/.test(nextChar);
-      // Also avoid doubling when the cursor is right before the same quote.
-      if (wordBefore || wordAfter || nextChar === e.key) {
-        return; // let the single character insert normally
-      }
-    }
-
+  // Typing an opening bracket/brace/quote: insert the matching closer. If there's
+  // a selection, wrap it in the pair (e.g. select foo, press "(" → (foo)). The
+  // opener, any wrapped selection, and the closer are inserted as a single
+  // synchronous execCommand call, so the whole edit is one atomic action on the
+  // textarea's native undo stack (Ctrl+Z). Doing it in the same turn — rather
+  // than deferring the closer with setTimeout — also means we never mutate the
+  // editor through a stale el/selection reference if focus, the active tab, or
+  // the current lesson changes before a timer would have fired.
+  if (isPairKey) {
+    const close = PAIRS[e.key];
+    const selected = s !== end ? el.value.substring(s, end) : "";
     e.preventDefault();
-    el.value = el.value.substring(0, s) + e.key + close + el.value.substring(end);
-    el.selectionStart = el.selectionEnd = s + 1; // caret between the pair
+    document.execCommand("insertText", false, e.key + selected + close);
+    // Caret goes between the pair: after the opener and any wrapped selection,
+    // before the closer.
+    const caret = s + e.key.length + selected.length;
+    el.setSelectionRange(caret, caret);
     onEditorInput();
     return;
   }
 
-  // Backspace between an empty auto-closed pair → delete both characters,
-  // so deleting the opener you just typed also removes the inserted closer.
+  // Backspace between an empty auto-closed pair → delete both characters, so
+  // removing the opener you just typed also removes the inserted closer. Uses
+  // execCommand so the paired delete stays on the native undo stack.
   if (e.key === "Backspace" && s === end && s > 0) {
     const prevChar = el.value.charAt(s - 1);
     if (Object.prototype.hasOwnProperty.call(PAIRS, prevChar) && PAIRS[prevChar] === nextChar) {
       e.preventDefault();
-      el.value = el.value.substring(0, s - 1) + el.value.substring(s + 1);
-      el.selectionStart = el.selectionEnd = s - 1;
+      el.setSelectionRange(s - 1, s + 1);
+      document.execCommand("delete");
       onEditorInput();
       return;
     }
   }
 }
 
-
 /* ══════════════════════════════════════════════════════════
-   SYNTAX HIGHLIGHTING
+    SYNTAX HIGHLIGHTING
    (A simple regex-based highlighter — no external deps)
 ══════════════════════════════════════════════════════════ */
 function highlight() {
@@ -483,17 +481,25 @@ function highlightJS(code) {
 
 // Escape HTML for safe injection into the highlight layer
 function escHtml(s) {
+  if (typeof s !== "string") return "";
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;")
+    .replace(/`/g, "&#96;");
+}
+
+// Safe escape for user-provided strings inside innerHTML
+function escapeHtml(s) {
+  if (typeof s !== "string") return "";
   return s
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
-}
-
-// Safe escape for user-provided strings inside innerHTML
-function escapeHtml(s) {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -682,7 +688,13 @@ function toggleConsole() {
 function toggleLessonPane() {
   lessonPaneOpen = !lessonPaneOpen;
   document.getElementById("lessonPane").classList.toggle("collapsed", !lessonPaneOpen);
-  document.getElementById("collapseBtn").style.transform = lessonPaneOpen ? "" : "rotate(180deg)";
+  const collapseBtn = document.getElementById("collapseBtn");
+  collapseBtn.style.transform = lessonPaneOpen ? "" : "rotate(180deg)";
+  collapseBtn.setAttribute("aria-expanded", lessonPaneOpen ? "true" : "false");
+  collapseBtn.setAttribute(
+    "aria-label",
+    lessonPaneOpen ? "Collapse lesson panel" : "Expand lesson panel"
+  );
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -691,8 +703,14 @@ function toggleLessonPane() {
 function updateProgress() {
   const total = getAllLessons().length;
   const done = doneSet.size;
+  const pct = (done / total) * 100;
   document.getElementById("progressText").textContent = `${done}/${total}`;
-  document.getElementById("progressFill").style.width = `${(done / total) * 100}%`;
+  document.getElementById("progressFill").style.width = `${pct}%`;
+  const bar = document.getElementById("progressBar");
+  if (bar) {
+    bar.setAttribute("aria-valuenow", done);
+    bar.setAttribute("aria-valuetext", `${done} of ${total} lessons complete`);
+  }
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -702,6 +720,8 @@ function toggleAutorun() {
   autorun = !autorun;
   document.getElementById("autorunToggle").classList.toggle("on", autorun);
   document.getElementById("autorunLabel").textContent = autorun ? "Auto ✓" : "Auto";
+  const wrap = document.querySelector(".autorun-wrap");
+  if (wrap) wrap.setAttribute("aria-checked", autorun);
   saveState();
   showToast(
     autorun ? "Auto-run ON — preview updates as you type" : "Auto-run OFF",
@@ -720,7 +740,10 @@ function setPreviewSize(size) {
   ["desktop", "tablet", "mobile"].forEach(s => {
     const id = "size" + s.charAt(0).toUpperCase() + s.slice(1);
     const btn = document.getElementById(id);
-    if (btn) btn.classList.toggle("active", s === size);
+    if (btn) {
+      btn.classList.toggle("active", s === size);
+      btn.setAttribute("aria-pressed", s === size ? "true" : "false");
+    }
   });
 }
 
@@ -855,6 +878,7 @@ function showToast(msg, type = "info", icon = "") {
 
 /* ══════════════════════════════════════════════════════════
    DRAG RESIZER  (editor ↔ preview panel)
+   Supports mouse + touch for mobile/tablet devices.
 ══════════════════════════════════════════════════════════ */
 function initResizer() {
   const resizer = document.getElementById("resizer");
@@ -863,34 +887,58 @@ function initResizer() {
   let startX = 0;
   let startEditorW = 0;
 
-  resizer.addEventListener("mousedown", e => {
+  function getPointerX(e) {
+    return e.touches ? e.touches[0].clientX : e.clientX;
+  }
+
+  function startDrag(e) {
     dragging = true;
-    startX = e.clientX;
+    startX = getPointerX(e);
     const cols = getComputedStyle(workspace).gridTemplateColumns.split(" ");
     startEditorW = parseFloat(cols[1]);
     resizer.classList.add("dragging");
     document.body.style.userSelect = "none";
     document.body.style.cursor = "col-resize";
-  });
+  }
 
-  document.addEventListener("mousemove", e => {
+  function moveDrag(e) {
     if (!dragging) return;
-    const dx = e.clientX - startX;
+    e.preventDefault();
+    const dx = getPointerX(e) - startX;
     const sidebarW = parseFloat(
       getComputedStyle(document.documentElement).getPropertyValue("--sidebar-w")
     );
-    const totalW = workspace.offsetWidth - sidebarW - 4; // 4px resizer
+    const totalW = workspace.offsetWidth - sidebarW - 4;
     const newEditorW = Math.max(200, Math.min(startEditorW + dx, totalW - 200));
     workspace.style.gridTemplateColumns = `${sidebarW}px ${newEditorW}px 4px 1fr`;
-  });
+  }
 
-  document.addEventListener("mouseup", () => {
+  function stopDrag() {
     if (!dragging) return;
     dragging = false;
     resizer.classList.remove("dragging");
     document.body.style.userSelect = "";
     document.body.style.cursor = "";
-  });
+  }
+
+  resizer.addEventListener("mousedown", startDrag);
+  document.addEventListener("mousemove", moveDrag);
+  document.addEventListener("mouseup", stopDrag);
+
+  resizer.addEventListener("touchstart", startDrag, { passive: true });
+  document.addEventListener("touchmove", moveDrag, { passive: false });
+  document.addEventListener("touchend", stopDrag);
+}
+
+/* ══════════════════════════════════════════════════════════
+   SIDEBAR TOGGLE  (for mobile / narrow screens)
+══════════════════════════════════════════════════════════ */
+function toggleSidebar() {
+  sidebarOpen = !sidebarOpen;
+  document.querySelector(".sidebar").classList.toggle("collapsed", !sidebarOpen);
+  const sidebarToggleBtn = document.getElementById("sidebarToggleBtn");
+  sidebarToggleBtn.classList.toggle("active", !sidebarOpen);
+  sidebarToggleBtn.setAttribute("aria-expanded", String(sidebarOpen));
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -936,6 +984,9 @@ document.addEventListener("keydown", e => {
     if (shortcutsVisible) toggleShortcuts();
     if (fsPanelVisible) toggleFsPanel();
     hideResetModal();
+    if (document.activeElement && document.activeElement.id === "searchInput") {
+      document.activeElement.blur();
+    }
   }
 });
 
@@ -987,6 +1038,8 @@ window.clearSearch = clearSearch;
 window.handleEditorKey = handleEditorKey;
 window.onEditorInput = onEditorInput;
 window.syncScroll = syncScroll;
+// Sidebar
+window.toggleSidebar = toggleSidebar;
 // Lesson pane / navigation
 window.toggleLessonPane = toggleLessonPane;
 window.navLesson = navLesson;
