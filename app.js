@@ -231,25 +231,25 @@ function handleEditorKey(e) {
   const s = el.selectionStart;
   const end = el.selectionEnd;
 
-  // Tab → insert 2 spaces
+  // Tab → insert 2 spaces. Uses execCommand so the edit lands on the textarea's
+  // native undo stack (Ctrl+Z), consistent with the bracket auto-close below.
   if (e.key === "Tab") {
     e.preventDefault();
-    el.value = el.value.substring(0, s) + "  " + el.value.substring(end);
-    el.selectionStart = el.selectionEnd = s + 2;
+    document.execCommand("insertText", false, "  ");
     onEditorInput();
     return;
   }
 
-  // Enter → auto-indent
+  // Enter → auto-indent, carrying the current line's leading whitespace (and an
+  // extra level after an opening "{" or ":"). Uses execCommand so it, too, is
+  // undoable.
   if (e.key === "Enter") {
     e.preventDefault();
     const lines = el.value.substring(0, s).split("\n");
     const lastLine = lines[lines.length - 1];
     const indent = lastLine.match(/^(\s*)/)[1];
     const extra = /[{:]$/.test(lastLine.trimEnd()) ? "  " : "";
-    const ins = "\n" + indent + extra;
-    el.value = el.value.substring(0, s) + ins + el.value.substring(end);
-    el.selectionStart = el.selectionEnd = s + ins.length;
+    document.execCommand("insertText", false, "\n" + indent + extra);
     onEditorInput();
     return;
   }
@@ -266,82 +266,62 @@ function handleEditorKey(e) {
 
   // Typing a closing char when the same char is already next → step over it
   // instead of inserting a duplicate. This is what makes auto-close feel
-  // natural rather than producing ")) " when you "close" a pair yourself.
+  // natural rather than producing "))" when you "close" a pair yourself.
   if (CLOSERS.has(e.key) && nextChar === e.key && s === end) {
     e.preventDefault();
     el.selectionStart = el.selectionEnd = end + 1;
     return;
   }
-   const isQuote =e.key === '"' || e.key === "'" || e.key === "`";
-   if (isQuote && s === end) {
-      const prevChar =el.value.charAt(s-1);
-      const wordBefore = /[\w]/.test(prevChar);
-      const wordAfter = /[\w]/.test(nextChar);
-      if (wordBefore || wordAfter || nextChar === e.key) return;
+
+  // For quotes, don't auto-close when typing directly after a word character
+  // (e.g. the apostrophe in don't) or before one — only the single quote is
+  // inserted in those cases, so contractions and identifiers aren't mangled.
+  const isQuote = e.key === '"' || e.key === "'" || e.key === "`";
+  if (isQuote && s === end) {
+    const prevChar = el.value.charAt(s - 1);
+    const wordBefore = /[\w]/.test(prevChar);
+    const wordAfter = /[\w]/.test(nextChar);
+    if (wordBefore || wordAfter || nextChar === e.key) return;
   }
-  // Typing an opening char (or a quote): insert the matching closer.
-   if (Object.prototype.hasOwnProperty.call(PAIRS, e.key)) {
-       const close = PAIRS[e.key];
 
-    // If there's a selection, wrap it in the pair (e.g. select foo, press "(" → (foo)).
-// Typing an opening char: insert the matching closer.
-   if (Object.prototype.hasOwnProperty.call(PAIRS, e.key)) {
-     const close = PAIRS[e.key];
-     const selected = (s !== end) ? el.value.substring(s, end) : "";
-     e.preventDefault();
+  // Typing an opening char (or a quote): insert the matching closer. If there's
+  // a selection, wrap it in the pair (e.g. select foo, press "(" → (foo)).
+  if (Object.prototype.hasOwnProperty.call(PAIRS, e.key)) {
+    const close = PAIRS[e.key];
+    const selected = s !== end ? el.value.substring(s, end) : "";
+    e.preventDefault();
 
-    // 1. First, insert the opening char and any selected text
-     const firstPart = e.key + selected;
-     document.execCommand('insertText', false, firstPart);
+    // Insert the opener (and any selected text) first...
+    const firstPart = e.key + selected;
+    document.execCommand("insertText", false, firstPart);
 
-    // 2. Use a timeout to force the closer as a separate undoable action
+    // ...then insert the closer as a separate action, so each lands on the
+    // native undo stack independently (Ctrl+Z removes the closer, then the
+    // opener) and the caret ends up between the pair.
     setTimeout(() => {
-      // Move caret to after the first part
       const newPos = s + firstPart.length;
       el.setSelectionRange(newPos, newPos);
-      // 3. Insert the closing char
-      document.execCommand('insertText', false, close);
-      // 4. Move caret back inside
-      el.setSelectionRange(newPos,newPos);
+      document.execCommand("insertText", false, close);
+      el.setSelectionRange(newPos, newPos);
       onEditorInput();
     }, 0);
     return;
   }
-    // For quotes, don't auto-close when typing directly after a word character
-    // (e.g. the apostrophe in don't) or before one — only the single quote is
-    // inserted in those cases so we don't mangle contractions or identifiers.
-    const isQuote = e.key === '"' || e.key === "'" || e.key === "`";
-    if (isQuote) {
-      const prevChar = el.value.charAt(s - 1);
-      const wordBefore = /[\w]/.test(prevChar);
-      const wordAfter = /[\w]/.test(nextChar);
-      // Also avoid doubling when the cursor is right before the same quote.
-      if (wordBefore || wordAfter || nextChar === e.key) {
-        return; // let the single character insert normally
-      }
-    }
 
-    e.preventDefault();
-    el.value = el.value.substring(0, s) + e.key + close + el.value.substring(end);
-    el.selectionStart = el.selectionEnd = s + 1; // caret between the pair
-    onEditorInput();
-    return;
-  }
-
-  // Backspace between an empty auto-closed pair → delete both characters,
-  // so deleting the opener you just typed also removes the inserted closer.
+  // Backspace between an empty auto-closed pair → delete both characters, so
+  // removing the opener you just typed also removes the inserted closer. Uses
+  // execCommand so the paired delete stays on the native undo stack.
   if (e.key === "Backspace" && s === end && s > 0) {
     const prevChar = el.value.charAt(s - 1);
     if (Object.prototype.hasOwnProperty.call(PAIRS, prevChar) && PAIRS[prevChar] === nextChar) {
       e.preventDefault();
-      el.value = el.value.substring(0, s - 1) + el.value.substring(s + 1);
-      el.selectionStart = el.selectionEnd = s - 1;
+      el.setSelectionRange(s - 1, s + 1);
+      document.execCommand("delete");
       onEditorInput();
       return;
     }
   }
 }
-
 
 /* ══════════════════════════════════════════════════════════
    SYNTAX HIGHLIGHTING
