@@ -19,6 +19,7 @@ export default [
         window: "readonly",
         document: "readonly",
         navigator: "readonly",
+        localStorage: "readonly",
         getComputedStyle: "readonly",
         console: "readonly",
         setTimeout: "readonly",
@@ -55,9 +56,11 @@ export default [
       "no-var": "error", // use const/let only
       "prefer-const": "warn",
       "no-duplicate-case": "error",
+      "no-dupe-else-if": "error",
       "no-empty": "error",
       "no-extra-semi": "error",
       "no-unreachable": "error",
+      "no-lonely-if": "warn",
 
       // ── Style (warnings only, Prettier handles formatting) ─
       semi: ["warn", "always"],
