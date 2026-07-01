@@ -44,6 +44,7 @@ app.js            →  All application logic (state, editor, preview, console, X
 
 DevForge deliberately uses zero JavaScript frameworks or build tools.
 This keeps the project:
+
 - **Inspectable** — any developer can open index.html and understand the full stack
 - **Educational** — the audience is people learning their first lines of code
 - **Zero-setup** — clone and open; no `npm install` required to run
@@ -68,23 +69,25 @@ the parent renders the messages in the console panel.
 
 ## State Management
 
-| Variable     | Scope     | Persistence | Description                            |
-| ------------ | --------- | ----------- | -------------------------------------- |
-| buffers      | Memory    | Session     | User's code edits per lesson per tab   |
-| doneSet      | Memory    | Session     | Set of completed lesson IDs            |
-| xp           | Memory    | Session     | Total experience points                |
-| streak       | Memory    | Session     | Consecutive lesson completion streak   |
-| autorun      | Memory    | Session     | Auto-run toggle state                  |
-| fsPanelVisible | Memory  | Session     | Font size panel visibility             |
+| Variable       | Scope  | Persistence | Description                          |
+| -------------- | ------ | ----------- | ------------------------------------ |
+| buffers        | Memory | Session     | User's code edits per lesson per tab |
+| doneSet        | Memory | Session     | Set of completed lesson IDs          |
+| xp             | Memory | Session     | Total experience points              |
+| streak         | Memory | Session     | Consecutive lesson completion streak |
+| autorun        | Memory | Session     | Auto-run toggle state                |
+| fsPanelVisible | Memory | Session     | Font size panel visibility           |
 
 ## Component Boundaries
 
 ### Sidebar (`buildSidebar`, `filterLessons`, `clearSearch`)
+
 - Renders the lesson list grouped by chapter
 - Supports real-time search filtering
 - Highlights active lesson and marks completed ones
 
 ### Editor (`loadTab`, `switchTab`, `onEditorInput`, `handleEditorKey`)
+
 - Three virtual file tabs (HTML, CSS, JS) per lesson
 - Syntax highlighting via regex (no external parser)
 - Auto-indent on Enter, auto-close brackets/quotes
@@ -92,12 +95,14 @@ the parent renders the messages in the console panel.
 - Scroll position preservation per tab
 
 ### Preview (`runCode`, `buildPreviewDoc`, `extractBody`)
+
 - Constructs a standalone HTML document from user code
 - Injects console interception script
 - Sets iframe `srcdoc` to render the preview
 - Supports desktop/tablet/mobile viewport sizes
 
 ### Console (`addConsoleLog`, `clearConsoleUI`, `filterConsole`)
+
 - Intercepts iframe console messages via `message` event
 - Renders log/warn/error with timestamps
 - Truncates long lines, limits total line count
@@ -105,6 +110,7 @@ the parent renders the messages in the console panel.
 - Real-time filter/search input
 
 ### XP System (`runCode`, `updateProgress`, `showCompletion`)
+
 - Awards XP on first run of each lesson
 - Tracks consecutive streak
 - Updates progress bar in header
