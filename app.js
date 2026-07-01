@@ -171,12 +171,15 @@ function buildFileTabs() {
   container.innerHTML = ["html", "css", "js"]
     .map(
       t => `
-    <div class="file-tab ${activeTab === t ? "active" : ""}"
+    <button type="button" class="file-tab ${activeTab === t ? "active" : ""}"
          id="fileTab-${t}"
+         role="tab"
+         aria-selected="${activeTab === t ? "true" : "false"}"
+         aria-controls="codeEditor"
          onclick="switchTab('${t}')">
       <span class="file-dot" style="background:${TAB_DOT_COLORS[t]}"></span>
       index.${t}
-    </div>`
+    </button>`
     )
     .join("");
 }
@@ -636,7 +639,13 @@ function toggleConsole() {
 function toggleLessonPane() {
   lessonPaneOpen = !lessonPaneOpen;
   document.getElementById("lessonPane").classList.toggle("collapsed", !lessonPaneOpen);
-  document.getElementById("collapseBtn").style.transform = lessonPaneOpen ? "" : "rotate(180deg)";
+  const collapseBtn = document.getElementById("collapseBtn");
+  collapseBtn.style.transform = lessonPaneOpen ? "" : "rotate(180deg)";
+  collapseBtn.setAttribute("aria-expanded", lessonPaneOpen ? "true" : "false");
+  collapseBtn.setAttribute(
+    "aria-label",
+    lessonPaneOpen ? "Collapse lesson panel" : "Expand lesson panel"
+  );
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -681,7 +690,10 @@ function setPreviewSize(size) {
   ["desktop", "tablet", "mobile"].forEach(s => {
     const id = "size" + s.charAt(0).toUpperCase() + s.slice(1);
     const btn = document.getElementById(id);
-    if (btn) btn.classList.toggle("active", s === size);
+    if (btn) {
+      btn.classList.toggle("active", s === size);
+      btn.setAttribute("aria-pressed", s === size ? "true" : "false");
+    }
   });
 }
 
