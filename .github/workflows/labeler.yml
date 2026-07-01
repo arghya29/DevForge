@@ -1,0 +1,25 @@
+# ═══════════════════════════════════════════════════════════
+#  DevForge — PR Labeler
+#  Auto-labels pull requests based on changed file paths.
+#  Makes it easy to filter PRs by category.
+# ═══════════════════════════════════════════════════════════
+
+name: PR Labeler
+
+on:
+  pull_request_target:
+    types: [opened, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  label:
+    name: Apply labels
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/labeler@8558fd74291d67161a8a78ce36a881fa63b766a9 # v5.0.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          configuration-path: .github/labeler-config.yml
