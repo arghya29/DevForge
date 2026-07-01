@@ -232,7 +232,7 @@ function handleEditorKey(e) {
   const end = el.selectionEnd;
 
   // Tab → insert 2 spaces. Uses execCommand so the edit lands on the textarea's
-  // native undo stack (Ctrl+Z), consistent with the bracket auto-close below.
+  // native undo stack (Ctrl+Z), consistent with the auto-close paths below.
   if (e.key === "Tab") {
     e.preventDefault();
     document.execCommand("insertText", false, "  ");
@@ -263,19 +263,17 @@ function handleEditorKey(e) {
   const PAIRS = { "(": ")", "[": "]", "{": "}", '"': '"', "'": "'", "`": "`" };
   const CLOSERS = new Set(Object.values(PAIRS));
   const nextChar = el.value.charAt(end);
+  const isPairKey = Object.prototype.hasOwnProperty.call(PAIRS, e.key);
 
   // Typing a closing char when the same char is already next → step over it
-  // instead of inserting a duplicate. This is what makes auto-close feel
-  // natural rather than producing "))" when you "close" a pair yourself.
   if (CLOSERS.has(e.key) && nextChar === e.key && s === end) {
     e.preventDefault();
     el.selectionStart = el.selectionEnd = end + 1;
     return;
   }
 
-  // For quotes, don't auto-close when typing directly after a word character
-  // (e.g. the apostrophe in don't) or before one — only the single quote is
-  // inserted in those cases, so contractions and identifiers aren't mangled.
+  // For quotes, skip auto-close when adjacent to word characters
+  // to avoid mangling contractions (e.g. "don't") or identifiers.
   const isQuote = e.key === '"' || e.key === "'" || e.key === "`";
   if (isQuote && s === end) {
     const prevChar = el.value.charAt(s - 1);
@@ -284,27 +282,24 @@ function handleEditorKey(e) {
     if (wordBefore || wordAfter || nextChar === e.key) return;
   }
 
-  // Typing an opening char (or a quote): insert the matching closer. If there's
-  // a selection, wrap it in the pair (e.g. select foo, press "(" → (foo)).
-  if (Object.prototype.hasOwnProperty.call(PAIRS, e.key)) {
+  // Typing an opening bracket/brace/quote: insert the matching closer. If there's
+  // a selection, wrap it in the pair (e.g. select foo, press "(" → (foo)). The
+  // opener, any wrapped selection, and the closer are inserted as a single
+  // synchronous execCommand call, so the whole edit is one atomic action on the
+  // textarea's native undo stack (Ctrl+Z). Doing it in the same turn — rather
+  // than deferring the closer with setTimeout — also means we never mutate the
+  // editor through a stale el/selection reference if focus, the active tab, or
+  // the current lesson changes before a timer would have fired.
+  if (isPairKey) {
     const close = PAIRS[e.key];
     const selected = s !== end ? el.value.substring(s, end) : "";
     e.preventDefault();
-
-    // Insert the opener (and any selected text) first...
-    const firstPart = e.key + selected;
-    document.execCommand("insertText", false, firstPart);
-
-    // ...then insert the closer as a separate action, so each lands on the
-    // native undo stack independently (Ctrl+Z removes the closer, then the
-    // opener) and the caret ends up between the pair.
-    setTimeout(() => {
-      const newPos = s + firstPart.length;
-      el.setSelectionRange(newPos, newPos);
-      document.execCommand("insertText", false, close);
-      el.setSelectionRange(newPos, newPos);
-      onEditorInput();
-    }, 0);
+    document.execCommand("insertText", false, e.key + selected + close);
+    // Caret goes between the pair: after the opener and any wrapped selection,
+    // before the closer.
+    const caret = s + e.key.length + selected.length;
+    el.setSelectionRange(caret, caret);
+    onEditorInput();
     return;
   }
 
@@ -324,7 +319,7 @@ function handleEditorKey(e) {
 }
 
 /* ══════════════════════════════════════════════════════════
-   SYNTAX HIGHLIGHTING
+    SYNTAX HIGHLIGHTING
    (A simple regex-based highlighter — no external deps)
 ══════════════════════════════════════════════════════════ */
 function highlight() {
@@ -419,17 +414,25 @@ function highlightJS(code) {
 
 // Escape HTML for safe injection into the highlight layer
 function escHtml(s) {
+  if (typeof s !== "string") return "";
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;")
+    .replace(/`/g, "&#96;");
+}
+
+// Safe escape for user-provided strings inside innerHTML
+function escapeHtml(s) {
+  if (typeof s !== "string") return "";
   return s
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
-}
-
-// Safe escape for user-provided strings inside innerHTML
-function escapeHtml(s) {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -626,8 +629,14 @@ function toggleLessonPane() {
 function updateProgress() {
   const total = getAllLessons().length;
   const done = doneSet.size;
+  const pct = (done / total) * 100;
   document.getElementById("progressText").textContent = `${done}/${total}`;
-  document.getElementById("progressFill").style.width = `${(done / total) * 100}%`;
+  document.getElementById("progressFill").style.width = `${pct}%`;
+  const bar = document.getElementById("progressBar");
+  if (bar) {
+    bar.setAttribute("aria-valuenow", done);
+    bar.setAttribute("aria-valuetext", `${done} of ${total} lessons complete`);
+  }
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -637,6 +646,8 @@ function toggleAutorun() {
   autorun = !autorun;
   document.getElementById("autorunToggle").classList.toggle("on", autorun);
   document.getElementById("autorunLabel").textContent = autorun ? "Auto ✓" : "Auto";
+  const wrap = document.querySelector(".autorun-wrap");
+  if (wrap) wrap.setAttribute("aria-checked", autorun);
   showToast(
     autorun ? "Auto-run ON — preview updates as you type" : "Auto-run OFF",
     autorun ? "success" : "warn",
@@ -867,6 +878,9 @@ document.addEventListener("keydown", e => {
     if (shortcutsVisible) toggleShortcuts();
     if (fsPanelVisible) toggleFsPanel();
     hideResetModal();
+    if (document.activeElement && document.activeElement.id === "searchInput") {
+      document.activeElement.blur();
+    }
   }
 });
 
