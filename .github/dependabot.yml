@@ -1,0 +1,45 @@
+# ═══════════════════════════════════════════════════════════
+#  DevForge — Dependabot Configuration
+#  Keeps dev dependencies (ESLint, Prettier, html-validate)
+#  up-to-date with minimal noise — weekly grouping, zero
+#  runtime deps to monitor.
+# ═══════════════════════════════════════════════════════════
+
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "automerge"
+    groups:
+      dev-deps:
+        patterns:
+          - "eslint*"
+          - "prettier*"
+          - "html-validate*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "github-actions"
