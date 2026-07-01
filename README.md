@@ -134,6 +134,7 @@ DevForge/
 | Feature                 | Detail                                                            |
 | ----------------------- | ----------------------------------------------------------------- |
 | **Live Preview**        | Runs inside a sandboxed `<iframe>` — no server needed             |
+| **Mobile Layout**       | Responsive sidebar with ☰ toggle; touch-friendly drag resizer    |
 | **Console Panel**       | Intercepts `console.log/warn/error` via `postMessage` from iframe |
 | **Code Buffers**        | Each lesson remembers your edits independently in memory          |
 | **XP & Streak**         | Points awarded on first run of each lesson                        |

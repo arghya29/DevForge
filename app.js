@@ -18,6 +18,7 @@ let autorun = false;
 let autorunTimer = null;
 let shortcutsVisible = false;
 let fsPanelVisible = false;
+let sidebarOpen = true;
 let xp = 0;
 let streak = 0;
 let lastRunLesson = null;
@@ -57,6 +58,13 @@ function init() {
   loadLesson(currentLessonId);
   updateProgress();
   initResizer();
+  if (window.innerWidth <= 768) {
+    sidebarOpen = false;
+    document.querySelector(".sidebar").classList.add("collapsed");
+    const sidebarToggleBtn = document.getElementById("sidebarToggleBtn");
+    sidebarToggleBtn.classList.add("active");
+    sidebarToggleBtn.setAttribute("aria-expanded", "false");
+  }
   console.info("DevForge initialised — " + getAllLessons().length + " lessons ready.");
 }
 
@@ -805,6 +813,7 @@ function showToast(msg, type = "info", icon = "") {
 
 /* ══════════════════════════════════════════════════════════
    DRAG RESIZER  (editor ↔ preview panel)
+   Supports mouse + touch for mobile/tablet devices.
 ══════════════════════════════════════════════════════════ */
 function initResizer() {
   const resizer = document.getElementById("resizer");
@@ -813,34 +822,58 @@ function initResizer() {
   let startX = 0;
   let startEditorW = 0;
 
-  resizer.addEventListener("mousedown", e => {
+  function getPointerX(e) {
+    return e.touches ? e.touches[0].clientX : e.clientX;
+  }
+
+  function startDrag(e) {
     dragging = true;
-    startX = e.clientX;
+    startX = getPointerX(e);
     const cols = getComputedStyle(workspace).gridTemplateColumns.split(" ");
     startEditorW = parseFloat(cols[1]);
     resizer.classList.add("dragging");
     document.body.style.userSelect = "none";
     document.body.style.cursor = "col-resize";
-  });
+  }
 
-  document.addEventListener("mousemove", e => {
+  function moveDrag(e) {
     if (!dragging) return;
-    const dx = e.clientX - startX;
+    e.preventDefault();
+    const dx = getPointerX(e) - startX;
     const sidebarW = parseFloat(
       getComputedStyle(document.documentElement).getPropertyValue("--sidebar-w")
     );
-    const totalW = workspace.offsetWidth - sidebarW - 4; // 4px resizer
+    const totalW = workspace.offsetWidth - sidebarW - 4;
     const newEditorW = Math.max(200, Math.min(startEditorW + dx, totalW - 200));
     workspace.style.gridTemplateColumns = `${sidebarW}px ${newEditorW}px 4px 1fr`;
-  });
+  }
 
-  document.addEventListener("mouseup", () => {
+  function stopDrag() {
     if (!dragging) return;
     dragging = false;
     resizer.classList.remove("dragging");
     document.body.style.userSelect = "";
     document.body.style.cursor = "";
-  });
+  }
+
+  resizer.addEventListener("mousedown", startDrag);
+  document.addEventListener("mousemove", moveDrag);
+  document.addEventListener("mouseup", stopDrag);
+
+  resizer.addEventListener("touchstart", startDrag, { passive: true });
+  document.addEventListener("touchmove", moveDrag, { passive: false });
+  document.addEventListener("touchend", stopDrag);
+}
+
+/* ══════════════════════════════════════════════════════════
+   SIDEBAR TOGGLE  (for mobile / narrow screens)
+══════════════════════════════════════════════════════════ */
+function toggleSidebar() {
+  sidebarOpen = !sidebarOpen;
+  document.querySelector(".sidebar").classList.toggle("collapsed", !sidebarOpen);
+  const sidebarToggleBtn = document.getElementById("sidebarToggleBtn");
+  sidebarToggleBtn.classList.toggle("active", !sidebarOpen);
+  sidebarToggleBtn.setAttribute("aria-expanded", String(sidebarOpen));
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -939,6 +972,8 @@ window.clearSearch = clearSearch;
 window.handleEditorKey = handleEditorKey;
 window.onEditorInput = onEditorInput;
 window.syncScroll = syncScroll;
+// Sidebar
+window.toggleSidebar = toggleSidebar;
 // Lesson pane / navigation
 window.toggleLessonPane = toggleLessonPane;
 window.navLesson = navLesson;
