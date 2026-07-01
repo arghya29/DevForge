@@ -145,7 +145,7 @@ DevForge/
 | ----------------------- | ----------------------------------------------------------------- |
 | **Live Preview**        | Runs inside a sandboxed `<iframe>` — no server needed             |
 | **Console Panel**       | Intercepts `console.log/warn/error` via `postMessage` from iframe |
-| **Console Filter**      | Real-time search/filter console output                           |
+| **Console Filter**      | Real-time search/filter console output                            |
 | **Auto-scroll Lock**    | Pauses auto-scroll when you scroll up to inspect earlier logs     |
 | **Code Buffers**        | Each lesson remembers your edits independently in memory          |
 | **XP & Streak**         | Points awarded on first run of each lesson                        |

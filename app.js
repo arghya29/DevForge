@@ -275,41 +275,41 @@ function handleEditorKey(e) {
     el.selectionStart = el.selectionEnd = end + 1;
     return;
   }
-   const isQuote =e.key === '"' || e.key === "'" || e.key === "`";
-   if (isQuote && s === end) {
-      const prevChar =el.value.charAt(s-1);
-      const wordBefore = /[\w]/.test(prevChar);
-      const wordAfter = /[\w]/.test(nextChar);
-      if (wordBefore || wordAfter || nextChar === e.key) return;
+  const isQuote = e.key === '"' || e.key === "'" || e.key === "`";
+  if (isQuote && s === end) {
+    const prevChar = el.value.charAt(s - 1);
+    const wordBefore = /[\w]/.test(prevChar);
+    const wordAfter = /[\w]/.test(nextChar);
+    if (wordBefore || wordAfter || nextChar === e.key) return;
   }
   // Typing an opening char (or a quote): insert the matching closer.
-   if (Object.prototype.hasOwnProperty.call(PAIRS, e.key)) {
-       const close = PAIRS[e.key];
+  if (Object.prototype.hasOwnProperty.call(PAIRS, e.key)) {
+    const close = PAIRS[e.key];
 
     // If there's a selection, wrap it in the pair (e.g. select foo, press "(" → (foo)).
-// Typing an opening char: insert the matching closer.
-   if (Object.prototype.hasOwnProperty.call(PAIRS, e.key)) {
-     const close = PAIRS[e.key];
-     const selected = (s !== end) ? el.value.substring(s, end) : "";
-     e.preventDefault();
+    // Typing an opening char: insert the matching closer.
+    if (Object.prototype.hasOwnProperty.call(PAIRS, e.key)) {
+      const close = PAIRS[e.key];
+      const selected = s !== end ? el.value.substring(s, end) : "";
+      e.preventDefault();
 
-    // 1. First, insert the opening char and any selected text
-     const firstPart = e.key + selected;
-     document.execCommand('insertText', false, firstPart);
+      // 1. First, insert the opening char and any selected text
+      const firstPart = e.key + selected;
+      document.execCommand("insertText", false, firstPart);
 
-    // 2. Use a timeout to force the closer as a separate undoable action
-    setTimeout(() => {
-      // Move caret to after the first part
-      const newPos = s + firstPart.length;
-      el.setSelectionRange(newPos, newPos);
-      // 3. Insert the closing char
-      document.execCommand('insertText', false, close);
-      // 4. Move caret back inside
-      el.setSelectionRange(newPos,newPos);
-      onEditorInput();
-    }, 0);
-    return;
-  }
+      // 2. Use a timeout to force the closer as a separate undoable action
+      setTimeout(() => {
+        // Move caret to after the first part
+        const newPos = s + firstPart.length;
+        el.setSelectionRange(newPos, newPos);
+        // 3. Insert the closing char
+        document.execCommand("insertText", false, close);
+        // 4. Move caret back inside
+        el.setSelectionRange(newPos, newPos);
+        onEditorInput();
+      }, 0);
+      return;
+    }
     // For quotes, don't auto-close when typing directly after a word character
     // (e.g. the apostrophe in don't) or before one — only the single quote is
     // inserted in those cases so we don't mangle contractions or identifiers.
@@ -344,7 +344,6 @@ function handleEditorKey(e) {
     }
   }
 }
-
 
 /* ══════════════════════════════════════════════════════════
    SYNTAX HIGHLIGHTING
@@ -630,6 +629,7 @@ function addConsoleLog(type, text, ts) {
     <span class="log-ts">${time}</span>
     <span class="log-msg">${escapeHtml(displayText)}</span>
     <button type="button" class="log-copy" onclick="copyConsoleText(this)" title="Copy line">⎘</button>`;
+  applyConsoleFilter(el);
 
   body.appendChild(el);
   consoleLineCount++;
@@ -660,10 +660,18 @@ function copyConsoleText(btn) {
   const msgEl = btn.parentElement.querySelector(".log-msg");
   if (!msgEl) return;
   const text = msgEl.textContent;
-  navigator.clipboard.writeText(text).then(() => {
-    btn.textContent = "✓";
-    setTimeout(() => { btn.textContent = "⎘"; }, 1200);
-  }).catch(() => {});
+  if (!navigator.clipboard || typeof navigator.clipboard.writeText !== "function") {
+    return;
+  }
+  navigator.clipboard
+    .writeText(text)
+    .then(() => {
+      btn.textContent = "✓";
+      setTimeout(() => {
+        btn.textContent = "⎘";
+      }, 1200);
+    })
+    .catch(() => {});
 }
 
 function toggleConsole() {
@@ -675,16 +683,24 @@ function toggleConsole() {
 }
 
 function filterConsole(val) {
-  const q = val.toLowerCase();
   document.querySelectorAll("#consoleBody .log-line").forEach(el => {
-    const text = el.textContent.toLowerCase();
-    el.style.display = !q || text.includes(q) ? "" : "none";
+    applyConsoleFilter(el, val);
   });
+}
+
+function applyConsoleFilter(el, val = null) {
+  const filter = val !== null ? val : document.getElementById("consoleFilter")?.value || "";
+  const q = filter.toLowerCase();
+  const text = el.textContent.toLowerCase();
+  el.style.display = !q || text.includes(q) ? "" : "none";
 }
 
 function clearConsoleFilter() {
   const inp = document.getElementById("consoleFilter");
-  if (inp) { inp.value = ""; filterConsole(""); }
+  if (inp) {
+    inp.value = "";
+    filterConsole("");
+  }
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -766,6 +782,10 @@ function copyAllCode() {
   const buf = buffers[currentLessonId];
   if (!buf) return;
   const all = `<!-- index.html -->\n${buf.html}\n\n/* index.css */\n${buf.css}\n\n// index.js\n${buf.js}`;
+  if (!navigator.clipboard || typeof navigator.clipboard.writeText !== "function") {
+    showToast("Clipboard unavailable — try Ctrl+A then Ctrl+C", "error", "✖");
+    return;
+  }
   navigator.clipboard
     .writeText(all)
     .then(() => showToast("All code copied to clipboard!", "success", "⎘"))

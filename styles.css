@@ -1111,7 +1111,9 @@ header {
   opacity: 0;
   transition: opacity 0.12s;
 }
-.log-line:hover .log-copy {
+.log-line:hover .log-copy,
+.log-copy:focus,
+.log-copy:focus-visible {
   opacity: 1;
 }
 .log-copy:hover {
