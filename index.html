@@ -90,7 +90,7 @@
                 width: 1px;
                 height: 1px;
                 overflow: hidden;
-                clip: rect(0, 0, 0, 0);
+                clip-path: inset(50%);
               "
             >
               Search lessons
@@ -375,7 +375,14 @@
     <div id="srAnnouncer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
     <!-- Reset confirmation modal -->
-    <div class="modal-overlay" id="resetModal" role="dialog" aria-modal="true" aria-labelledby="resetModalTitle" tabindex="-1">
+    <div
+      class="modal-overlay"
+      id="resetModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="resetModalTitle"
+      tabindex="-1"
+    >
       <div class="modal">
         <h3 id="resetModalTitle">Reset to starter code?</h3>
         <p>
