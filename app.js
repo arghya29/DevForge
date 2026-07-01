@@ -27,6 +27,89 @@ let errorCount = 0;
 const doneSet = new Set(); // lesson ids that have been run at least once
 const buffers = {}; // { [lessonId]: { html, css, js } }  — user edits
 
+/* ══════════════════════════════════════════════════════════
+   PERSISTENCE — save/restore learner progress via localStorage
+══════════════════════════════════════════════════════════ */
+const STORAGE_KEY = "devforge:progress:v1";
+let saveTimer = null;
+
+// Persist XP, streak, completed-lesson ids, and per-lesson code buffers.
+function saveProgress() {
+  try {
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        xp: xp,
+        streak: streak,
+        done: Array.from(doneSet),
+        buffers: buffers,
+      })
+    );
+  } catch {
+    return; // storage unavailable (private mode) or quota exceeded — ignore
+  }
+}
+
+// Debounced save so we don't write to storage on every keystroke.
+function scheduleSave() {
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveProgress, 500);
+}
+
+// Restore saved progress on load, defensively validating every field.
+function loadProgress() {
+  let data;
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    data = JSON.parse(raw);
+  } catch {
+    return; // storage unavailable or corrupt JSON — start fresh
+  }
+  if (!data || typeof data !== "object") return;
+
+  if (typeof data.xp === "number" && Number.isFinite(data.xp) && data.xp >= 0) {
+    xp = data.xp;
+  }
+  if (typeof data.streak === "number" && Number.isFinite(data.streak) && data.streak >= 0) {
+    streak = data.streak;
+  }
+  const validIds = new Set(getAllLessons().map(l => l.id));
+  if (Array.isArray(data.done)) {
+    data.done.forEach(id => {
+      if (validIds.has(id)) doneSet.add(id);
+    });
+  }
+  if (data.buffers && typeof data.buffers === "object" && !Array.isArray(data.buffers)) {
+    Object.keys(data.buffers).forEach(id => {
+      if (!validIds.has(id)) return;
+      const b = data.buffers[id];
+      if (
+        b &&
+        typeof b === "object" &&
+        typeof b.html === "string" &&
+        typeof b.css === "string" &&
+        typeof b.js === "string"
+      ) {
+        buffers[id] = { html: b.html, css: b.css, js: b.js };
+      }
+    });
+  }
+}
+
+// Wipe persisted progress (used by the Restart flow).
+function clearProgress() {
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+  }
+  try {
+    window.localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    return; // ignore
+  }
+}
+
 // Accessible-name labels for the code editor, keyed by the active language tab.
 const EDITOR_ARIA_LABELS = {
   html: "HTML code editor",
@@ -54,8 +137,11 @@ function getLessonIndex(id) {
    BOOTSTRAP
 ══════════════════════════════════════════════════════════ */
 function init() {
+  loadProgress();
   buildSidebar();
-  loadLesson(currentLessonId);
+  loadLesson(currentLessonId, { trackProgress: false });
+  document.getElementById("xpVal").textContent = xp;
+  document.getElementById("streakLabel").textContent = `🔥 ${streak} streak`;
   updateProgress();
   initResizer();
   if (window.innerWidth <= 768) {
@@ -122,7 +208,7 @@ function clearSearch() {
 /* ══════════════════════════════════════════════════════════
    LESSON LOADING
 ══════════════════════════════════════════════════════════ */
-function loadLesson(id) {
+function loadLesson(id, { trackProgress = true } = {}) {
   saveCurrentBuffer();
   currentLessonId = id;
   const lesson = getLesson(id);
@@ -153,7 +239,7 @@ function loadLesson(id) {
   buildFileTabs();
   loadTab(activeTab);
   updateNav();
-  runCode();
+  runCode({ trackProgress });
 }
 
 function saveCurrentBuffer() {
@@ -221,6 +307,7 @@ function onEditorInput() {
   buffers[currentLessonId][activeTab] = document.getElementById("codeEditor").value;
   updateLineNums();
   highlight();
+  scheduleSave();
 
   if (autorun) {
     clearTimeout(autorunTimer);
@@ -457,7 +544,8 @@ function escapeHtml(s) {
 /* ══════════════════════════════════════════════════════════
    RUN CODE → render into the preview iframe
 ══════════════════════════════════════════════════════════ */
-function runCode() {
+function runCode(options = {}) {
+  const { trackProgress = true } = options;
   saveCurrentBuffer();
   const buf = buffers[currentLessonId];
   if (!buf) return;
@@ -478,7 +566,7 @@ function runCode() {
   document.getElementById("previewFrame").srcdoc = doc;
 
   // Award XP on first run of each lesson
-  if (lastRunLesson !== currentLessonId) {
+  if (trackProgress && lastRunLesson !== currentLessonId) {
     const lesson = getLesson(currentLessonId);
     if (!doneSet.has(currentLessonId)) {
       xp += lesson.xp;
@@ -491,11 +579,15 @@ function runCode() {
   }
 
   // Mark lesson done
-  doneSet.add(currentLessonId);
-  const sideEl = document.getElementById("sidebar-" + currentLessonId);
-  if (sideEl) sideEl.classList.add("done");
+  if (trackProgress) {
+    const isNewlyDone = !doneSet.has(currentLessonId);
+    doneSet.add(currentLessonId);
+    const sideEl = document.getElementById("sidebar-" + currentLessonId);
+    if (sideEl) sideEl.classList.add("done");
 
-  updateProgress();
+    updateProgress();
+    if (isNewlyDone) saveProgress();
+  }
 
   // Remove overlay after a short delay
   setTimeout(() => {
@@ -505,7 +597,7 @@ function runCode() {
   }, 400);
 
   // Show completion banner if all lessons done
-  if (doneSet.size === getAllLessons().length) {
+  if (trackProgress && doneSet.size === getAllLessons().length) {
     setTimeout(showCompletion, 700);
   }
 }
@@ -722,6 +814,7 @@ function confirmReset() {
     css: lesson.css,
     js: lesson.js,
   };
+  saveProgress();
   loadTab(activeTab);
   runCode();
   hideResetModal();
@@ -785,11 +878,15 @@ function restartAll() {
   xp = 0;
   streak = 0;
   lastRunLesson = null;
+  Object.keys(buffers).forEach(id => {
+    delete buffers[id];
+  });
+  clearProgress();
   document.getElementById("xpVal").textContent = "0";
   document.getElementById("streakLabel").textContent = "🔥 0 streak";
   hideCompletion();
   buildSidebar();
-  loadLesson(CURRICULUM[0].lessons[0].id);
+  loadLesson(CURRICULUM[0].lessons[0].id, { trackProgress: false });
   updateProgress();
 }
 
@@ -965,6 +1062,7 @@ document.addEventListener("click", e => {
    BOOT
 ══════════════════════════════════════════════════════════ */
 init();
+window.addEventListener("beforeunload", saveProgress);
 
 /* ════════════════════════════════════════════════════════════
    Expose EVERY handler referenced by an inline HTML event
