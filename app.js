@@ -1062,7 +1062,10 @@ document.addEventListener("click", e => {
    BOOT
 ══════════════════════════════════════════════════════════ */
 init();
-window.addEventListener("beforeunload", saveProgress);
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") saveProgress();
+});
+window.addEventListener("pagehide", saveProgress);
 
 /* ════════════════════════════════════════════════════════════
    Expose EVERY handler referenced by an inline HTML event
