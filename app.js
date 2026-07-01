@@ -772,14 +772,26 @@ function toggleShortcuts() {
 /* ══════════════════════════════════════════════════════════
    THEME TOGGLE
 ══════════════════════════════════════════════════════════ */
-function toggleTheme() {
-  darkTheme = !darkTheme;
-  document.documentElement.setAttribute("data-theme", darkTheme ? "" : "light");
+function updateThemeButton() {
   const btn = document.getElementById("themeToggleBtn");
   if (btn) {
     btn.textContent = darkTheme ? "🌙" : "☀️";
     btn.setAttribute("aria-pressed", String(!darkTheme));
   }
+}
+
+function applyTheme() {
+  if (darkTheme) {
+    document.documentElement.removeAttribute("data-theme");
+  } else {
+    document.documentElement.setAttribute("data-theme", "light");
+  }
+  updateThemeButton();
+}
+
+function toggleTheme() {
+  darkTheme = !darkTheme;
+  applyTheme();
   try {
     localStorage.setItem("devforge_theme", darkTheme ? "dark" : "light");
   } catch (error) {
@@ -792,13 +804,8 @@ function applySavedTheme() {
     const saved = localStorage.getItem("devforge_theme");
     if (saved === "light") {
       darkTheme = false;
-      document.documentElement.setAttribute("data-theme", "light");
-      const btn = document.getElementById("themeToggleBtn");
-      if (btn) {
-        btn.textContent = "☀️";
-        btn.setAttribute("aria-pressed", "true");
-      }
     }
+    applyTheme();
   } catch (error) {
     console.warn("Unable to load DevForge theme", error);
   }
