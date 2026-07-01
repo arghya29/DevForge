@@ -263,67 +263,50 @@ function handleEditorKey(e) {
   const PAIRS = { "(": ")", "[": "]", "{": "}", '"': '"', "'": "'", "`": "`" };
   const CLOSERS = new Set(Object.values(PAIRS));
   const nextChar = el.value.charAt(end);
+  const isPairKey = Object.prototype.hasOwnProperty.call(PAIRS, e.key);
 
   // Typing a closing char when the same char is already next → step over it
-  // instead of inserting a duplicate. This is what makes auto-close feel
-  // natural rather than producing ")) " when you "close" a pair yourself.
   if (CLOSERS.has(e.key) && nextChar === e.key && s === end) {
     e.preventDefault();
     el.selectionStart = el.selectionEnd = end + 1;
     return;
   }
-   const isQuote =e.key === '"' || e.key === "'" || e.key === "`";
-   if (isQuote && s === end) {
-      const prevChar =el.value.charAt(s-1);
-      const wordBefore = /[\w]/.test(prevChar);
-      const wordAfter = /[\w]/.test(nextChar);
-      if (wordBefore || wordAfter || nextChar === e.key) return;
+
+  // For quotes, skip auto-close when adjacent to word characters
+  // to avoid mangling contractions (e.g. "don't") or identifiers.
+  const isQuote = e.key === '"' || e.key === "'" || e.key === "`";
+  if (isQuote && s === end) {
+    const prevChar = el.value.charAt(s - 1);
+    const wordBefore = /[\w]/.test(prevChar);
+    const wordAfter = /[\w]/.test(nextChar);
+    if (wordBefore || wordAfter || nextChar === e.key) return;
   }
-  // Typing an opening char (or a quote): insert the matching closer.
-   if (Object.prototype.hasOwnProperty.call(PAIRS, e.key)) {
-       const close = PAIRS[e.key];
 
-    // If there's a selection, wrap it in the pair (e.g. select foo, press "(" → (foo)).
-// Typing an opening char: insert the matching closer.
-   if (Object.prototype.hasOwnProperty.call(PAIRS, e.key)) {
-     const close = PAIRS[e.key];
-     const selected = (s !== end) ? el.value.substring(s, end) : "";
-     e.preventDefault();
+  // Typing an opening bracket/brace/quote: insert matching closer
+  if (isPairKey) {
+    const close = PAIRS[e.key];
+    const hasSelection = s !== end;
 
-    // 1. First, insert the opening char and any selected text
-     const firstPart = e.key + selected;
-     document.execCommand('insertText', false, firstPart);
-
-    // 2. Use a timeout to force the closer as a separate undoable action
-    setTimeout(() => {
-      // Move caret to after the first part
-      const newPos = s + firstPart.length;
-      el.setSelectionRange(newPos, newPos);
-      // 3. Insert the closing char
-      document.execCommand('insertText', false, close);
-      // 4. Move caret back inside
-      el.setSelectionRange(newPos,newPos);
-      onEditorInput();
-    }, 0);
-    return;
-  }
-    // For quotes, don't auto-close when typing directly after a word character
-    // (e.g. the apostrophe in don't) or before one — only the single quote is
-    // inserted in those cases so we don't mangle contractions or identifiers.
-    const isQuote = e.key === '"' || e.key === "'" || e.key === "`";
-    if (isQuote) {
-      const prevChar = el.value.charAt(s - 1);
-      const wordBefore = /[\w]/.test(prevChar);
-      const wordAfter = /[\w]/.test(nextChar);
-      // Also avoid doubling when the cursor is right before the same quote.
-      if (wordBefore || wordAfter || nextChar === e.key) {
-        return; // let the single character insert normally
-      }
+    // If text is selected, wrap it using execCommand for proper undo grouping
+    if (hasSelection) {
+      e.preventDefault();
+      const selected = el.value.substring(s, end);
+      const firstPart = e.key + selected;
+      document.execCommand("insertText", false, firstPart);
+      setTimeout(() => {
+        const newPos = s + firstPart.length;
+        el.setSelectionRange(newPos, newPos);
+        document.execCommand("insertText", false, close);
+        el.setSelectionRange(newPos, newPos);
+        onEditorInput();
+      }, 0);
+      return;
     }
 
+    // No selection — simple insert of pair with caret between
     e.preventDefault();
     el.value = el.value.substring(0, s) + e.key + close + el.value.substring(end);
-    el.selectionStart = el.selectionEnd = s + 1; // caret between the pair
+    el.selectionStart = el.selectionEnd = s + 1;
     onEditorInput();
     return;
   }
@@ -342,9 +325,8 @@ function handleEditorKey(e) {
   }
 }
 
-
 /* ══════════════════════════════════════════════════════════
-   SYNTAX HIGHLIGHTING
+    SYNTAX HIGHLIGHTING
    (A simple regex-based highlighter — no external deps)
 ══════════════════════════════════════════════════════════ */
 function highlight() {
@@ -654,8 +636,14 @@ function toggleLessonPane() {
 function updateProgress() {
   const total = getAllLessons().length;
   const done = doneSet.size;
+  const pct = (done / total) * 100;
   document.getElementById("progressText").textContent = `${done}/${total}`;
-  document.getElementById("progressFill").style.width = `${(done / total) * 100}%`;
+  document.getElementById("progressFill").style.width = `${pct}%`;
+  const bar = document.getElementById("progressBar");
+  if (bar) {
+    bar.setAttribute("aria-valuenow", done);
+    bar.setAttribute("aria-valuetext", `${done} of ${total} lessons complete`);
+  }
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -665,6 +653,8 @@ function toggleAutorun() {
   autorun = !autorun;
   document.getElementById("autorunToggle").classList.toggle("on", autorun);
   document.getElementById("autorunLabel").textContent = autorun ? "Auto ✓" : "Auto";
+  const wrap = document.querySelector(".autorun-wrap");
+  if (wrap) wrap.setAttribute("aria-checked", autorun);
   showToast(
     autorun ? "Auto-run ON — preview updates as you type" : "Auto-run OFF",
     autorun ? "success" : "warn",
@@ -895,6 +885,9 @@ document.addEventListener("keydown", e => {
     if (shortcutsVisible) toggleShortcuts();
     if (fsPanelVisible) toggleFsPanel();
     hideResetModal();
+    if (document.activeElement && document.activeElement.id === "searchInput") {
+      document.activeElement.blur();
+    }
   }
 });
 

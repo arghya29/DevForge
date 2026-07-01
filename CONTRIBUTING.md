@@ -12,6 +12,8 @@ Thank you for your interest in contributing! DevForge is a beginner-friendly pro
 - [Project Structure](#project-structure)
 - [Adding a Lesson](#adding-a-lesson)
 - [Running CI Checks Locally](#running-ci-checks-locally)
+- [CI/CD and Deployment](#cicd-and-deployment)
+- [Automated Dependency Management](#automated-dependency-management)
 - [Reporting Bugs](#reporting-bugs)
 - [Pull Request Guidelines](#pull-request-guidelines)
 - [Style Guide](#style-guide)
@@ -232,6 +234,45 @@ npm run format:fix    # Prettier rewrites files in place
 
 ---
 
+## CI/CD and Deployment
+
+DevForge uses two GitHub Actions workflows:
+
+| Workflow | File | Trigger | Purpose |
+| -------- | ---- | ------- | ------- |
+| **CI Checks** | `.github/workflows/ci.yml` | PRs to `dev`, pushes to `dev` & `main` | ESLint, Prettier, html-validate |
+| **Deploy** | `.github/workflows/deploy.yml` | Push to `main`, manual dispatch | Publishes to GitHub Pages |
+
+### How deployment works
+
+1. A maintainer merges `dev` into `main` (or pushes directly to `main`)
+2. The `deploy.yml` workflow triggers automatically
+3. GitHub Pages receives the static files and serves them at the repo's Pages URL
+4. Deployment typically completes in under 60 seconds
+
+To deploy manually, go to **Actions → Deploy to GitHub Pages → Run workflow**.
+
+### GitHub Pages setup (one-time)
+
+1. Go to your repo → **Settings → Pages**
+2. Under **Source**, select **GitHub Actions**
+3. Push any commit to `main` — the workflow handles the rest
+
+---
+
+## Automated Dependency Management
+
+DevForge uses [Dependabot](.github/dependabot.yml) to keep dev tooling up-to-date:
+
+- **npm dependencies** (`eslint`, `prettier`, `html-validate`) are checked weekly
+- **GitHub Actions** are checked weekly
+- Updates are grouped by ecosystem and limited to minor/patch versions to reduce noise
+- All Dependabot PRs are tagged with `dependencies` and `automerge` labels
+
+No action is needed on your part — Dependabot runs automatically every Monday.
+
+---
+
 ## Reporting Bugs
 
 Use the [Bug Report template](.github/ISSUE_TEMPLATE/bug_report.md).
@@ -275,6 +316,8 @@ Include:
 
 - No inline `style=""` attributes
 - Semantic elements where appropriate (`<aside>`, `<header>`, `<button>`)
+- Include ARIA attributes (`role`, `aria-label`, `aria-live`) for accessibility
+- All form controls need an associated `<label>` or `aria-label`
 
 ### Lesson content (`curriculum.js`)
 

@@ -20,6 +20,35 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `escapeHtml()` sanitizer now handles double and single quotes (previously only `&`, `<`, `>`)
 - `escHtml()` highlighter sanitizer now also escapes backticks for safer template literal injection
 - Both sanitizers now have a defensive `typeof` check to prevent crashes on non-string input
+### Fixed
+
+- Critical bug in `handleEditorKey`: duplicate auto-close logic for brackets and quotes
+  caused redundant code paths with mismatched undo behavior. Refactored to a single
+  clean execution path with proper selection wrapping and fallback insertion.
+- Improved Escape key handling now also blurs the search input when open
+- Added missing ARIA roles (`role="banner"`, `role="tablist"`, `role="tab"`,
+  `role="switch"`, `role="progressbar"`) and `aria-live` regions for accessibility
+- Progress bar now updates `aria-valuenow` and `aria-valuetext` attributes dynamically
+- Autorun toggle now reflects its state in the `aria-checked` attribute
+
+### Changed
+
+- Restructured auto-close logic to eliminate nested duplicate `PAIRS` checks
+- Consolidated duplicate `isQuote` guard clauses into a single check
+### Added
+
+- GitHub Pages deploy workflow (`.github/workflows/deploy.yml`) for automated deployment
+- Dependabot configuration (`.github/dependabot.yml`) for weekly dependency updates
+- `workflow_dispatch` trigger on CI workflow for manual re-runs
+
+### Fixed
+
+- Removed duplicate badge section in README.md that was rendering identical badges twice
+
+### Changed
+
+- Enhanced CI workflow with `workflow_dispatch` trigger for manual execution
+- Updated CONTRIBUTING.md with CI/CD and Dependabot documentation
 
 ## [1.0.0] — 2025-06-19
 

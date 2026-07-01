@@ -1,0 +1,44 @@
+# ═══════════════════════════════════════════════════════════
+#  DevForge — GitHub Pages Deploy
+#  Auto-deploys to GitHub Pages on push to main.
+#  Requires GitHub Pages Source set to "GitHub Actions".
+# ═══════════════════════════════════════════════════════════
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy to Pages
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Pages
+        uses: actions/configure-pages@983d7736d9fc0ae728b9a304a2058a615c1f929c # v5.0.0
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
+        with:
+          path: "."
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164aca5f94fc7b2b9f482a4f44f38c3e85 # v4.0.5
