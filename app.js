@@ -231,25 +231,25 @@ function handleEditorKey(e) {
   const s = el.selectionStart;
   const end = el.selectionEnd;
 
-  // Tab → insert 2 spaces
+  // Tab → insert 2 spaces. Uses execCommand so the edit lands on the textarea's
+  // native undo stack (Ctrl+Z), consistent with the auto-close paths below.
   if (e.key === "Tab") {
     e.preventDefault();
-    el.value = el.value.substring(0, s) + "  " + el.value.substring(end);
-    el.selectionStart = el.selectionEnd = s + 2;
+    document.execCommand("insertText", false, "  ");
     onEditorInput();
     return;
   }
 
-  // Enter → auto-indent
+  // Enter → auto-indent, carrying the current line's leading whitespace (and an
+  // extra level after an opening "{" or ":"). Uses execCommand so it, too, is
+  // undoable.
   if (e.key === "Enter") {
     e.preventDefault();
     const lines = el.value.substring(0, s).split("\n");
     const lastLine = lines[lines.length - 1];
     const indent = lastLine.match(/^(\s*)/)[1];
     const extra = /[{:]$/.test(lastLine.trimEnd()) ? "  " : "";
-    const ins = "\n" + indent + extra;
-    el.value = el.value.substring(0, s) + ins + el.value.substring(end);
-    el.selectionStart = el.selectionEnd = s + ins.length;
+    document.execCommand("insertText", false, "\n" + indent + extra);
     onEditorInput();
     return;
   }
@@ -282,43 +282,36 @@ function handleEditorKey(e) {
     if (wordBefore || wordAfter || nextChar === e.key) return;
   }
 
-  // Typing an opening bracket/brace/quote: insert matching closer
+  // Typing an opening bracket/brace/quote: insert the matching closer. If there's
+  // a selection, wrap it in the pair (e.g. select foo, press "(" → (foo)). The
+  // opener, any wrapped selection, and the closer are inserted as a single
+  // synchronous execCommand call, so the whole edit is one atomic action on the
+  // textarea's native undo stack (Ctrl+Z). Doing it in the same turn — rather
+  // than deferring the closer with setTimeout — also means we never mutate the
+  // editor through a stale el/selection reference if focus, the active tab, or
+  // the current lesson changes before a timer would have fired.
   if (isPairKey) {
     const close = PAIRS[e.key];
-    const hasSelection = s !== end;
-
-    // If text is selected, wrap it using execCommand for proper undo grouping
-    if (hasSelection) {
-      e.preventDefault();
-      const selected = el.value.substring(s, end);
-      const firstPart = e.key + selected;
-      document.execCommand("insertText", false, firstPart);
-      setTimeout(() => {
-        const newPos = s + firstPart.length;
-        el.setSelectionRange(newPos, newPos);
-        document.execCommand("insertText", false, close);
-        el.setSelectionRange(newPos, newPos);
-        onEditorInput();
-      }, 0);
-      return;
-    }
-
-    // No selection — simple insert of pair with caret between
+    const selected = s !== end ? el.value.substring(s, end) : "";
     e.preventDefault();
-    el.value = el.value.substring(0, s) + e.key + close + el.value.substring(end);
-    el.selectionStart = el.selectionEnd = s + 1;
+    document.execCommand("insertText", false, e.key + selected + close);
+    // Caret goes between the pair: after the opener and any wrapped selection,
+    // before the closer.
+    const caret = s + e.key.length + selected.length;
+    el.setSelectionRange(caret, caret);
     onEditorInput();
     return;
   }
 
-  // Backspace between an empty auto-closed pair → delete both characters,
-  // so deleting the opener you just typed also removes the inserted closer.
+  // Backspace between an empty auto-closed pair → delete both characters, so
+  // removing the opener you just typed also removes the inserted closer. Uses
+  // execCommand so the paired delete stays on the native undo stack.
   if (e.key === "Backspace" && s === end && s > 0) {
     const prevChar = el.value.charAt(s - 1);
     if (Object.prototype.hasOwnProperty.call(PAIRS, prevChar) && PAIRS[prevChar] === nextChar) {
       e.preventDefault();
-      el.value = el.value.substring(0, s - 1) + el.value.substring(s + 1);
-      el.selectionStart = el.selectionEnd = s - 1;
+      el.setSelectionRange(s - 1, s + 1);
+      document.execCommand("delete");
       onEditorInput();
       return;
     }

@@ -19,38 +19,84 @@
     <!-- ══════════════════════════════════════
        HEADER
   ══════════════════════════════════════ -->
-    <header id="appHeader" role="banner">
-      <div class="logo" aria-label="DevForge home">
+    <header id="appHeader">
+      <div class="logo">
         <span class="logo-icon" aria-hidden="true">⚡</span>
         DevForge
       </div>
 
       <div class="header-center" role="tablist" aria-label="Language selection">
-        <div id="challengeIndicator" class="challenge-indicator" aria-live="polite">⚔ CHALLENGE MODE</div>
+        <div id="challengeIndicator" class="challenge-indicator" aria-live="polite">
+          ⚔ CHALLENGE MODE
+        </div>
 
-        <button type="button" class="tab-btn active" id="tabHTML" onclick="switchTab('html')" role="tab" aria-selected="true" aria-controls="codeEditor">
+        <button
+          type="button"
+          class="tab-btn active"
+          id="tabHTML"
+          onclick="switchTab('html')"
+          role="tab"
+          aria-selected="true"
+          aria-controls="codeEditor"
+        >
           <span class="tab-dot" style="background: #f0641e" aria-hidden="true"></span>
           HTML
         </button>
-        <button type="button" class="tab-btn" id="tabCSS" onclick="switchTab('css')" role="tab" aria-selected="false" aria-controls="codeEditor">
+        <button
+          type="button"
+          class="tab-btn"
+          id="tabCSS"
+          onclick="switchTab('css')"
+          role="tab"
+          aria-selected="false"
+          aria-controls="codeEditor"
+        >
           <span class="tab-dot" style="background: #58a6ff" aria-hidden="true"></span>
           CSS
         </button>
-        <button type="button" class="tab-btn" id="tabJS" onclick="switchTab('js')" role="tab" aria-selected="false" aria-controls="codeEditor">
+        <button
+          type="button"
+          class="tab-btn"
+          id="tabJS"
+          onclick="switchTab('js')"
+          role="tab"
+          aria-selected="false"
+          aria-controls="codeEditor"
+        >
           <span class="tab-dot" style="background: #d29922" aria-hidden="true"></span>
           JS
         </button>
       </div>
 
       <div class="header-right">
-        <div class="autorun-wrap" onclick="toggleAutorun()" title="Auto-run on edit" role="switch" aria-checked="false" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' ')event.preventDefault(),toggleAutorun()">
+        <div
+          class="autorun-wrap"
+          onclick="toggleAutorun()"
+          title="Auto-run on edit"
+          role="switch"
+          aria-checked="false"
+          tabindex="0"
+          onkeydown="
+            if (event.key === 'Enter' || event.key === ' ')
+              (event.preventDefault(), toggleAutorun());
+          "
+        >
           <div class="toggle" id="autorunToggle"></div>
           <span id="autorunLabel">Auto</span>
         </div>
 
-        <div class="progress-wrap" aria-label="Lesson progress">
+        <div class="progress-wrap">
           <span id="progressText" aria-live="polite">0/16</span>
-          <div class="progress-bar" id="progressBar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="16" aria-label="Progress">
+          <!-- [html-validate-disable-next prefer-native-element -- custom styled/animated progress uses a valid role="progressbar" ARIA pattern; native <progress> cannot host the animated fill element] -->
+          <div
+            class="progress-bar"
+            id="progressBar"
+            role="progressbar"
+            aria-valuenow="0"
+            aria-valuemin="0"
+            aria-valuemax="16"
+            aria-label="Progress"
+          >
             <div class="progress-fill" id="progressFill" style="width: 0%"></div>
           </div>
         </div>
@@ -75,7 +121,9 @@
         >
           ⌨
         </button>
-        <button type="button" class="run-btn" id="runBtn" onclick="runCode()" aria-label="Run code">▶ Run</button>
+        <button type="button" class="run-btn" id="runBtn" onclick="runCode()" aria-label="Run code">
+          ▶ Run
+        </button>
       </div>
     </header>
 

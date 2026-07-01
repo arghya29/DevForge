@@ -5,9 +5,9 @@
 DevForge is a static client-side application with zero server-side components.
 The following versions receive security updates:
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.x     | ✅ Active          |
+| Version | Supported |
+| ------- | --------- |
+| 1.x     | ✅ Active |
 
 ## Reporting a Vulnerability
 
@@ -42,12 +42,12 @@ responsibly by following the steps below.
 Since DevForge runs entirely in the browser with no server component,
 the main attack surface is:
 
-| Area                        | Risk | Mitigation                                           |
-| --------------------------- | ---- | ---------------------------------------------------- |
-| **User code in iframe**    | Low  | Sandboxed `<iframe sandbox="allow-scripts">`        |
-| **Console `postMessage`**  | Low  | Type-checked messages, no unsolicited command relay   |
-| **Lesson `innerHTML`**     | Low  | Lesson content is static JSON, not user-provided      |
-| **No dependencies**        | None | Zero runtime libraries = zero supply-chain risk       |
+| Area                      | Risk | Mitigation                                          |
+| ------------------------- | ---- | --------------------------------------------------- |
+| **User code in iframe**   | Low  | Sandboxed `<iframe sandbox="allow-scripts">`        |
+| **Console `postMessage`** | Low  | Type-checked messages, no unsolicited command relay |
+| **Lesson `innerHTML`**    | Low  | Lesson content is static JSON, not user-provided    |
+| **No dependencies**       | None | Zero runtime libraries = zero supply-chain risk     |
 
 ### CSP Note
 

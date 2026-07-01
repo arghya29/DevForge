@@ -239,21 +239,22 @@ npm run format:fix    # Prettier rewrites files in place
 
 DevForge provides several issue templates to help you report problems effectively:
 
-| Template | File | When to use |
-| -------- | ---- | ----------- |
-| **Bug Report** | `.github/ISSUE_TEMPLATE/bug_report.md` | Something is broken or behaving incorrectly |
-| **Feature Request** | `.github/ISSUE_TEMPLATE/feature_request.md` | Suggest a new feature, lesson, or improvement |
-| **Documentation Request** | `.github/ISSUE_TEMPLATE/documentation_request.md` | Missing or unclear documentation |
+| Template                  | File                                              | When to use                                   |
+| ------------------------- | ------------------------------------------------- | --------------------------------------------- |
+| **Bug Report**            | `.github/ISSUE_TEMPLATE/bug_report.md`            | Something is broken or behaving incorrectly   |
+| **Feature Request**       | `.github/ISSUE_TEMPLATE/feature_request.md`       | Suggest a new feature, lesson, or improvement |
+| **Documentation Request** | `.github/ISSUE_TEMPLATE/documentation_request.md` | Missing or unclear documentation              |
 
 If your issue doesn't fit these templates, feel free to open a blank issue.
+
 ## CI/CD and Deployment
 
 DevForge uses two GitHub Actions workflows:
 
-| Workflow | File | Trigger | Purpose |
-| -------- | ---- | ------- | ------- |
-| **CI Checks** | `.github/workflows/ci.yml` | PRs to `dev`, pushes to `dev` & `main` | ESLint, Prettier, html-validate |
-| **Deploy** | `.github/workflows/deploy.yml` | Push to `main`, manual dispatch | Publishes to GitHub Pages |
+| Workflow      | File                           | Trigger                                | Purpose                         |
+| ------------- | ------------------------------ | -------------------------------------- | ------------------------------- |
+| **CI Checks** | `.github/workflows/ci.yml`     | PRs to `dev`, pushes to `dev` & `main` | ESLint, Prettier, html-validate |
+| **Deploy**    | `.github/workflows/deploy.yml` | Push to `main`, manual dispatch        | Publishes to GitHub Pages       |
 
 ### How deployment works
 

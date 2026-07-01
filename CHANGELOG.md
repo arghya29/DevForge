@@ -26,6 +26,7 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `escapeHtml()` sanitizer now handles double and single quotes (previously only `&`, `<`, `>`)
 - `escHtml()` highlighter sanitizer now also escapes backticks for safer template literal injection
 - Both sanitizers now have a defensive `typeof` check to prevent crashes on non-string input
+
 ### Fixed
 
 - Critical bug in `handleEditorKey`: duplicate auto-close logic for brackets and quotes
@@ -41,6 +42,7 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Restructured auto-close logic to eliminate nested duplicate `PAIRS` checks
 - Consolidated duplicate `isQuote` guard clauses into a single check
+
 ### Added
 
 - GitHub Pages deploy workflow (`.github/workflows/deploy.yml`) for automated deployment
