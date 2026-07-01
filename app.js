@@ -582,7 +582,13 @@ function navLesson(dir) {
 ══════════════════════════════════════════════════════════ */
 // Receive console messages forwarded from the iframe
 window.addEventListener("message", e => {
+  // Only accept messages from our own preview iframe. Its srcdoc document has an
+  // opaque origin (reported inconsistently across browsers), so verify the source
+  // window reference rather than e.origin.
+  const previewFrame = document.getElementById("previewFrame");
+  if (!previewFrame || e.source !== previewFrame.contentWindow) return;
   if (!e.data || !["log", "error", "warn", "info"].includes(e.data.type)) return;
+  if (!Array.isArray(e.data.args)) return;
   addConsoleLog(e.data.type, e.data.args.join(" "), e.data.ts);
 });
 
