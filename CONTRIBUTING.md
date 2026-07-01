@@ -316,6 +316,8 @@ Include:
 
 - No inline `style=""` attributes
 - Semantic elements where appropriate (`<aside>`, `<header>`, `<button>`)
+- Include ARIA attributes (`role`, `aria-label`, `aria-live`) for accessibility
+- All form controls need an associated `<label>` or `aria-label`
 
 ### Lesson content (`curriculum.js`)
 
