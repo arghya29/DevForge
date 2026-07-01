@@ -324,3 +324,19 @@ Include:
 - Indent starter code with 2 spaces
 - Keep starter code short — learners need to understand it at a glance
 - Escape backticks inside template literal starter code with `\``
+
+### Security
+
+- **All user-provided text must be HTML-escaped** before being inserted via `innerHTML`
+- Use the provided `escapeHtml()` or `escHtml()` helper functions — never directly concatenate user strings
+- The lesson `instruction` field may contain HTML (it is authored by maintainers), but lesson starter code is rendered in a sandboxed iframe
+- If adding any new `postMessage` channel, validate the `origin` and `data.type` before acting on the message
+- Never introduce external runtime dependencies — every new dependency is a potential supply-chain risk
+- Avoid inline event handlers in new HTML additions — prefer `addEventListener` in app.js
+
+### Accessibility
+
+- All interactive elements must have visible focus styles (`:focus-visible`)
+- Use semantic HTML elements over generic `<div>` or `<span>` where possible
+- Add `aria-label` to icon-only buttons and `aria-live` to dynamic content regions
+- Ensure keyboard navigation works without a mouse — test with Tab, Enter, Escape, and arrow keys
