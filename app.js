@@ -28,6 +28,8 @@ const buffers = {}; // { [lessonId]: { html, css, js } }  — user edits
 const scrollPositions = {}; // { [lessonId_tab]: scrollTop }
 const undoStacks = {}; // { [lessonId_tab]: [string] }
 const redoStacks = {}; // { [lessonId_tab]: [string] }
+const undoPushTimers = {}; // { [lessonId_tab]: timeoutId }
+const pendingUndoValues = {}; // { [lessonId_tab]: string }
 const UNDO_MAX = 50;
 
 /* ══════════════════════════════════════════════════════════
@@ -150,6 +152,7 @@ function saveCurrentBuffer() {
   const editor = document.getElementById("codeEditor");
   buffers[currentLessonId][activeTab] = editor.value;
   scrollPositions[currentLessonId + "_" + activeTab] = editor.scrollTop;
+  flushUndoState(currentLessonId + "_" + activeTab);
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -192,6 +195,7 @@ function loadTab(tab) {
 
   const editor = document.getElementById("codeEditor");
   editor.value = buf[tab] || "";
+  seedUndoState(currentLessonId + "_" + tab, editor.value);
   updateLineNums();
   highlight();
 
@@ -211,6 +215,7 @@ function loadTab(tab) {
 ══════════════════════════════════════════════════════════ */
 function editorUndo() {
   const key = currentLessonId + "_" + activeTab;
+  flushUndoState(key);
   const stack = undoStacks[key];
   if (!stack || stack.length < 2) return;
   const current = stack.pop();
@@ -222,6 +227,7 @@ function editorUndo() {
 
 function editorRedo() {
   const key = currentLessonId + "_" + activeTab;
+  flushUndoState(key, { preserveRedo: true });
   const stack = redoStacks[key];
   if (!stack || stack.length === 0) return;
   const next = stack.pop();
@@ -246,7 +252,6 @@ function applyEditorState(val) {
 /* ══════════════════════════════════════════════════════════
    EDITOR EVENTS
 ══════════════════════════════════════════════════════════ */
-let undoPushTimer = null;
 
 function onEditorInput() {
   if (!buffers[currentLessonId]) return;
@@ -266,17 +271,37 @@ function onEditorInput() {
 }
 
 function pushUndoState(key, val) {
-  clearTimeout(undoPushTimer);
-  undoPushTimer = setTimeout(() => {
-    if (!undoStacks[key]) undoStacks[key] = [];
-    if (!redoStacks[key]) redoStacks[key] = [];
-    const last = undoStacks[key][undoStacks[key].length - 1];
-    if (last !== val && val !== undefined) {
-      undoStacks[key].push(val);
-      redoStacks[key] = [];
-      if (undoStacks[key].length > UNDO_MAX) undoStacks[key].shift();
-    }
-  }, 100);
+  clearTimeout(undoPushTimers[key]);
+  pendingUndoValues[key] = val;
+  undoPushTimers[key] = setTimeout(() => flushUndoState(key), 100);
+}
+
+function flushUndoState(key, options = {}) {
+  clearTimeout(undoPushTimers[key]);
+  delete undoPushTimers[key];
+  if (!Object.prototype.hasOwnProperty.call(pendingUndoValues, key)) return;
+  const val = pendingUndoValues[key];
+  delete pendingUndoValues[key];
+  commitUndoState(key, val, options);
+}
+
+function seedUndoState(key, val) {
+  if (!undoStacks[key]) undoStacks[key] = [];
+  if (!redoStacks[key]) redoStacks[key] = [];
+  if (undoStacks[key].length === 0 && val !== undefined) {
+    undoStacks[key].push(val);
+  }
+}
+
+function commitUndoState(key, val, options = {}) {
+  if (!undoStacks[key]) undoStacks[key] = [];
+  if (!redoStacks[key]) redoStacks[key] = [];
+  const last = undoStacks[key][undoStacks[key].length - 1];
+  if (last !== val && val !== undefined) {
+    undoStacks[key].push(val);
+    if (!options.preserveRedo) redoStacks[key] = [];
+    if (undoStacks[key].length > UNDO_MAX) undoStacks[key].shift();
+  }
 }
 
 function updateLineNums() {
@@ -342,41 +367,41 @@ function handleEditorKey(e) {
     el.selectionStart = el.selectionEnd = end + 1;
     return;
   }
-   const isQuote =e.key === '"' || e.key === "'" || e.key === "`";
-   if (isQuote && s === end) {
-      const prevChar =el.value.charAt(s-1);
-      const wordBefore = /[\w]/.test(prevChar);
-      const wordAfter = /[\w]/.test(nextChar);
-      if (wordBefore || wordAfter || nextChar === e.key) return;
+  const isQuote = e.key === '"' || e.key === "'" || e.key === "`";
+  if (isQuote && s === end) {
+    const prevChar = el.value.charAt(s - 1);
+    const wordBefore = /[\w]/.test(prevChar);
+    const wordAfter = /[\w]/.test(nextChar);
+    if (wordBefore || wordAfter || nextChar === e.key) return;
   }
   // Typing an opening char (or a quote): insert the matching closer.
-   if (Object.prototype.hasOwnProperty.call(PAIRS, e.key)) {
-       const close = PAIRS[e.key];
+  if (Object.prototype.hasOwnProperty.call(PAIRS, e.key)) {
+    const close = PAIRS[e.key];
 
     // If there's a selection, wrap it in the pair (e.g. select foo, press "(" → (foo)).
-// Typing an opening char: insert the matching closer.
-   if (Object.prototype.hasOwnProperty.call(PAIRS, e.key)) {
-     const close = PAIRS[e.key];
-     const selected = (s !== end) ? el.value.substring(s, end) : "";
-     e.preventDefault();
+    // Typing an opening char: insert the matching closer.
+    if (Object.prototype.hasOwnProperty.call(PAIRS, e.key)) {
+      const close = PAIRS[e.key];
+      const selected = s !== end ? el.value.substring(s, end) : "";
+      e.preventDefault();
 
-    // 1. First, insert the opening char and any selected text
-     const firstPart = e.key + selected;
-     document.execCommand('insertText', false, firstPart);
+      // 1. First, insert the opening char and any selected text
+      const firstPart = e.key + selected;
+      document.execCommand("insertText", false, firstPart);
 
-    // 2. Use a timeout to force the closer as a separate undoable action
-    setTimeout(() => {
-      // Move caret to after the first part
-      const newPos = s + firstPart.length;
-      el.setSelectionRange(newPos, newPos);
-      // 3. Insert the closing char
-      document.execCommand('insertText', false, close);
-      // 4. Move caret back inside
-      el.setSelectionRange(newPos,newPos);
-      onEditorInput();
-    }, 0);
-    return;
-  }
+      // 2. Use a timeout to force the closer as a separate undoable action
+      setTimeout(() => {
+        // Move caret to after the first part
+        const newPos = s + firstPart.length;
+        el.setSelectionRange(newPos, newPos);
+        // 3. Insert the closing char
+        document.execCommand("insertText", false, close);
+        // 4. Move caret back inside
+        el.setSelectionRange(newPos, newPos);
+        onEditorInput();
+      }, 0);
+      return;
+    }
     // For quotes, don't auto-close when typing directly after a word character
     // (e.g. the apostrophe in don't) or before one — only the single quote is
     // inserted in those cases so we don't mangle contractions or identifiers.
@@ -411,7 +436,6 @@ function handleEditorKey(e) {
     }
   }
 }
-
 
 /* ══════════════════════════════════════════════════════════
    SYNTAX HIGHLIGHTING
@@ -919,6 +943,7 @@ function initResizer() {
 ══════════════════════════════════════════════════════════ */
 document.addEventListener("keydown", e => {
   const ctrl = e.ctrlKey || e.metaKey;
+  const key = e.key.toLowerCase();
 
   if (ctrl && e.key === "Enter") {
     e.preventDefault();
@@ -953,11 +978,11 @@ document.addEventListener("keydown", e => {
     copyAllCode();
   }
 
-  if (ctrl && e.key === "z" && !e.shiftKey) {
+  if (ctrl && key === "z" && !e.shiftKey) {
     e.preventDefault();
     editorUndo();
   }
-  if ((ctrl && e.key === "y") || (ctrl && e.shiftKey && e.key === "z")) {
+  if ((ctrl && key === "y") || (ctrl && e.shiftKey && key === "z")) {
     e.preventDefault();
     editorRedo();
   }
