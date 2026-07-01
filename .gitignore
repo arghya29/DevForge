@@ -29,5 +29,3 @@ npm-debug.log*
 .env
 .env.local
 
-# Generated PWA icons (add real icons manually)
-icon-*.png

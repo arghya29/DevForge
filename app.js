@@ -962,7 +962,9 @@ init();
 
 // Register service worker for offline/PWA support
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js").catch(() => {});
+  navigator.serviceWorker.register("sw.js").catch(error => {
+    console.warn("DevForge service worker registration failed", error);
+  });
 }
 
 /* ════════════════════════════════════════════════════════════

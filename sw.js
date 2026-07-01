@@ -15,6 +15,8 @@ const PRECACHE = [
   "/DevForge/app.js",
   "/DevForge/curriculum.js",
   "/DevForge/manifest.json",
+  "/DevForge/icon-192.png",
+  "/DevForge/icon-512.png",
   "/DevForge/offline.html",
 ];
 
@@ -30,14 +32,16 @@ self.addEventListener("install", event => {
 self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys().then(keys => {
-      return Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)));
+      return Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))).then(() =>
+        self.clients.claim()
+      );
     })
   );
-  self.clients.claim();
 });
 
 self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
+  const isNavigation = event.request.mode === "navigate";
   event.respondWith(
     caches.match(event.request).then(cached => {
       const fetched = fetch(event.request)
@@ -48,7 +52,10 @@ self.addEventListener("fetch", event => {
           }
           return response;
         })
-        .catch(() => caches.match("/DevForge/offline.html"));
+        .catch(() => {
+          if (isNavigation) return caches.match("/DevForge/offline.html");
+          return cached || Response.error();
+        });
       return cached || fetched;
     })
   );
