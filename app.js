@@ -1055,6 +1055,10 @@ function toggleLessonPane() {
  *   css-selector      — a selector exists before {
  *   js-contains       — raw string in JS buffer
  */
+function escapeRegExp(str) {
+  return String(str).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function checkGoalRule(rule, buf) {
   if (!rule || !rule.type) return false;
   const css = buf.css || "";
@@ -1063,7 +1067,7 @@ function checkGoalRule(rule, buf) {
   switch (rule.type) {
     case "html-tag":
       // Matches <tagname> or <tagname ...>
-      return new RegExp(`<${rule.value}[\\s>/]`, "i").test(buf.html || "");
+      return new RegExp(`<${escapeRegExp(rule.value)}[\\s>/]`, "i").test(buf.html || "");
 
     case "html-attr":
       // Matches attribute=... patterns in HTML
@@ -1071,17 +1075,17 @@ function checkGoalRule(rule, buf) {
 
     case "html-count-min": {
       // Counts how many times a tag opening appears
-      const matches = (buf.html || "").match(new RegExp(`<${rule.tag}[\\s>/]`, "gi"));
+      const matches = (buf.html || "").match(new RegExp(`<${escapeRegExp(rule.tag)}[\\s>/]`, "gi"));
       return matches !== null && matches.length >= rule.min;
     }
 
     case "css-property":
       // Checks if a CSS property name is used (before a colon)
-      return new RegExp(`${rule.value}\\s*:`, "i").test(css);
+       return new RegExp(`${escapeRegExp(rule.value)}\\s*:`, "i").test(css);
 
     case "css-property-value":
       // Checks if property: value combo appears
-      return new RegExp(`${rule.property}\\s*:\\s*[^;]*${rule.value}`, "i").test(css);
+      return new RegExp(`${escapeRegExp(rule.property)}\\s*:\\s*[^;]*${escapeRegExp(rule.value)}`, "i").test(css);
 
     case "css-contains":
       // Raw substring match in CSS
@@ -1089,7 +1093,7 @@ function checkGoalRule(rule, buf) {
 
     case "css-selector":
       // Checks if selector exists before a {
-      return new RegExp(`${rule.value}[\\s,:{]`).test(css);
+      return new RegExp(`${escapeRegExp(rule.value)}[\\s,:{]`, "i").test(css);
 
     case "js-contains":
       // Raw substring match in JS
