@@ -26,6 +26,12 @@ let errorCount = 0;
 
 const doneSet = new Set(); // lesson ids that have been run at least once
 const buffers = {}; // { [lessonId]: { html, css, js } }  — user edits
+const scrollPositions = {}; // { [lessonId_tab]: scrollTop }
+const undoStacks = {}; // { [lessonId_tab]: [string] }
+const redoStacks = {}; // { [lessonId_tab]: [string] }
+const undoPushTimers = {}; // { [lessonId_tab]: timeoutId }
+const pendingUndoValues = {}; // { [lessonId_tab]: string }
+const UNDO_MAX = 50;
 
 // Accessible-name labels for the code editor, keyed by the active language tab.
 const EDITOR_ARIA_LABELS = {
@@ -158,7 +164,10 @@ function loadLesson(id) {
 
 function saveCurrentBuffer() {
   if (!currentLessonId || !buffers[currentLessonId]) return;
-  buffers[currentLessonId][activeTab] = document.getElementById("codeEditor").value;
+  const editor = document.getElementById("codeEditor");
+  buffers[currentLessonId][activeTab] = editor.value;
+  scrollPositions[currentLessonId + "_" + activeTab] = editor.scrollTop;
+  flushUndoState(currentLessonId + "_" + activeTab);
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -204,27 +213,113 @@ function loadTab(tab) {
 
   const editor = document.getElementById("codeEditor");
   editor.value = buf[tab] || "";
+  seedUndoState(currentLessonId + "_" + tab, editor.value);
   editor.setAttribute("aria-label", EDITOR_ARIA_LABELS[tab] || "Code editor");
   updateLineNums();
   highlight();
 
-  // Glitch-in animation on switch
+  requestAnimationFrame(() => {
+    const key = currentLessonId + "_" + tab;
+    if (scrollPositions[key] !== undefined) {
+      editor.scrollTop = scrollPositions[key];
+    }
+  });
+
   editor.classList.add("glitch-in");
   setTimeout(() => editor.classList.remove("glitch-in"), 400);
 }
 
 /* ══════════════════════════════════════════════════════════
+   UNDO / REDO
+══════════════════════════════════════════════════════════ */
+function editorUndo() {
+  const key = currentLessonId + "_" + activeTab;
+  flushUndoState(key);
+  const stack = undoStacks[key];
+  if (!stack || stack.length < 2) return;
+  const current = stack.pop();
+  if (!redoStacks[key]) redoStacks[key] = [];
+  redoStacks[key].push(current);
+  const prev = stack[stack.length - 1];
+  applyEditorState(prev);
+}
+
+function editorRedo() {
+  const key = currentLessonId + "_" + activeTab;
+  flushUndoState(key, { preserveRedo: true });
+  const stack = redoStacks[key];
+  if (!stack || stack.length === 0) return;
+  const next = stack.pop();
+  if (!undoStacks[key]) undoStacks[key] = [];
+  undoStacks[key].push(next);
+  applyEditorState(next);
+}
+
+function applyEditorState(val) {
+  if (val === undefined) return;
+  const editor = document.getElementById("codeEditor");
+  editor.value = val;
+  buffers[currentLessonId][activeTab] = val;
+  updateLineNums();
+  highlight();
+  if (autorun) {
+    clearTimeout(autorunTimer);
+    autorunTimer = setTimeout(runCode, 900);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
    EDITOR EVENTS
 ══════════════════════════════════════════════════════════ */
+
 function onEditorInput() {
   if (!buffers[currentLessonId]) return;
-  buffers[currentLessonId][activeTab] = document.getElementById("codeEditor").value;
+  const editor = document.getElementById("codeEditor");
+  const newVal = editor.value;
+  const key = currentLessonId + "_" + activeTab;
+  buffers[currentLessonId][activeTab] = newVal;
   updateLineNums();
   highlight();
 
   if (autorun) {
     clearTimeout(autorunTimer);
     autorunTimer = setTimeout(runCode, 900);
+  }
+
+  pushUndoState(key, newVal);
+}
+
+function pushUndoState(key, val) {
+  clearTimeout(undoPushTimers[key]);
+  pendingUndoValues[key] = val;
+  undoPushTimers[key] = setTimeout(() => flushUndoState(key), 100);
+}
+
+function flushUndoState(key, options = {}) {
+  clearTimeout(undoPushTimers[key]);
+  delete undoPushTimers[key];
+  if (!Object.prototype.hasOwnProperty.call(pendingUndoValues, key)) return;
+  const val = pendingUndoValues[key];
+  delete pendingUndoValues[key];
+  commitUndoState(key, val, options);
+}
+
+function seedUndoState(key, val) {
+  if (!undoStacks[key]) undoStacks[key] = [];
+  if (!redoStacks[key]) redoStacks[key] = [];
+  if (undoStacks[key].length === 0 && val !== undefined) {
+    undoStacks[key].push(val);
+  }
+}
+
+function commitUndoState(key, val, options = {}) {
+  if (!undoStacks[key]) undoStacks[key] = [];
+  if (!redoStacks[key]) redoStacks[key] = [];
+  const last = undoStacks[key][undoStacks[key].length - 1];
+  if (last !== val && val !== undefined) {
+    undoStacks[key].push(val);
+    if (!options.preserveRedo) redoStacks[key] = [];
+    if (undoStacks[key].length > UNDO_MAX) undoStacks[key].shift();
   }
 }
 
@@ -300,7 +395,6 @@ function handleEditorKey(e) {
     const wordAfter = /[\w]/.test(nextChar);
     if (wordBefore || wordAfter || nextChar === e.key) return;
   }
-
   // Typing an opening bracket/brace/quote: insert the matching closer. If there's
   // a selection, wrap it in the pair (e.g. select foo, press "(" → (foo)). The
   // opener, any wrapped selection, and the closer are inserted as a single
@@ -899,6 +993,7 @@ function toggleSidebar() {
 ══════════════════════════════════════════════════════════ */
 document.addEventListener("keydown", e => {
   const ctrl = e.ctrlKey || e.metaKey;
+  const key = e.key.toLowerCase();
 
   if (ctrl && e.key === "Enter") {
     e.preventDefault();
@@ -931,6 +1026,15 @@ document.addEventListener("keydown", e => {
   if (ctrl && e.shiftKey && e.key === "C") {
     e.preventDefault();
     copyAllCode();
+  }
+
+  if (ctrl && key === "z" && !e.shiftKey) {
+    e.preventDefault();
+    editorUndo();
+  }
+  if ((ctrl && key === "y") || (ctrl && e.shiftKey && key === "z")) {
+    e.preventDefault();
+    editorRedo();
   }
 
   if (e.key === "Escape") {
@@ -1006,6 +1110,9 @@ window.changeFontSize = changeFontSize;
 // Reset modal
 window.hideResetModal = hideResetModal;
 window.confirmReset = confirmReset;
+// Undo/redo
+window.editorUndo = editorUndo;
+window.editorRedo = editorRedo;
 // Completion modal
 window.hideCompletion = hideCompletion;
 window.restartAll = restartAll;
