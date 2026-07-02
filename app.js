@@ -121,9 +121,9 @@ function clearProgress() {
     clearTimeout(saveTimer);
     saveTimer = null;
   }
+  revealedHints = {}; // Reset progressive hints on restart (#77)
   try {
     window.localStorage.removeItem(STORAGE_KEY);
-    revealedHints = {}; // Reset progressive hints on restart (#77)
   } catch {
     return; // ignore
   }
