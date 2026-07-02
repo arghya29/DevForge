@@ -270,6 +270,27 @@
           <div class="lesson-content" id="lessonContent"></div>
         </div>
 
+        <!-- 🎯 Goals Checklist Panel (#75) -->
+        <div class="goals-panel" id="goalsPanel" aria-label="Lesson goal checklist" style="display:none">
+          <div class="goals-header" id="goalsPanelHeader" onclick="toggleGoalsPanel()">
+            <div class="goals-title-wrap">
+              <span class="goals-icon">🎯</span>
+              <span class="goals-title">GOALS</span>
+              <span class="goals-badge" id="goalsBadge">0 / 0</span>
+            </div>
+            <button
+              type="button"
+              class="collapse-btn"
+              id="goalsCollapseBtn"
+              aria-label="Collapse goals panel"
+              aria-expanded="true"
+            >
+              ▼
+            </button>
+          </div>
+          <div class="goals-list" id="goalsList"></div>
+        </div>
+
         <!-- Prev / Next navigation -->
         <div class="lesson-nav">
           <button type="button" class="nav-btn" id="prevBtn" onclick="navLesson(-1)">← Prev</button>

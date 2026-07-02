@@ -14,6 +14,7 @@ let currentLessonId = CURRICULUM[0].lessons[0].id;
 let activeTab = "html"; // "html" | "css" | "js"
 let lessonPaneOpen = true;
 let consolePaneOpen = true;
+let goalsPanelOpen = true; // Goals checklist collapse state
 let autorun = false;
 let autorunTimer = null;
 let shortcutsVisible = false;
@@ -249,6 +250,15 @@ function loadLesson(id, { trackProgress = true } = {}) {
   loadTab(activeTab);
   updateNav();
   runCode({ trackProgress });
+
+  // Build goals checklist for new lesson
+  goalsPanelOpen = true;
+  const goalsPanel = document.getElementById("goalsPanel");
+  if (goalsPanel) {
+    goalsPanel.classList.remove("collapsed");
+    delete goalsPanel.dataset.celebrated;
+  }
+  validateGoals();
 }
 
 function saveCurrentBuffer() {
@@ -378,6 +388,9 @@ function onEditorInput() {
   }
 
   pushUndoState(key, newVal);
+
+  // Live goal validation on every keystroke
+  validateGoals();
 }
 
 function pushUndoState(key, val) {
@@ -915,6 +928,145 @@ function toggleLessonPane() {
 }
 
 /* ══════════════════════════════════════════════════════════
+   🎯 LESSON GOAL CHECKLIST  (#75 — sanket1035)
+   Rules engine: validates each goal against the live buffer
+   without touching the iframe — pure string/regex matching.
+══════════════════════════════════════════════════════════ */
+
+/**
+ * Check one goal rule against the current code buffers.
+ * Supported rule types:
+ *   html-tag          — tag present in HTML buffer
+ *   html-attr         — attribute string present in HTML buffer
+ *   html-count-min    — at least N occurrences of a tag in HTML
+ *   css-property      — CSS property used in CSS buffer
+ *   css-property-value — CSS property with specific value
+ *   css-contains      — any raw string in CSS buffer
+ *   css-selector      — a selector exists before {
+ *   js-contains       — raw string in JS buffer
+ */
+function checkGoalRule(rule, buf) {
+  if (!rule || !rule.type) return false;
+  const html = (buf.html || "").toLowerCase();
+  const css  = buf.css  || "";
+  const js   = buf.js   || "";
+
+  switch (rule.type) {
+    case "html-tag":
+      // Matches <tagname> or <tagname ...>
+      return new RegExp(`<${rule.value}[\\s>/]`, "i").test(buf.html || "");
+
+    case "html-attr":
+      // Matches attribute=... patterns in HTML
+      return (buf.html || "").toLowerCase().includes(rule.attr.toLowerCase());
+
+    case "html-count-min": {
+      // Counts how many times a tag opening appears
+      const matches = (buf.html || "").match(new RegExp(`<${rule.tag}[\\s>/]`, "gi"));
+      return matches !== null && matches.length >= rule.min;
+    }
+
+    case "css-property":
+      // Checks if a CSS property name is used (before a colon)
+      return new RegExp(`${rule.value}\\s*:`, "i").test(css);
+
+    case "css-property-value":
+      // Checks if property: value combo appears
+      return new RegExp(`${rule.property}\\s*:\\s*[^;]*${rule.value}`, "i").test(css);
+
+    case "css-contains":
+      // Raw substring match in CSS
+      return css.toLowerCase().includes(rule.value.toLowerCase());
+
+    case "css-selector":
+      // Checks if selector exists before a {
+      return new RegExp(`${rule.value}[\\s,:{]`).test(css);
+
+    case "js-contains":
+      // Raw substring match in JS
+      return js.includes(rule.value);
+
+    default:
+      return false;
+  }
+}
+
+/**
+ * Rebuild and animate the Goals checklist panel for the current lesson.
+ * Called on every editor input and on lesson load.
+ */
+function validateGoals() {
+  const lesson = getLesson(currentLessonId);
+  const panel  = document.getElementById("goalsPanel");
+  const list   = document.getElementById("goalsList");
+  const badge  = document.getElementById("goalsBadge");
+
+  // Hide panel if lesson has no goals
+  if (!lesson || !lesson.goals || lesson.goals.length === 0) {
+    panel.style.display = "none";
+    return;
+  }
+  panel.style.display = "flex";
+
+  const buf = buffers[currentLessonId] || {};
+  let doneCount = 0;
+  const total = lesson.goals.length;
+
+  // Rebuild goal items
+  list.innerHTML = "";
+
+  // Progress bar (inserted as first child of goals-list wrapper)
+  const progressBar = document.createElement("div");
+  progressBar.className = "goals-progress-bar";
+  const progressFill = document.createElement("div");
+  progressFill.className = "goals-progress-fill";
+  progressBar.appendChild(progressFill);
+  list.appendChild(progressBar);
+
+  lesson.goals.forEach((goal) => {
+    const met = checkGoalRule(goal.rule, buf);
+    if (met) doneCount++;
+
+    const item = document.createElement("div");
+    item.className = "goal-item " + (met ? "done" : "pending");
+    item.setAttribute("role", "listitem");
+    item.setAttribute("aria-label", (met ? "Completed: " : "Pending: ") + goal.label);
+    item.innerHTML = `
+      <span class="goal-icon">${met ? "✅" : "○"}</span>
+      <span class="goal-label">${escapeHtml(goal.label)}</span>
+      <span class="goal-status-dot"></span>`;
+    list.appendChild(item);
+  });
+
+  // Update progress bar width
+  progressFill.style.width = total > 0 ? `${(doneCount / total) * 100}%` : "0%";
+
+  // Update badge
+  badge.textContent = `${doneCount} / ${total}`;
+  badge.classList.toggle("all-done", doneCount === total && total > 0);
+
+  // Celebrate when all goals met
+  panel.classList.toggle("all-complete", doneCount === total && total > 0);
+
+  // Show toast only when all goals newly met (avoid repeated toasts)
+  if (doneCount === total && total > 0 && !panel.dataset.celebrated) {
+    panel.dataset.celebrated = "1";
+    showToast(`🎯 All ${total} goals met! Great work!`, "success", "🎯");
+  } else if (doneCount < total) {
+    delete panel.dataset.celebrated;
+  }
+}
+
+/** Toggle goals panel open/collapsed */
+function toggleGoalsPanel() {
+  goalsPanelOpen = !goalsPanelOpen;
+  document.getElementById("goalsPanel").classList.toggle("collapsed", !goalsPanelOpen);
+  const btn = document.getElementById("goalsCollapseBtn");
+  btn.style.transform = goalsPanelOpen ? "" : "rotate(180deg)";
+  btn.setAttribute("aria-expanded", goalsPanelOpen ? "true" : "false");
+}
+
+/* ══════════════════════════════════════════════════════════
    PROGRESS BAR
 ══════════════════════════════════════════════════════════ */
 function updateProgress() {
@@ -1357,3 +1509,6 @@ window.editorRedo = editorRedo;
 // Completion modal
 window.hideCompletion = hideCompletion;
 window.restartAll = restartAll;
+// Goals checklist (#75)
+window.validateGoals = validateGoals;
+window.toggleGoalsPanel = toggleGoalsPanel;
