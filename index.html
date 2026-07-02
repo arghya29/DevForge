@@ -232,11 +232,43 @@
         <div class="lesson-list" id="lessonList"></div>
 
         <div class="sidebar-footer">
-          <span class="xp-label">
-            XP:
-            <span class="xp-val" id="xpVal">0</span>
-          </span>
-          <span class="xp-label" id="streakLabel">🔥 0 streak</span>
+          <div class="footer-stats">
+            <span class="xp-label">
+              XP:
+              <span class="xp-val" id="xpVal">0</span>
+            </span>
+            <span class="xp-label" id="streakLabel">🔥 0 streak</span>
+          </div>
+          <div class="footer-actions">
+            <button
+              type="button"
+              class="footer-action-btn"
+              id="exportBtn"
+              title="Export progress backup"
+              aria-label="Export progress backup"
+              onclick="exportProgress()"
+            >
+              📤 Export
+            </button>
+            <button
+              type="button"
+              class="footer-action-btn"
+              id="importBtn"
+              title="Import progress backup"
+              aria-label="Import progress backup"
+              onclick="triggerImport()"
+            >
+              📥 Import
+            </button>
+            <input
+              type="file"
+              id="importFileInput"
+              accept=".json"
+              aria-label="Choose a progress backup JSON file"
+              style="display: none"
+              onchange="importProgress(event)"
+            />
+          </div>
         </div>
       </aside>
 
@@ -649,6 +681,35 @@
         <div class="modal-btns">
           <button type="button" class="btn-cancel" onclick="hideResetModal()">Cancel</button>
           <button type="button" class="btn-confirm" onclick="confirmReset()">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Import overwrite confirmation modal -->
+    <div
+      class="modal-overlay"
+      id="importConfirmModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="importConfirmModalTitle"
+      tabindex="-1"
+    >
+      <div class="modal">
+        <h3 id="importConfirmModalTitle">⚠️ Overwrite progress?</h3>
+        <p>
+          Importing this backup will overwrite your current progress, completed lessons, and code
+          edits. This action cannot be undone.
+        </p>
+        <div class="modal-btns">
+          <button type="button" class="btn-cancel" onclick="hideImportModal()">Cancel</button>
+          <button
+            type="button"
+            class="btn-confirm"
+            id="confirmImportBtn"
+            onclick="confirmImportProgress()"
+          >
+            Import
+          </button>
         </div>
       </div>
     </div>

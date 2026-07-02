@@ -619,8 +619,41 @@ header {
   border-top: 1px solid var(--border);
   padding: 10px 12px;
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.footer-stats {
+  display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
+}
+.footer-actions {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+}
+.footer-action-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 5px 0;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--muted);
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.footer-action-btn:hover {
+  background: var(--surface2);
+  color: var(--text);
+  border-color: var(--muted);
 }
 .xp-label {
   font-size: 0.68rem;
