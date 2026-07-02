@@ -356,6 +356,23 @@
               <span class="console-badge" id="consoleBadge">0</span>
             </div>
             <div class="console-actions">
+              <input
+                type="text"
+                class="console-filter"
+                id="consoleFilter"
+                placeholder="Filter…"
+                oninput="filterConsole(this.value)"
+                aria-label="Filter console output"
+              />
+              <button
+                type="button"
+                class="tiny-btn"
+                onclick="clearConsoleFilter()"
+                title="Clear filter"
+                aria-label="Clear console filter"
+              >
+                ✕
+              </button>
               <button
                 type="button"
                 class="tiny-btn"

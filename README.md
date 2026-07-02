@@ -161,6 +161,9 @@ DevForge/
 | `Ctrl + 3`         | Switch to JS tab      |
 | `Ctrl + Shift + R` | Reset code to starter |
 | `Ctrl + Shift + C` | Copy all code         |
+| `Ctrl + Z`         | Undo last edit        |
+| `Ctrl + Y`         | Redo last undo        |
+| `Ctrl + Shift + Z` | Redo last undo        |
 | `Escape`           | Close any open panel  |
 
 ---
