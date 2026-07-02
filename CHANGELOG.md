@@ -11,9 +11,15 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Light theme with full color palette override via `[data-theme="light"]`
 - Theme toggle button in header (🌙/☀️) with localStorage persistence
-- `toggleTheme()` and `applySavedTheme()` functions
+- `toggleTheme()`, `applyTheme()`, `updateThemeButton()`, and `applySavedTheme()` functions
 - Theme preference saved as `devforge_theme` in localStorage
 - Dark/Light Theme entry in README features table
+- PWA support: manifest.json for installable standalone app experience
+- Service worker (sw.js) for offline caching of all static assets
+- Offline fallback page (offline.html) with reconnect button
+- `<link rel="manifest">`, theme-color, and apple-mobile-web-app meta tags
+- Service worker registration in app.js init
+- PWA-related entries in README features table
 - Touch event support for the drag resizer — enables column resizing on tablets and phones
 - Responsive sidebar toggle: sidebar collapses on screens ≤768px with a ☰ toggle button
 - Mobile-optimized layout: sidebar slides in/out, resizer hidden on mobile, progress bar hidden

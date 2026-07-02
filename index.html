@@ -10,6 +10,11 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icon-192.png" />
+    <meta name="theme-color" content="#161b22" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="DevForge" />
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https: data:; connect-src 'self' https:; frame-src 'self' https:;"
@@ -23,6 +28,27 @@
       <div class="logo">
         <span class="logo-icon" aria-hidden="true">⚡</span>
         DevForge
+        <a
+          class="contribute-btn"
+          href="https://github.com/arghya29/DevForge/discussions"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Contribute to the project (opens in a new tab)"
+        >
+          <svg
+            class="contribute-icon"
+            width="13"
+            height="13"
+            viewBox="0 0 16 16"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              d="M8 2a.75.75 0 0 1 .75.75v4.5h4.5a.75.75 0 0 1 0 1.5h-4.5v4.5a.75.75 0 0 1-1.5 0v-4.5h-4.5a.75.75 0 0 1 0-1.5h4.5v-4.5A.75.75 0 0 1 8 2Z"
+            />
+          </svg>
+          <span class="contribute-text">Contribute to the project</span>
+        </a>
       </div>
 
       <div class="header-center" role="tablist" aria-label="Language selection">
@@ -362,6 +388,27 @@
               <span class="console-badge" id="consoleBadge">0</span>
             </div>
             <div class="console-actions">
+              <input
+                type="text"
+                class="console-filter"
+                id="consoleFilter"
+                placeholder="Filter…"
+                oninput="filterConsole(this.value)"
+                onclick="event.stopPropagation()"
+                aria-label="Filter console output"
+              />
+              <button
+                type="button"
+                class="tiny-btn"
+                onclick="
+                  event.stopPropagation();
+                  clearConsoleFilter();
+                "
+                title="Clear filter"
+                aria-label="Clear console filter"
+              >
+                ✕
+              </button>
               <button
                 type="button"
                 class="tiny-btn"
@@ -495,9 +542,16 @@
     </div>
 
     <!-- Reset confirmation modal -->
-    <div class="modal-overlay" id="resetModal">
+    <div
+      class="modal-overlay"
+      id="resetModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="resetModalTitle"
+      tabindex="-1"
+    >
       <div class="modal">
-        <h3>Reset to starter code?</h3>
+        <h3 id="resetModalTitle">Reset to starter code?</h3>
         <p>
           This will discard your current edits for this lesson and restore the original starter
           code.
@@ -510,10 +564,17 @@
     </div>
 
     <!-- Completion banner -->
-    <div class="completion-banner" id="completionBanner">
+    <div
+      class="completion-banner"
+      id="completionBanner"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="completionTitle"
+      tabindex="-1"
+    >
       <div class="completion-card">
         <span class="completion-emoji">🏆</span>
-        <h2>All Lessons Complete!</h2>
+        <h2 id="completionTitle">All Lessons Complete!</h2>
         <p>
           You've finished every lesson in the DevForge curriculum.
           <br />

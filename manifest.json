@@ -1,0 +1,26 @@
+{
+  "name": "DevForge — Learn by Building",
+  "short_name": "DevForge",
+  "description": "Interactive browser-based coding playground to learn HTML, CSS, and JavaScript. No dependencies, no build tools.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0d1117",
+  "theme_color": "#161b22",
+  "categories": ["education", "development", "learning"],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
