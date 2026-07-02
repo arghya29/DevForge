@@ -139,6 +139,7 @@ DevForge/
 | **Mobile Layout**       | Responsive sidebar with ☰ toggle; touch-friendly drag resizer    |
 | **Console Panel**       | Intercepts `console.log/warn/error` via `postMessage` from iframe |
 | **Code Buffers**        | Each lesson remembers your edits independently in memory          |
+| **State Persistence**   | XP, streak, autorun, and font size survive page reloads           |
 | **XP & Streak**         | Points awarded on first run of each lesson                        |
 | **Auto-run**            | Preview updates 0.9s after you stop typing                        |
 | **Preview Sizes**       | Desktop / Tablet (768px) / Mobile (390px)                         |
