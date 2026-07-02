@@ -12,18 +12,19 @@
    STATE
 ══════════════════════════════════════════════════════════ */
 let currentLessonId = CURRICULUM[0].lessons[0].id;
-let activeTab = "html"; // "html" | "css" | "js"
+let activeTab = "html";
 let lessonPaneOpen = true;
 let consolePaneOpen = true;
 let autorun = false;
 let autorunTimer = null;
-let shortcutsVisible = false;
 let fsPanelVisible = false;
 let sidebarOpen = true;
 let xp = 0;
 let streak = 0;
 let lastRunLesson = null;
 let errorCount = 0;
+let revealedHints = {}; // { [lessonId]: revealedCount } (#77)
+let darkTheme = true;
 let consoleScrolledUp = false;
 const CONSOLE_MAX_LINES = 200;
 let consoleLineCount = 0;
@@ -46,6 +47,7 @@ let saveTimer = null;
 // Persist XP, streak, completed-lesson ids, and per-lesson code buffers.
 function saveProgress() {
   try {
+    const fontSize = getComputedStyle(document.documentElement).getPropertyValue("--fs").trim();
     window.localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({
@@ -53,6 +55,9 @@ function saveProgress() {
         streak: streak,
         done: Array.from(doneSet),
         buffers: buffers,
+        hints: revealedHints, // Persist progressive hints count (#77)
+        autorun: autorun,
+        fontSize: fontSize,
       })
     );
   } catch {
@@ -105,6 +110,29 @@ function loadProgress() {
       }
     });
   }
+  if (data.hints && typeof data.hints === "object" && !Array.isArray(data.hints)) {
+    Object.keys(data.hints).forEach(id => {
+      if (validIds.has(id) && typeof data.hints[id] === "number") {
+        revealedHints[id] = data.hints[id];
+      }
+    });
+  }
+  if (typeof data.autorun === "boolean") {
+    autorun = data.autorun;
+    const toggle = document.getElementById("autorunToggle");
+    if (toggle) toggle.classList.toggle("on", autorun);
+    const label = document.getElementById("autorunLabel");
+    if (label) label.textContent = autorun ? "Auto ✓" : "Auto";
+    const wrap = document.querySelector(".autorun-wrap");
+    if (wrap) wrap.setAttribute("aria-checked", String(autorun));
+  }
+  if (typeof data.fontSize === "string" && /^\d+(?:\.\d+)?px$/.test(data.fontSize)) {
+    document.documentElement.style.setProperty("--fs", data.fontSize);
+    const slider = document.getElementById("fsSlider");
+    if (slider) slider.value = parseInt(data.fontSize, 10);
+    const label = document.getElementById("fsValLabel");
+    if (label) label.textContent = data.fontSize;
+  }
 }
 
 // Wipe persisted progress (used by the Restart flow).
@@ -113,6 +141,7 @@ function clearProgress() {
     clearTimeout(saveTimer);
     saveTimer = null;
   }
+  revealedHints = {}; // Reset progressive hints on restart (#77)
   try {
     window.localStorage.removeItem(STORAGE_KEY);
   } catch {
@@ -147,6 +176,7 @@ function getLessonIndex(id) {
    BOOTSTRAP
 ══════════════════════════════════════════════════════════ */
 function init() {
+  applySavedTheme();
   loadProgress();
   buildSidebar();
   loadLesson(currentLessonId, { trackProgress: false });
@@ -250,6 +280,9 @@ function loadLesson(id, { trackProgress = true } = {}) {
   loadTab(activeTab);
   updateNav();
   runCode({ trackProgress });
+
+  // Render progressive hints (#77)
+  renderLessonHints(lesson);
 }
 
 function saveCurrentBuffer() {
@@ -258,6 +291,80 @@ function saveCurrentBuffer() {
   buffers[currentLessonId][activeTab] = editor.value;
   scrollPositions[currentLessonId + "_" + activeTab] = editor.scrollTop;
   flushUndoState(currentLessonId + "_" + activeTab);
+}
+
+/* ══════════════════════════════════════════════════════════
+   🎯 PROGRESSIVE HINTS SYSTEM  (#77 — sanket1035)
+   Progressively reveals 1-3 hints per lesson, persisting state.
+══════════════════════════════════════════════════════════ */
+function renderLessonHints(lesson) {
+  const contentEl = document.getElementById("lessonContent");
+  if (!contentEl) return;
+
+  // Remove existing hints section if any
+  const oldSection = document.getElementById("hintsSection");
+  if (oldSection) oldSection.remove();
+
+  if (!lesson.hints || lesson.hints.length === 0) return;
+
+  const revealedCount = revealedHints[lesson.id] || 0;
+
+  const section = document.createElement("div");
+  section.className = "hints-section";
+  section.id = "hintsSection";
+
+  // Build the list of revealed hint cards
+  const cardsContainer = document.createElement("div");
+  cardsContainer.className = "hints-cards-container";
+
+  for (let i = 0; i < revealedCount; i++) {
+    const card = document.createElement("div");
+    card.className = "hint-card";
+    card.innerHTML = `
+      <div class="hint-card-title">Hint ${i + 1}</div>
+      <div class="hint-card-body">${lesson.hints[i]}</div>
+    `;
+    cardsContainer.appendChild(card);
+  }
+  section.appendChild(cardsContainer);
+
+  // Build the trigger button
+  if (revealedCount < lesson.hints.length) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "hints-btn";
+    btn.innerHTML = `💡 Show Hint (${revealedCount + 1}/${lesson.hints.length})`;
+    btn.onclick = () => revealNextHint(lesson.id);
+    section.appendChild(btn);
+  }
+
+  contentEl.appendChild(section);
+}
+
+function revealNextHint(lessonId) {
+  const lesson = getLesson(lessonId);
+  if (!lesson || !lesson.hints) return;
+
+  const currentCount = revealedHints[lessonId] || 0;
+  if (currentCount >= lesson.hints.length) return;
+
+  revealedHints[lessonId] = currentCount + 1;
+  saveProgress();
+  renderLessonHints(lesson);
+
+  // Smooth scroll and focus the new hint card into view for accessibility
+  setTimeout(() => {
+    const container = document.getElementById("hintsSection");
+    if (container) {
+      const cards = container.querySelectorAll(".hint-card");
+      const lastCard = cards[cards.length - 1];
+      if (lastCard) {
+        lastCard.tabIndex = -1;
+        lastCard.focus({ preventScroll: true });
+        lastCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    }
+  }, 50);
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -940,6 +1047,7 @@ function toggleAutorun() {
   document.getElementById("autorunLabel").textContent = autorun ? "Auto ✓" : "Auto";
   const wrap = document.querySelector(".autorun-wrap");
   if (wrap) wrap.setAttribute("aria-checked", autorun);
+  saveProgress();
   showToast(
     autorun ? "Auto-run ON — preview updates as you type" : "Auto-run OFF",
     autorun ? "success" : "warn",
@@ -1006,6 +1114,7 @@ function closeModal(modalEl) {
 
 function showResetModal() {
   openModal(document.getElementById("resetModal"));
+  announce("Reset confirmation dialog opened");
 }
 
 function hideResetModal() {
@@ -1153,23 +1262,79 @@ function changeFontSize(val) {
   document.documentElement.style.setProperty("--fs", val + "px");
   document.getElementById("fsValLabel").textContent = val + "px";
   updateLineNums();
+  saveProgress();
 }
 
 function toggleFsPanel() {
   fsPanelVisible = !fsPanelVisible;
   document.getElementById("fsPanel").classList.toggle("show", fsPanelVisible);
   document.getElementById("fsSizeBtn").classList.toggle("active", fsPanelVisible);
-  if (shortcutsVisible) toggleShortcuts();
+  if (document.getElementById("shortcutsModal").classList.contains("show")) closeShortcutsModal();
 }
 
 /* ══════════════════════════════════════════════════════════
-   KEYBOARD SHORTCUTS PANEL
+   KEYBOARD SHORTCUTS MODAL  (#76 — sanket1035)
+   Replaces old floating panel with a proper accessible modal.
+   Triggered by: ? key (when not in editor), ⌨ button, ? button.
 ══════════════════════════════════════════════════════════ */
+function openShortcutsModal() {
+  if (fsPanelVisible) toggleFsPanel(); // close any open floating panel first
+  openModal(document.getElementById("shortcutsModal"));
+  const helpBtn = document.getElementById("helpBtn");
+  if (helpBtn) helpBtn.classList.add("active");
+}
+
+function closeShortcutsModal() {
+  closeModal(document.getElementById("shortcutsModal"));
+  const helpBtn = document.getElementById("helpBtn");
+  if (helpBtn) helpBtn.classList.remove("active");
+}
+
+/** Back-compat stub — old onclick references in HTML may still call toggleShortcuts() */
 function toggleShortcuts() {
-  shortcutsVisible = !shortcutsVisible;
-  document.getElementById("shortcutsPanel").classList.toggle("show", shortcutsVisible);
-  document.getElementById("shortcutsBtn").classList.toggle("active", shortcutsVisible);
-  if (fsPanelVisible) toggleFsPanel();
+  openShortcutsModal();
+}
+
+/* ══════════════════════════════════════════════════════════
+   THEME TOGGLE
+══════════════════════════════════════════════════════════ */
+function updateThemeButton() {
+  const btn = document.getElementById("themeToggleBtn");
+  if (btn) {
+    btn.textContent = darkTheme ? "🌙" : "☀️";
+    btn.setAttribute("aria-pressed", String(!darkTheme));
+  }
+}
+
+function applyTheme() {
+  if (darkTheme) {
+    document.documentElement.removeAttribute("data-theme");
+  } else {
+    document.documentElement.setAttribute("data-theme", "light");
+  }
+  updateThemeButton();
+}
+
+function toggleTheme() {
+  darkTheme = !darkTheme;
+  applyTheme();
+  try {
+    localStorage.setItem("devforge_theme", darkTheme ? "dark" : "light");
+  } catch (error) {
+    console.warn("Unable to save DevForge theme", error);
+  }
+}
+
+function applySavedTheme() {
+  try {
+    const saved = localStorage.getItem("devforge_theme");
+    if (saved === "light") {
+      darkTheme = false;
+    }
+    applyTheme();
+  } catch (error) {
+    console.warn("Unable to load DevForge theme", error);
+  }
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -1236,6 +1401,16 @@ function showToast(msg, type = "info", icon = "") {
   toast.className = `toast show ${type}`;
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toast.classList.remove("show"), 3200);
+}
+
+function announce(msg) {
+  const el = document.getElementById("srAnnouncer");
+  if (el) {
+    el.textContent = "";
+    requestAnimationFrame(() => {
+      el.textContent = msg;
+    });
+  }
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -1367,8 +1542,21 @@ document.addEventListener("keydown", e => {
     editorRedo();
   }
 
+  // ? key — open shortcuts modal (skip when focus is textarea/input)
+  if (
+    e.key === "?" &&
+    !e.ctrlKey &&
+    !e.metaKey &&
+    !e.altKey &&
+    document.activeElement?.tagName !== "TEXTAREA" &&
+    document.activeElement?.tagName !== "INPUT"
+  ) {
+    e.preventDefault();
+    openShortcutsModal();
+  }
+
   if (e.key === "Escape") {
-    if (shortcutsVisible) toggleShortcuts();
+    if (document.getElementById("shortcutsModal").classList.contains("show")) closeShortcutsModal();
     if (fsPanelVisible) toggleFsPanel();
     hideResetModal();
     hideImportModal();
@@ -1383,16 +1571,11 @@ document.addEventListener("keydown", e => {
    CLOSE FLOATING PANELS ON OUTSIDE CLICK
 ══════════════════════════════════════════════════════════ */
 document.addEventListener("click", e => {
-  if (
-    shortcutsVisible &&
-    !e.target.closest("#shortcutsPanel") &&
-    !e.target.closest("#shortcutsBtn")
-  ) {
-    toggleShortcuts();
-  }
   if (fsPanelVisible && !e.target.closest("#fsPanel") && !e.target.closest("#fsSizeBtn")) {
     toggleFsPanel();
   }
+  // Shortcuts modal closes via its own overlay click (handled in openModal pattern)
+  if (e.target === document.getElementById("shortcutsModal")) closeShortcutsModal();
   if (e.target === document.getElementById("resetModal")) hideResetModal();
   if (e.target === document.getElementById("importConfirmModal")) hideImportModal();
   if (e.target === document.getElementById("completionBanner")) hideCompletion();
@@ -1427,9 +1610,12 @@ if ("serviceWorker" in navigator) {
 ════════════════════════════════════════════════════════════ */
 // Toolbar
 window.switchTab = switchTab;
+window.toggleTheme = toggleTheme;
 window.toggleAutorun = toggleAutorun;
 window.toggleFsPanel = toggleFsPanel;
 window.toggleShortcuts = toggleShortcuts;
+window.openShortcutsModal = openShortcutsModal;
+window.closeShortcutsModal = closeShortcutsModal;
 window.runCode = runCode;
 // Lesson search
 window.filterLessons = filterLessons;
@@ -1469,3 +1655,4 @@ window.triggerImport = triggerImport;
 window.importProgress = importProgress;
 window.confirmImportProgress = confirmImportProgress;
 window.hideImportModal = hideImportModal;
+

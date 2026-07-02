@@ -139,6 +139,7 @@ DevForge/
 | **Mobile Layout**       | Responsive sidebar with ☰ toggle; touch-friendly drag resizer    |
 | **Console Panel**       | Intercepts `console.log/warn/error` via `postMessage` from iframe |
 | **Code Buffers**        | Each lesson remembers your edits independently in memory          |
+| **State Persistence**   | XP, streak, autorun, and font size survive page reloads           |
 | **XP & Streak**         | Points awarded on first run of each lesson                        |
 | **Auto-run**            | Preview updates 0.9s after you stop typing                        |
 | **Preview Sizes**       | Desktop / Tablet (768px) / Mobile (390px)                         |
@@ -149,6 +150,7 @@ DevForge/
 | **Auto-close**          | Brackets and quotes auto-close as you type                        |
 | **PWA Offline**         | Installable as standalone app; works offline once loaded          |
 | **Keyboard Shortcuts**  | Full set — see table below                                        |
+| **Dark/Light Theme**    | Toggle between dark and light mode with a persistent preference   |
 | **Completion Confetti** | Celebration when all 16 lessons are done                          |
 
 ### ⌨ Keyboard Shortcuts
