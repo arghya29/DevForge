@@ -1055,7 +1055,10 @@ function validateGoals() {
   progressFill.style.width = total > 0 ? `${(doneCount / total) * 100}%` : "0%";
 
   // Update badge
-  badge.textContent = `${doneCount} / ${total}`;
+  const badgeText = `${doneCount} / ${total}`;
+  if (badge.textContent !== badgeText) {
+    badge.textContent = badgeText;
+  }
   badge.classList.toggle("all-done", doneCount === total && total > 0);
 
   // Celebrate when all goals met
