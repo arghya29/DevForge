@@ -133,24 +133,23 @@ DevForge/
 
 ## ✨ Features
 
-| Feature                  | Detail                                                            |
-| ------------------------ | ----------------------------------------------------------------- |
-| **Live Preview**         | Runs inside a sandboxed `<iframe>` — no server needed             |
-| **Mobile Layout**        | Responsive sidebar with ☰ toggle; touch-friendly drag resizer    |
-| **Console Panel**        | Intercepts `console.log/warn/error` via `postMessage` from iframe |
-| **Code Buffers**         | Each lesson remembers your edits independently in memory          |
-| **XP & Streak**          | Points awarded on first run of each lesson                        |
-| **Auto-run**             | Preview updates 0.9s after you stop typing                        |
-| **Preview Sizes**        | Desktop / Tablet (768px) / Mobile (390px)                         |
-| **Drag Resizer**         | Resize editor vs preview split                                    |
-| **Lesson Search**        | Filter sidebar lessons in real time                               |
-| **Font Size**            | Slider from 11px to 20px                                          |
-| **Auto-indent**          | Enter key matches current line indentation                        |
-| **Auto-close**           | Brackets and quotes auto-close as you type                        |
-| **Undo / Redo**          | Ctrl+Z / Ctrl+Y / Ctrl+Shift+Z to undo and redo editor changes    |
-| **Tab Scroll Preserved** | Scroll position is remembered when switching between HTML/CSS/JS  |
-| **Keyboard Shortcuts**   | Full set — see table below                                        |
-| **Completion Confetti**  | Celebration when all 16 lessons are done                          |
+| Feature                 | Detail                                                            |
+| ----------------------- | ----------------------------------------------------------------- |
+| **Live Preview**        | Runs inside a sandboxed `<iframe>` — no server needed             |
+| **Mobile Layout**       | Responsive sidebar with ☰ toggle; touch-friendly drag resizer    |
+| **Console Panel**       | Intercepts `console.log/warn/error` via `postMessage` from iframe |
+| **Code Buffers**        | Each lesson remembers your edits independently in memory          |
+| **XP & Streak**         | Points awarded on first run of each lesson                        |
+| **Auto-run**            | Preview updates 0.9s after you stop typing                        |
+| **Preview Sizes**       | Desktop / Tablet (768px) / Mobile (390px)                         |
+| **Drag Resizer**        | Resize editor vs preview split                                    |
+| **Lesson Search**       | Filter sidebar lessons in real time                               |
+| **Font Size**           | Slider from 11px to 20px                                          |
+| **Auto-indent**         | Enter key matches current line indentation                        |
+| **Auto-close**          | Brackets and quotes auto-close as you type                        |
+| **PWA Offline**         | Installable as standalone app; works offline once loaded          |
+| **Keyboard Shortcuts**  | Full set — see table below                                        |
+| **Completion Confetti** | Celebration when all 16 lessons are done                          |
 
 ### ⌨ Keyboard Shortcuts
 

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DevForge — Offline</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: #0d1117;
+        color: #e6edf3;
+        font-family: "Inter", sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 20px;
+        text-align: center;
+      }
+      .card {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 16px;
+        padding: 40px;
+        max-width: 420px;
+      }
+      h1 {
+        font-size: 1.4rem;
+        color: #58a6ff;
+        margin-bottom: 12px;
+      }
+      p {
+        color: #8b949e;
+        line-height: 1.7;
+        font-size: 0.9rem;
+      }
+      .emoji {
+        font-size: 3rem;
+        display: block;
+        margin-bottom: 16px;
+      }
+      button {
+        margin-top: 20px;
+        padding: 10px 24px;
+        border: none;
+        border-radius: 8px;
+        background: #58a6ff;
+        color: #0d1117;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #79b8ff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <span class="emoji">📡</span>
+      <h1>You're Offline</h1>
+      <p>
+        DevForge needs an internet connection to load.
+        <br />
+        Once loaded, all lessons work fully offline —
+        <br />
+        no server required for the coding playground.
+      </p>
+      <button onclick="window.location.reload()">Try Again</button>
+    </div>
+  </body>
+</html>
