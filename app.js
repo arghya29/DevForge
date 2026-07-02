@@ -1174,11 +1174,20 @@ function importProgress(event) {
       const data = JSON.parse(e.target.result);
       if (!data || typeof data !== "object") throw new Error("Invalid object");
       if (data.version !== "devforge:backup:v1") throw new Error("Unsupported version");
-      if (typeof data.xp !== "number" || data.xp < 0) throw new Error("Invalid XP");
-      if (typeof data.streak !== "number" || data.streak < 0) throw new Error("Invalid Streak");
+      if (!Number.isFinite(data.xp) || data.xp < 0) throw new Error("Invalid XP");
+      if (!Number.isFinite(data.streak) || data.streak < 0) throw new Error("Invalid Streak");
       if (!Array.isArray(data.done)) throw new Error("Invalid Done list");
       if (!data.buffers || typeof data.buffers !== "object" || Array.isArray(data.buffers)) {
         throw new Error("Invalid Buffers");
+      }
+      for (const key of Object.keys(data.buffers)) {
+         const b = data.buffers[key];
+         if (
+           !b || typeof b !== "object" ||
+           typeof b.html !== "string" || typeof b.css !== "string" || typeof b.js !== "string"
+         ) {
+           throw new Error("Invalid buffer entry: " + key);
+         }
       }
 
       pendingImportData = data;
