@@ -11,7 +11,7 @@
    STATE
 ══════════════════════════════════════════════════════════ */
 let currentLessonId = CURRICULUM[0].lessons[0].id;
-let activeTab = "html"; // "html" | "css" | "js"
+let activeTab = "html";
 let lessonPaneOpen = true;
 let consolePaneOpen = true;
 let autorun = false;
@@ -44,6 +44,7 @@ let saveTimer = null;
 // Persist XP, streak, completed-lesson ids, and per-lesson code buffers.
 function saveProgress() {
   try {
+    const fontSize = getComputedStyle(document.documentElement).getPropertyValue("--fs").trim();
     window.localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({
@@ -51,6 +52,8 @@ function saveProgress() {
         streak: streak,
         done: Array.from(doneSet),
         buffers: buffers,
+        autorun: autorun,
+        fontSize: fontSize,
       })
     );
   } catch {
@@ -102,6 +105,22 @@ function loadProgress() {
         buffers[id] = { html: b.html, css: b.css, js: b.js };
       }
     });
+  }
+  if (typeof data.autorun === "boolean") {
+    autorun = data.autorun;
+    const toggle = document.getElementById("autorunToggle");
+    if (toggle) toggle.classList.toggle("on", autorun);
+    const label = document.getElementById("autorunLabel");
+    if (label) label.textContent = autorun ? "Auto ✓" : "Auto";
+    const wrap = document.querySelector(".autorun-wrap");
+    if (wrap) wrap.setAttribute("aria-checked", String(autorun));
+  }
+  if (typeof data.fontSize === "string" && /^\d+(?:\.\d+)?px$/.test(data.fontSize)) {
+    document.documentElement.style.setProperty("--fs", data.fontSize);
+    const slider = document.getElementById("fsSlider");
+    if (slider) slider.value = parseInt(data.fontSize, 10);
+    const label = document.getElementById("fsValLabel");
+    if (label) label.textContent = data.fontSize;
   }
 }
 
@@ -938,6 +957,7 @@ function toggleAutorun() {
   document.getElementById("autorunLabel").textContent = autorun ? "Auto ✓" : "Auto";
   const wrap = document.querySelector(".autorun-wrap");
   if (wrap) wrap.setAttribute("aria-checked", autorun);
+  saveProgress();
   showToast(
     autorun ? "Auto-run ON — preview updates as you type" : "Auto-run OFF",
     autorun ? "success" : "warn",
@@ -1049,6 +1069,7 @@ function changeFontSize(val) {
   document.documentElement.style.setProperty("--fs", val + "px");
   document.getElementById("fsValLabel").textContent = val + "px";
   updateLineNums();
+  saveProgress();
 }
 
 function toggleFsPanel() {
