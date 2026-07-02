@@ -1788,6 +1788,10 @@ if ("serviceWorker" in navigator) {
 ════════════════════════════════════════════════════════════ */
 // Toolbar
 window.switchTab = switchTab;
+window.exportProgress = exportProgress;
+window.triggerImport = triggerImport;
+window.importProgress = importProgress;
+window.confirmImportProgress = confirmImportProgress;
 window.toggleTheme = toggleTheme;
 window.toggleAutorun = toggleAutorun;
 window.toggleFsPanel = toggleFsPanel;
