@@ -28,8 +28,15 @@ self.addEventListener("install", event => {
     caches.open(CACHE).then(cache =>
       // Cache each entry independently so one missing/renamed asset (or a
       // transient failure on a single file) can't reject the whole install and
-      // disable offline support entirely.
-      Promise.allSettled(PRECACHE.map(url => cache.add(url)))
+      // disable offline support entirely. Rejected entries are logged so a
+      // failed asset is diagnosable rather than silently swallowed.
+      Promise.allSettled(PRECACHE.map(url => cache.add(url))).then(results => {
+        results.forEach((result, i) => {
+          if (result.status === "rejected") {
+            console.warn(`[DevForge SW] Failed to precache ${PRECACHE[i]}:`, result.reason);
+          }
+        });
+      })
     )
   );
   self.skipWaiting();
