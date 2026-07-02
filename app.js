@@ -22,6 +22,7 @@ let xp = 0;
 let streak = 0;
 let lastRunLesson = null;
 let errorCount = 0;
+let revealedHints = {}; // { [lessonId]: revealedCount } (#77)
 let darkTheme = true;
 let consoleScrolledUp = false;
 const CONSOLE_MAX_LINES = 200;
@@ -53,6 +54,7 @@ function saveProgress() {
         streak: streak,
         done: Array.from(doneSet),
         buffers: buffers,
+        hints: revealedHints, // Persist progressive hints count (#77)
         autorun: autorun,
         fontSize: fontSize,
       })
@@ -107,6 +109,13 @@ function loadProgress() {
       }
     });
   }
+  if (data.hints && typeof data.hints === "object" && !Array.isArray(data.hints)) {
+    Object.keys(data.hints).forEach(id => {
+      if (validIds.has(id) && typeof data.hints[id] === "number") {
+        revealedHints[id] = data.hints[id];
+      }
+    });
+  }
   if (typeof data.autorun === "boolean") {
     autorun = data.autorun;
     const toggle = document.getElementById("autorunToggle");
@@ -131,6 +140,7 @@ function clearProgress() {
     clearTimeout(saveTimer);
     saveTimer = null;
   }
+  revealedHints = {}; // Reset progressive hints on restart (#77)
   try {
     window.localStorage.removeItem(STORAGE_KEY);
   } catch {
@@ -269,6 +279,9 @@ function loadLesson(id, { trackProgress = true } = {}) {
   loadTab(activeTab);
   updateNav();
   runCode({ trackProgress });
+
+  // Render progressive hints (#77)
+  renderLessonHints(lesson);
 }
 
 function saveCurrentBuffer() {
@@ -277,6 +290,80 @@ function saveCurrentBuffer() {
   buffers[currentLessonId][activeTab] = editor.value;
   scrollPositions[currentLessonId + "_" + activeTab] = editor.scrollTop;
   flushUndoState(currentLessonId + "_" + activeTab);
+}
+
+/* ══════════════════════════════════════════════════════════
+   🎯 PROGRESSIVE HINTS SYSTEM  (#77 — sanket1035)
+   Progressively reveals 1-3 hints per lesson, persisting state.
+══════════════════════════════════════════════════════════ */
+function renderLessonHints(lesson) {
+  const contentEl = document.getElementById("lessonContent");
+  if (!contentEl) return;
+
+  // Remove existing hints section if any
+  const oldSection = document.getElementById("hintsSection");
+  if (oldSection) oldSection.remove();
+
+  if (!lesson.hints || lesson.hints.length === 0) return;
+
+  const revealedCount = revealedHints[lesson.id] || 0;
+
+  const section = document.createElement("div");
+  section.className = "hints-section";
+  section.id = "hintsSection";
+
+  // Build the list of revealed hint cards
+  const cardsContainer = document.createElement("div");
+  cardsContainer.className = "hints-cards-container";
+
+  for (let i = 0; i < revealedCount; i++) {
+    const card = document.createElement("div");
+    card.className = "hint-card";
+    card.innerHTML = `
+      <div class="hint-card-title">Hint ${i + 1}</div>
+      <div class="hint-card-body">${lesson.hints[i]}</div>
+    `;
+    cardsContainer.appendChild(card);
+  }
+  section.appendChild(cardsContainer);
+
+  // Build the trigger button
+  if (revealedCount < lesson.hints.length) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "hints-btn";
+    btn.innerHTML = `💡 Show Hint (${revealedCount + 1}/${lesson.hints.length})`;
+    btn.onclick = () => revealNextHint(lesson.id);
+    section.appendChild(btn);
+  }
+
+  contentEl.appendChild(section);
+}
+
+function revealNextHint(lessonId) {
+  const lesson = getLesson(lessonId);
+  if (!lesson || !lesson.hints) return;
+
+  const currentCount = revealedHints[lessonId] || 0;
+  if (currentCount >= lesson.hints.length) return;
+
+  revealedHints[lessonId] = currentCount + 1;
+  saveProgress();
+  renderLessonHints(lesson);
+
+  // Smooth scroll and focus the new hint card into view for accessibility
+  setTimeout(() => {
+    const container = document.getElementById("hintsSection");
+    if (container) {
+      const cards = container.querySelectorAll(".hint-card");
+      const lastCard = cards[cards.length - 1];
+      if (lastCard) {
+        lastCard.tabIndex = -1;
+        lastCard.focus({ preventScroll: true });
+        lastCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    }
+  }, 50);
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -1456,3 +1543,6 @@ window.editorRedo = editorRedo;
 // Completion modal
 window.hideCompletion = hideCompletion;
 window.restartAll = restartAll;
+// Progressive hints (#77)
+window.revealNextHint = revealNextHint;
+window.renderLessonHints = renderLessonHints;

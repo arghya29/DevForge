@@ -18,6 +18,11 @@ window.CURRICULUM = [
         title: "Your First Element",
         xp: 20,
         paneTitle: "01 · Your First Element",
+        hints: [
+          "Make sure to wrap your text inside <code>&lt;h1&gt;</code> and <code>&lt;/h1&gt;</code> tags.",
+          "You can add a new paragraph with <code>&lt;p&gt;My first webpage.&lt;/p&gt;</code> below the heading.",
+          "Both your heading and paragraph elements should reside inside the <code>&lt;body&gt;</code> and <code>&lt;/body&gt;</code> tags.",
+        ],
         instruction: `
           <h2>What is an HTML element?</h2>
           <p>HTML describes the <em>structure</em> of a webpage. Every piece of content lives
@@ -60,6 +65,10 @@ h1 {
         title: "Headings & Paragraphs",
         xp: 20,
         paneTitle: "02 · Headings & Paragraphs",
+        hints: [
+          "<code>&lt;h1&gt;</code> is for the main title, <code>&lt;h2&gt;</code> for sections, and <code>&lt;h3&gt;</code> for subsections.",
+          "To add a blockquote, wrap your quote text with <code>&lt;blockquote&gt;Your quote text&lt;/blockquote&gt;</code>.",
+        ],
         instruction: `
           <h2>Hierarchy with headings</h2>
           <p>HTML has six heading levels: <code>&lt;h1&gt;</code> through <code>&lt;h6&gt;</code>.
@@ -121,6 +130,10 @@ blockquote {
         title: "Lists & Links",
         xp: 20,
         paneTitle: "03 · Lists & Links",
+        hints: [
+          "An unordered list uses <code>&lt;ul&gt;</code> with nested <code>&lt;li&gt;</code> elements. An ordered list uses <code>&lt;ol&gt;</code> with nested <code>&lt;li&gt;</code> elements.",
+          'An anchor link is written as <code>&lt;a href="url"&gt;Link Text&lt;/a&gt;</code>. Make sure to specify the <code>href</code> attribute correctly.',
+        ],
         instruction: `
           <h2>Organise content with lists</h2>
           <p>Use <code>&lt;ul&gt;</code> for unordered (bullet) and <code>&lt;ol&gt;</code>
@@ -177,6 +190,10 @@ li {
         title: "Images & Attributes",
         xp: 20,
         paneTitle: "04 · Images & Attributes",
+        hints: [
+          "The <code>&lt;img&gt;</code> tag needs a <code>src</code> attribute pointing to the image URL, and an <code>alt</code> attribute for accessibility.",
+          "Wrap your image inside a <code>&lt;figure&gt;</code> container, and place a <code>&lt;figcaption&gt;</code> inside the same figure element.",
+        ],
         instruction: `
           <h2>Embedding images</h2>
           <p>The <code>&lt;img&gt;</code> tag is self-closing — no closing tag needed.
@@ -239,6 +256,11 @@ figcaption {
         title: "Forms & Inputs",
         xp: 30,
         paneTitle: "05 · Forms & Inputs",
+        hints: [
+          "Use a <code>&lt;form&gt;</code> tag to enclose your inputs.",
+          'Add text inputs using <code>&lt;input type="text"&gt;</code> and email inputs using <code>&lt;input type="email"&gt;</code>.',
+          "For the biography textarea, use the <code>&lt;textarea&gt;&lt;/textarea&gt;</code> element.",
+        ],
         instruction: `
           <h2>Collecting user input</h2>
           <p>Forms let users send data. The <code>type</code> attribute on
@@ -355,6 +377,11 @@ button:hover {
         title: "Selectors & Specificity",
         xp: 25,
         paneTitle: "01 · Selectors & Specificity",
+        hints: [
+          "A tag selector targets plain tags like <code>h1 { color: blue; }</code>.",
+          "A class selector starts with a dot: <code>.highlight { ... }</code>.",
+          "An ID selector starts with a hash: <code>#main-title { ... }</code>.",
+        ],
         instruction: `
           <h2>Targeting elements with CSS</h2>
           <p>CSS rules have a <em>selector</em> and <em>declarations</em>.
@@ -415,6 +442,11 @@ li.special {
         title: "The Box Model",
         xp: 25,
         paneTitle: "02 · The Box Model",
+        hints: [
+          "Include <code>box-sizing: border-box;</code> inside the universal selector block (<code>* { ... }</code>).",
+          "Set the <code>padding</code> and <code>border</code> properties inside the <code>.box { ... }</code> selector block.",
+          "Apply a box-shadow with <code>box-shadow: horizontal vertical blur color;</code>.",
+        ],
         instruction: `
           <h2>Every element is a box</h2>
           <p>Each element has layers: <code>content</code> → <code>padding</code>
@@ -481,6 +513,11 @@ h2 {
         title: "Flexbox Layout",
         xp: 30,
         paneTitle: "03 · Flexbox Layout",
+        hints: [
+          "Set <code>display: flex;</code> on the parent <code>.container</code> selector.",
+          "Align items with <code>justify-content: space-between;</code> and <code>align-items: center;</code>.",
+          "Add space between items using <code>gap: 15px;</code>.",
+        ],
         instruction: `
           <h2>One-dimensional layouts</h2>
           <p><code>display: flex</code> turns a container into a flex container.
@@ -582,6 +619,11 @@ h2 {
         title: "CSS Grid",
         xp: 30,
         paneTitle: "04 · CSS Grid",
+        hints: [
+          "Set <code>display: grid;</code> on the parent <code>.grid</code> selector.",
+          "Define columns with <code>grid-template-columns: repeat(3, 1fr);</code>.",
+          "To make the hero element span the full grid width, set <code>grid-column: span 3;</code>.",
+        ],
         instruction: `
           <h2>Two-dimensional layouts</h2>
           <p>CSS Grid lets you define rows <em>and</em> columns simultaneously.
@@ -644,6 +686,11 @@ h2 {
         title: "Transitions & Animations",
         xp: 35,
         paneTitle: "05 · Transitions & Animations",
+        hints: [
+          "Add <code>transition: transform 0.3s ease;</code> on the class representing the card.",
+          "Create a keyframes animation using <code>@keyframes float { 0% { transform: translateY(0); } 50% { transform: translateY(-10px); } }</code>.",
+          "Apply the animation to the element using <code>animation: float 2s infinite;</code>.",
+        ],
         instruction: `
           <h2>Bringing CSS to life</h2>
           <p><code>transition</code> smoothly animates property changes on state changes
@@ -772,6 +819,11 @@ h2 {
         title: "Variables & Types",
         xp: 25,
         paneTitle: "01 · Variables & Types",
+        hints: [
+          "Declare constant variables using the <code>const</code> keyword.",
+          "Declare variables that can be reassigned using the <code>let</code> keyword.",
+          "Template literals use backticks (<code>`</code>) and allow embedded expressions using <code>${variable}</code>.",
+        ],
         instruction: `
           <h2>Storing data in variables</h2>
           <p>Use <code>const</code> for values that won't change, <code>let</code>
@@ -839,6 +891,11 @@ typeof year = "\${typeof year}"\`;`,
         title: "Functions",
         xp: 25,
         paneTitle: "02 · Functions",
+        hints: [
+          "Write a standard function using the <code>function greet(name) { ... }</code> declaration.",
+          "Arrow functions have the syntax: <code>const add = (a, b) => a + b;</code>.",
+          "Use the <code>return</code> keyword inside your functions to specify the result value.",
+        ],
         instruction: `
           <h2>Reusable blocks of code</h2>
           <p>Functions group code you want to reuse. Three ways to write them:
@@ -916,6 +973,11 @@ log("hypotenuse(3, 4)",  hypotenuse(3, 4));`,
         title: "Arrays & Loops",
         xp: 30,
         paneTitle: "03 · Arrays & Loops",
+        hints: [
+          "Arrays are initialized with square brackets: <code>const list = [1, 2, 3];</code>.",
+          "Use <code>.map()</code> to transform each item, and <code>.filter()</code> to select specific elements.",
+          "To sort fruits alphabetically, use <code>fruits.sort();</code>.",
+        ],
         instruction: `
           <h2>Collections of data</h2>
           <p>Arrays store ordered lists. Powerful array methods: <code>map()</code> transforms,
@@ -1005,6 +1067,11 @@ document.getElementById("stats").textContent =
         title: "DOM Manipulation",
         xp: 30,
         paneTitle: "04 · DOM Manipulation",
+        hints: [
+          "Select elements using <code>document.querySelector('#id')</code> or <code>document.querySelector('.class')</code>.",
+          "Listen to user click events using <code>element.addEventListener('click', () => { ... })</code>.",
+          "Create new DOM elements using <code>document.createElement('li')</code> and append them using <code>parent.appendChild(child)</code>.",
+        ],
         instruction: `
           <h2>Making pages interactive</h2>
           <p>The DOM (Document Object Model) is the tree of HTML elements.
@@ -1119,6 +1186,11 @@ document.querySelector("#addBtn").addEventListener("click", () => {
         title: "Fetch & Async/Await",
         xp: 40,
         paneTitle: "05 · Fetch & Async/Await",
+        hints: [
+          "Define async functions using <code>async function load() { ... }</code>.",
+          "Use the <code>await</code> keyword before promises: <code>const res = await fetch(url);</code>.",
+          "Wrap your async/await fetches in <code>try { ... } catch (err) { ... }</code> blocks for safety.",
+        ],
         instruction: `
           <h2>Talking to the internet</h2>
           <p>The <code>fetch()</code> API loads data from URLs. Because it takes time,
@@ -1249,6 +1321,11 @@ loadUser();`,
         title: "Build a Todo App",
         xp: 50,
         paneTitle: "06 · Build a Todo App",
+        hints: [
+          "Render the list of todos inside `render()` by iterating with <code>forEach</code> and appending HTML structure.",
+          'Check if checkboxes trigger a change event by reading <code>e.target.type === "checkbox"</code>.',
+          "Convert objects to string using <code>JSON.stringify(todos)</code> before writing to <code>localStorage</code>.",
+        ],
         instruction: `
           <h2>Putting it all together</h2>
           <p>This final lesson combines HTML, CSS, and JavaScript to build a complete
