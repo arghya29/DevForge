@@ -618,6 +618,10 @@ header {
   overflow-x: auto;
 }
 .file-tab {
+  -webkit-appearance: none;
+  appearance: none;
+  background: none;
+  border: none;
   display: flex;
   align-items: center;
   gap: 6px;

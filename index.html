@@ -206,7 +206,7 @@
       <!-- ── EDITOR PANEL ── -->
       <div class="editor-panel" id="editorPanel">
         <!-- File tabs (HTML / CSS / JS) -->
-        <div class="panel-tabs" id="fileTabs"></div>
+        <div class="panel-tabs" id="fileTabs" role="tablist" aria-label="Open files"></div>
 
         <!-- Code editor with highlight layer + line numbers -->
         <div class="editor-wrap" id="editorWrap">
@@ -231,7 +231,15 @@
         <div class="lesson-pane" id="lessonPane">
           <div class="lesson-pane-head" onclick="toggleLessonPane()">
             <span class="lesson-pane-title" id="lessonPaneTitle">📖 LESSON</span>
-            <button type="button" class="collapse-btn" id="collapseBtn">▼</button>
+            <button
+              type="button"
+              class="collapse-btn"
+              id="collapseBtn"
+              aria-label="Collapse lesson panel"
+              aria-expanded="true"
+            >
+              ▼
+            </button>
           </div>
           <div class="lesson-content" id="lessonContent"></div>
         </div>
@@ -264,6 +272,8 @@
                 id="sizeDesktop"
                 onclick="setPreviewSize('desktop')"
                 title="Desktop"
+                aria-label="Desktop preview"
+                aria-pressed="true"
               >
                 🖥
               </button>
@@ -273,6 +283,8 @@
                 id="sizeTablet"
                 onclick="setPreviewSize('tablet')"
                 title="Tablet"
+                aria-label="Tablet preview"
+                aria-pressed="false"
               >
                 📱
               </button>
@@ -282,15 +294,37 @@
                 id="sizeMobile"
                 onclick="setPreviewSize('mobile')"
                 title="Mobile"
+                aria-label="Mobile preview"
+                aria-pressed="false"
               >
                 📲
               </button>
             </div>
-            <button type="button" class="icon-btn" title="Refresh" onclick="runCode()">↻</button>
-            <button type="button" class="icon-btn" title="Reset code" onclick="showResetModal()">
+            <button
+              type="button"
+              class="icon-btn"
+              title="Refresh"
+              aria-label="Refresh preview"
+              onclick="runCode()"
+            >
+              ↻
+            </button>
+            <button
+              type="button"
+              class="icon-btn"
+              title="Reset code"
+              aria-label="Reset code to starter"
+              onclick="showResetModal()"
+            >
               ⟳
             </button>
-            <button type="button" class="icon-btn" title="Copy all code" onclick="copyAllCode()">
+            <button
+              type="button"
+              class="icon-btn"
+              title="Copy all code"
+              aria-label="Copy all code"
+              onclick="copyAllCode()"
+            >
               ⎘
             </button>
           </div>
