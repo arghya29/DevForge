@@ -501,9 +501,16 @@
     </div>
 
     <!-- Reset confirmation modal -->
-    <div class="modal-overlay" id="resetModal">
+    <div
+      class="modal-overlay"
+      id="resetModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="resetModalTitle"
+      tabindex="-1"
+    >
       <div class="modal">
-        <h3>Reset to starter code?</h3>
+        <h3 id="resetModalTitle">Reset to starter code?</h3>
         <p>
           This will discard your current edits for this lesson and restore the original starter
           code.
@@ -516,10 +523,17 @@
     </div>
 
     <!-- Completion banner -->
-    <div class="completion-banner" id="completionBanner">
+    <div
+      class="completion-banner"
+      id="completionBanner"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="completionTitle"
+      tabindex="-1"
+    >
       <div class="completion-card">
         <span class="completion-emoji">🏆</span>
-        <h2>All Lessons Complete!</h2>
+        <h2 id="completionTitle">All Lessons Complete!</h2>
         <p>
           You've finished every lesson in the DevForge curriculum.
           <br />

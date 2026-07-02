@@ -965,12 +965,48 @@ function setPreviewSize(size) {
 /* ══════════════════════════════════════════════════════════
    RESET MODAL
 ══════════════════════════════════════════════════════════ */
+/* Shared modal focus management: expose dialogs to assistive tech, move
+   focus into the dialog on open, trap Tab within it, and restore focus to
+   the invoking control on close. activeModalEl drives the Tab trap in the
+   global keydown handler below. */
+let activeModalEl = null;
+let modalReturnFocus = null;
+
+function getModalFocusable(modalEl) {
+  return Array.from(
+    modalEl.querySelectorAll(
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )
+  );
+}
+
+function openModal(modalEl) {
+  modalReturnFocus = document.activeElement;
+  modalEl.classList.add("show");
+  activeModalEl = modalEl;
+  const focusable = getModalFocusable(modalEl);
+  if (focusable.length > 0) {
+    focusable[0].focus();
+  } else {
+    modalEl.focus();
+  }
+}
+
+function closeModal(modalEl) {
+  if (!modalEl.classList.contains("show")) return;
+  modalEl.classList.remove("show");
+  if (activeModalEl === modalEl) activeModalEl = null;
+  const target = modalReturnFocus;
+  modalReturnFocus = null;
+  if (target && typeof target.focus === "function") target.focus();
+}
+
 function showResetModal() {
-  document.getElementById("resetModal").classList.add("show");
+  openModal(document.getElementById("resetModal"));
 }
 
 function hideResetModal() {
-  document.getElementById("resetModal").classList.remove("show");
+  closeModal(document.getElementById("resetModal"));
 }
 
 function confirmReset() {
@@ -1036,12 +1072,12 @@ function toggleShortcuts() {
 ══════════════════════════════════════════════════════════ */
 function showCompletion() {
   document.getElementById("finalXp").textContent = xp;
-  document.getElementById("completionBanner").classList.add("show");
+  openModal(document.getElementById("completionBanner"));
   spawnConfetti();
 }
 
 function hideCompletion() {
-  document.getElementById("completionBanner").classList.remove("show");
+  closeModal(document.getElementById("completionBanner"));
 }
 
 function restartAll() {
@@ -1169,6 +1205,21 @@ document.addEventListener("keydown", e => {
   const ctrl = e.ctrlKey || e.metaKey;
   const key = e.key.toLowerCase();
 
+  if (activeModalEl && e.key === "Tab") {
+    const focusable = getModalFocusable(activeModalEl);
+    if (focusable.length > 0) {
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }
+
   if (ctrl && e.key === "Enter") {
     e.preventDefault();
     runCode();
@@ -1215,6 +1266,7 @@ document.addEventListener("keydown", e => {
     if (shortcutsVisible) toggleShortcuts();
     if (fsPanelVisible) toggleFsPanel();
     hideResetModal();
+    hideCompletion();
     if (document.activeElement && document.activeElement.id === "searchInput") {
       document.activeElement.blur();
     }
