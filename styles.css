@@ -569,10 +569,10 @@ header {
 
 /* Sidebar toggle (mobile) */
 .sidebar-toggle {
-  display: none;
-  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-
 /* Responsive: mobile < 768px */
 @media (max-width: 768px) {
   .sidebar-toggle {
@@ -631,6 +631,30 @@ header {
   .preview-size-btns {
     display: none;
   }
+}
+/* ==========================
+   Desktop Sidebar Collapse
+========================== */
+
+.workspace {
+  transition: grid-template-columns 0.25s ease;
+}
+
+.workspace.sidebar-collapsed {
+  grid-template-columns: 0 1fr 4px 1fr;
+}
+
+.sidebar {
+  transition:
+    width 0.25s ease,
+    opacity 0.25s ease;
+}
+
+.sidebar.collapsed {
+  width: 0;
+  opacity: 0;
+  overflow: hidden;
+  border-right: none;
 }
 
 /* ══════════════════════════════════════════════
