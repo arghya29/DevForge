@@ -28,6 +28,27 @@
       <div class="logo">
         <span class="logo-icon" aria-hidden="true">⚡</span>
         DevForge
+        <a
+          class="contribute-btn"
+          href="https://github.com/arghya29/DevForge/discussions"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Contribute to the project (opens in a new tab)"
+        >
+          <svg
+            class="contribute-icon"
+            width="13"
+            height="13"
+            viewBox="0 0 16 16"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              d="M8 2a.75.75 0 0 1 .75.75v4.5h4.5a.75.75 0 0 1 0 1.5h-4.5v4.5a.75.75 0 0 1-1.5 0v-4.5h-4.5a.75.75 0 0 1 0-1.5h4.5v-4.5A.75.75 0 0 1 8 2Z"
+            />
+          </svg>
+          <span class="contribute-text">Contribute to the project</span>
+        </a>
       </div>
 
       <div class="header-center" role="tablist" aria-label="Language selection">
@@ -131,12 +152,23 @@
         <button
           type="button"
           class="icon-btn"
-          id="shortcutsBtn"
-          title="Keyboard shortcuts"
-          aria-label="Toggle keyboard shortcuts panel"
-          onclick="toggleShortcuts()"
+          id="themeToggleBtn"
+          title="Toggle theme"
+          aria-label="Toggle dark/light theme"
+          aria-pressed="false"
+          onclick="toggleTheme()"
         >
-          ⌨
+          🌙
+        </button>
+        <button
+          type="button"
+          class="icon-btn help-btn"
+          id="helpBtn"
+          title="Help &amp; shortcuts (?)"
+          aria-label="Open keyboard shortcuts help modal"
+          onclick="openShortcutsModal()"
+        >
+          ?
         </button>
         <button type="button" class="run-btn" id="runBtn" onclick="runCode()" aria-label="Run code">
           ▶ Run
@@ -172,7 +204,7 @@
                 width: 1px;
                 height: 1px;
                 overflow: hidden;
-                clip: rect(0, 0, 0, 0);
+                clip-path: inset(50%);
               "
             >
               Search lessons
@@ -200,11 +232,43 @@
         <div class="lesson-list" id="lessonList"></div>
 
         <div class="sidebar-footer">
-          <span class="xp-label">
-            XP:
-            <span class="xp-val" id="xpVal">0</span>
-          </span>
-          <span class="xp-label" id="streakLabel">🔥 0 streak</span>
+          <div class="footer-stats">
+            <span class="xp-label">
+              XP:
+              <span class="xp-val" id="xpVal">0</span>
+            </span>
+            <span class="xp-label" id="streakLabel">🔥 0 streak</span>
+          </div>
+          <div class="footer-actions">
+            <button
+              type="button"
+              class="footer-action-btn"
+              id="exportBtn"
+              title="Export progress backup"
+              aria-label="Export progress backup"
+              onclick="exportProgress()"
+            >
+              📤 Export
+            </button>
+            <button
+              type="button"
+              class="footer-action-btn"
+              id="importBtn"
+              title="Import progress backup"
+              aria-label="Import progress backup"
+              onclick="triggerImport()"
+            >
+              📥 Import
+            </button>
+            <input
+              type="file"
+              id="importFileInput"
+              accept=".json"
+              aria-label="Choose a progress backup JSON file"
+              style="display: none"
+              onchange="importProgress(event)"
+            />
+          </div>
         </div>
       </aside>
 
@@ -248,6 +312,34 @@
           </div>
           <div class="lesson-content" id="lessonContent"></div>
         </div>
+
+        <!-- 🎯 Goals Checklist Panel (#75) -->
+        <section
+          class="goals-panel"
+          id="goalsPanel"
+          aria-labelledby="goalsPanelTitle"
+          style="display: none"
+        >
+          <div class="goals-header" id="goalsPanelHeader" onclick="toggleGoalsPanel()">
+            <div class="goals-title-wrap">
+              <span class="goals-icon">🎯</span>
+              <span class="goals-title" id="goalsPanelTitle">GOALS</span>
+              <span class="goals-badge" id="goalsBadge" aria-live="polite" aria-atomic="true">
+                0 / 0
+              </span>
+            </div>
+            <button
+              type="button"
+              class="collapse-btn"
+              id="goalsCollapseBtn"
+              aria-label="Collapse goals panel"
+              aria-expanded="true"
+            >
+              ▼
+            </button>
+          </div>
+          <ul class="goals-list" id="goalsList"></ul>
+        </section>
 
         <!-- Prev / Next navigation -->
         <div class="lesson-nav">
@@ -362,12 +454,16 @@
                 id="consoleFilter"
                 placeholder="Filter…"
                 oninput="filterConsole(this.value)"
+                onclick="event.stopPropagation()"
                 aria-label="Filter console output"
               />
               <button
                 type="button"
                 class="tiny-btn"
-                onclick="clearConsoleFilter()"
+                onclick="
+                  event.stopPropagation();
+                  clearConsoleFilter();
+                "
                 title="Clear filter"
                 aria-label="Clear console filter"
               >
@@ -419,65 +515,152 @@
        FLOATING PANELS
   ══════════════════════════════════════ -->
 
-    <!-- Keyboard Shortcuts Panel -->
-    <div class="shortcuts-panel" id="shortcutsPanel">
-      <h3>⌨ SHORTCUTS</h3>
-      <div class="shortcut-row">
-        <span class="shortcut-desc">Run code</span>
-        <div class="shortcut-keys">
-          <span class="kbd">Ctrl</span>
-          <span class="kbd">Enter</span>
+    <!-- Keyboard Shortcuts Modal (#76) -->
+    <div
+      class="modal-overlay"
+      id="shortcutsModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="shortcutsModalTitle"
+      tabindex="-1"
+    >
+      <div class="modal shortcuts-modal-inner">
+        <div class="shortcuts-modal-header">
+          <h2 id="shortcutsModalTitle" class="shortcuts-modal-title">
+            <span class="shortcuts-modal-icon">⌨</span>
+            Keyboard Shortcuts
+          </h2>
+          <button
+            type="button"
+            class="shortcuts-close-btn"
+            id="shortcutsCloseBtn"
+            aria-label="Close keyboard shortcuts"
+            onclick="closeShortcutsModal()"
+          >
+            ✕
+          </button>
         </div>
-      </div>
-      <div class="shortcut-row">
-        <span class="shortcut-desc">Next lesson</span>
-        <div class="shortcut-keys">
-          <span class="kbd">Ctrl</span>
-          <span class="kbd">]</span>
+
+        <div class="shortcuts-modal-body">
+          <!-- Group: Code -->
+          <div class="shortcut-group">
+            <div class="shortcut-group-label">Code</div>
+            <div class="shortcut-row">
+              <span class="shortcut-desc">Run code</span>
+              <div class="shortcut-keys">
+                <span class="kbd">Ctrl</span>
+                <span class="kbd">Enter</span>
+              </div>
+            </div>
+            <div class="shortcut-row">
+              <span class="shortcut-desc">Reset all code</span>
+              <div class="shortcut-keys">
+                <span class="kbd">Ctrl</span>
+                <span class="kbd">⇧</span>
+                <span class="kbd">R</span>
+              </div>
+            </div>
+            <div class="shortcut-row">
+              <span class="shortcut-desc">Copy code</span>
+              <div class="shortcut-keys">
+                <span class="kbd">Ctrl</span>
+                <span class="kbd">⇧</span>
+                <span class="kbd">C</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Group: Navigation -->
+          <div class="shortcut-group">
+            <div class="shortcut-group-label">Navigation</div>
+            <div class="shortcut-row">
+              <span class="shortcut-desc">Next lesson</span>
+              <div class="shortcut-keys">
+                <span class="kbd">Ctrl</span>
+                <span class="kbd">]</span>
+              </div>
+            </div>
+            <div class="shortcut-row">
+              <span class="shortcut-desc">Previous lesson</span>
+              <div class="shortcut-keys">
+                <span class="kbd">Ctrl</span>
+                <span class="kbd">[</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Group: Tabs -->
+          <div class="shortcut-group">
+            <div class="shortcut-group-label">Editor Tabs</div>
+            <div class="shortcut-row">
+              <span class="shortcut-desc">Switch to HTML tab</span>
+              <div class="shortcut-keys">
+                <span class="kbd">Ctrl</span>
+                <span class="kbd">1</span>
+              </div>
+            </div>
+            <div class="shortcut-row">
+              <span class="shortcut-desc">Switch to CSS tab</span>
+              <div class="shortcut-keys">
+                <span class="kbd">Ctrl</span>
+                <span class="kbd">2</span>
+              </div>
+            </div>
+            <div class="shortcut-row">
+              <span class="shortcut-desc">Switch to JS tab</span>
+              <div class="shortcut-keys">
+                <span class="kbd">Ctrl</span>
+                <span class="kbd">3</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Group: Editor -->
+          <div class="shortcut-group">
+            <div class="shortcut-group-label">Editor</div>
+            <div class="shortcut-row">
+              <span class="shortcut-desc">Undo</span>
+              <div class="shortcut-keys">
+                <span class="kbd">Ctrl</span>
+                <span class="kbd">Z</span>
+              </div>
+            </div>
+            <div class="shortcut-row">
+              <span class="shortcut-desc">Redo</span>
+              <div class="shortcut-keys">
+                <span class="kbd">Ctrl</span>
+                <span class="kbd">Y</span>
+              </div>
+            </div>
+            <div class="shortcut-row">
+              <span class="shortcut-desc">Indent (Tab)</span>
+              <div class="shortcut-keys"><span class="kbd">Tab</span></div>
+            </div>
+            <div class="shortcut-row">
+              <span class="shortcut-desc">Outdent</span>
+              <div class="shortcut-keys">
+                <span class="kbd">⇧</span>
+                <span class="kbd">Tab</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Group: UI -->
+          <div class="shortcut-group">
+            <div class="shortcut-group-label">UI</div>
+            <div class="shortcut-row">
+              <span class="shortcut-desc">Open this help modal</span>
+              <div class="shortcut-keys"><span class="kbd">?</span></div>
+            </div>
+            <div class="shortcut-row">
+              <span class="shortcut-desc">Close modal / panel</span>
+              <div class="shortcut-keys"><span class="kbd">Esc</span></div>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="shortcut-row">
-        <span class="shortcut-desc">Prev lesson</span>
-        <div class="shortcut-keys">
-          <span class="kbd">Ctrl</span>
-          <span class="kbd">[</span>
-        </div>
-      </div>
-      <div class="shortcut-row">
-        <span class="shortcut-desc">Switch → HTML</span>
-        <div class="shortcut-keys">
-          <span class="kbd">Ctrl</span>
-          <span class="kbd">1</span>
-        </div>
-      </div>
-      <div class="shortcut-row">
-        <span class="shortcut-desc">Switch → CSS</span>
-        <div class="shortcut-keys">
-          <span class="kbd">Ctrl</span>
-          <span class="kbd">2</span>
-        </div>
-      </div>
-      <div class="shortcut-row">
-        <span class="shortcut-desc">Switch → JS</span>
-        <div class="shortcut-keys">
-          <span class="kbd">Ctrl</span>
-          <span class="kbd">3</span>
-        </div>
-      </div>
-      <div class="shortcut-row">
-        <span class="shortcut-desc">Reset code</span>
-        <div class="shortcut-keys">
-          <span class="kbd">Ctrl</span>
-          <span class="kbd">⇧</span>
-          <span class="kbd">R</span>
-        </div>
-      </div>
-      <div class="shortcut-row">
-        <span class="shortcut-desc">Copy code</span>
-        <div class="shortcut-keys">
-          <span class="kbd">Ctrl</span>
-          <span class="kbd">⇧</span>
-          <span class="kbd">C</span>
+
+        <div class="shortcuts-modal-footer">
+          <button type="button" class="btn-cancel" onclick="closeShortcutsModal()">Close</button>
         </div>
       </div>
     </div>
@@ -500,10 +683,13 @@
     </div>
 
     <!-- Toast notification -->
-    <div class="toast" id="toast">
+    <div class="toast" id="toast" role="alert" aria-live="assertive">
       <span class="toast-icon" id="toastIcon"></span>
       <span id="toastMsg"></span>
     </div>
+
+    <!-- Screen reader announcer (visually hidden, always reads updates) -->
+    <div id="srAnnouncer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
     <!-- Reset confirmation modal -->
     <div
@@ -523,6 +709,35 @@
         <div class="modal-btns">
           <button type="button" class="btn-cancel" onclick="hideResetModal()">Cancel</button>
           <button type="button" class="btn-confirm" onclick="confirmReset()">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Import overwrite confirmation modal -->
+    <div
+      class="modal-overlay"
+      id="importConfirmModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="importConfirmModalTitle"
+      tabindex="-1"
+    >
+      <div class="modal">
+        <h3 id="importConfirmModalTitle">⚠️ Overwrite progress?</h3>
+        <p>
+          Importing this backup will overwrite your current progress, completed lessons, and code
+          edits. This action cannot be undone.
+        </p>
+        <div class="modal-btns">
+          <button type="button" class="btn-cancel" onclick="hideImportModal()">Cancel</button>
+          <button
+            type="button"
+            class="btn-confirm"
+            id="confirmImportBtn"
+            onclick="confirmImportProgress()"
+          >
+            Import
+          </button>
         </div>
       </div>
     </div>

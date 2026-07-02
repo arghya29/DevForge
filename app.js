@@ -5,24 +5,27 @@
    Depends on: curriculum.js (CURRICULUM array must load first)
 ═══════════════════════════════════════════════════════════════ */
 
+/* global Blob, FileReader */
 "use strict";
 
 /* ══════════════════════════════════════════════════════════
    STATE
 ══════════════════════════════════════════════════════════ */
 let currentLessonId = CURRICULUM[0].lessons[0].id;
-let activeTab = "html"; // "html" | "css" | "js"
+let activeTab = "html";
 let lessonPaneOpen = true;
 let consolePaneOpen = true;
+let goalsPanelOpen = true; // Goals checklist collapse state
 let autorun = false;
 let autorunTimer = null;
-let shortcutsVisible = false;
 let fsPanelVisible = false;
 let sidebarOpen = true;
 let xp = 0;
 let streak = 0;
 let lastRunLesson = null;
 let errorCount = 0;
+let revealedHints = {}; // { [lessonId]: revealedCount } (#77)
+let darkTheme = true;
 let consoleScrolledUp = false;
 const CONSOLE_MAX_LINES = 200;
 let consoleLineCount = 0;
@@ -45,6 +48,7 @@ let saveTimer = null;
 // Persist XP, streak, completed-lesson ids, and per-lesson code buffers.
 function saveProgress() {
   try {
+    const fontSize = getComputedStyle(document.documentElement).getPropertyValue("--fs").trim();
     window.localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({
@@ -52,6 +56,9 @@ function saveProgress() {
         streak: streak,
         done: Array.from(doneSet),
         buffers: buffers,
+        hints: revealedHints, // Persist progressive hints count (#77)
+        autorun: autorun,
+        fontSize: fontSize,
       })
     );
   } catch {
@@ -104,6 +111,29 @@ function loadProgress() {
       }
     });
   }
+  if (data.hints && typeof data.hints === "object" && !Array.isArray(data.hints)) {
+    Object.keys(data.hints).forEach(id => {
+      if (validIds.has(id) && typeof data.hints[id] === "number") {
+        revealedHints[id] = data.hints[id];
+      }
+    });
+  }
+  if (typeof data.autorun === "boolean") {
+    autorun = data.autorun;
+    const toggle = document.getElementById("autorunToggle");
+    if (toggle) toggle.classList.toggle("on", autorun);
+    const label = document.getElementById("autorunLabel");
+    if (label) label.textContent = autorun ? "Auto ✓" : "Auto";
+    const wrap = document.querySelector(".autorun-wrap");
+    if (wrap) wrap.setAttribute("aria-checked", String(autorun));
+  }
+  if (typeof data.fontSize === "string" && /^\d+(?:\.\d+)?px$/.test(data.fontSize)) {
+    document.documentElement.style.setProperty("--fs", data.fontSize);
+    const slider = document.getElementById("fsSlider");
+    if (slider) slider.value = parseInt(data.fontSize, 10);
+    const label = document.getElementById("fsValLabel");
+    if (label) label.textContent = data.fontSize;
+  }
 }
 
 // Wipe persisted progress (used by the Restart flow).
@@ -112,6 +142,7 @@ function clearProgress() {
     clearTimeout(saveTimer);
     saveTimer = null;
   }
+  revealedHints = {}; // Reset progressive hints on restart (#77)
   try {
     window.localStorage.removeItem(STORAGE_KEY);
   } catch {
@@ -146,6 +177,7 @@ function getLessonIndex(id) {
    BOOTSTRAP
 ══════════════════════════════════════════════════════════ */
 function init() {
+  applySavedTheme();
   loadProgress();
   buildSidebar();
   loadLesson(currentLessonId, { trackProgress: false });
@@ -249,6 +281,20 @@ function loadLesson(id, { trackProgress = true } = {}) {
   loadTab(activeTab);
   updateNav();
   runCode({ trackProgress });
+
+  // Build goals checklist for new lesson
+  goalsPanelOpen = true;
+  const goalsPanel = document.getElementById("goalsPanel");
+  if (goalsPanel) {
+    goalsPanel.classList.remove("collapsed");
+    delete goalsPanel.dataset.celebrated;
+  }
+  const goalsCollapseBtn = document.getElementById("goalsCollapseBtn");
+  if (goalsCollapseBtn) {
+    goalsCollapseBtn.style.transform = "";
+    goalsCollapseBtn.setAttribute("aria-expanded", "true");
+  }
+  validateGoals();
 }
 
 function saveCurrentBuffer() {
@@ -257,6 +303,80 @@ function saveCurrentBuffer() {
   buffers[currentLessonId][activeTab] = editor.value;
   scrollPositions[currentLessonId + "_" + activeTab] = editor.scrollTop;
   flushUndoState(currentLessonId + "_" + activeTab);
+}
+
+/* ══════════════════════════════════════════════════════════
+   🎯 PROGRESSIVE HINTS SYSTEM  (#77 — sanket1035)
+   Progressively reveals 1-3 hints per lesson, persisting state.
+══════════════════════════════════════════════════════════ */
+function renderLessonHints(lesson) {
+  const contentEl = document.getElementById("lessonContent");
+  if (!contentEl) return;
+
+  // Remove existing hints section if any
+  const oldSection = document.getElementById("hintsSection");
+  if (oldSection) oldSection.remove();
+
+  if (!lesson.hints || lesson.hints.length === 0) return;
+
+  const revealedCount = revealedHints[lesson.id] || 0;
+
+  const section = document.createElement("div");
+  section.className = "hints-section";
+  section.id = "hintsSection";
+
+  // Build the list of revealed hint cards
+  const cardsContainer = document.createElement("div");
+  cardsContainer.className = "hints-cards-container";
+
+  for (let i = 0; i < revealedCount; i++) {
+    const card = document.createElement("div");
+    card.className = "hint-card";
+    card.innerHTML = `
+      <div class="hint-card-title">Hint ${i + 1}</div>
+      <div class="hint-card-body">${lesson.hints[i]}</div>
+    `;
+    cardsContainer.appendChild(card);
+  }
+  section.appendChild(cardsContainer);
+
+  // Build the trigger button
+  if (revealedCount < lesson.hints.length) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "hints-btn";
+    btn.innerHTML = `💡 Show Hint (${revealedCount + 1}/${lesson.hints.length})`;
+    btn.onclick = () => revealNextHint(lesson.id);
+    section.appendChild(btn);
+  }
+
+  contentEl.appendChild(section);
+}
+
+function revealNextHint(lessonId) {
+  const lesson = getLesson(lessonId);
+  if (!lesson || !lesson.hints) return;
+
+  const currentCount = revealedHints[lessonId] || 0;
+  if (currentCount >= lesson.hints.length) return;
+
+  revealedHints[lessonId] = currentCount + 1;
+  saveProgress();
+  renderLessonHints(lesson);
+
+  // Smooth scroll and focus the new hint card into view for accessibility
+  setTimeout(() => {
+    const container = document.getElementById("hintsSection");
+    if (container) {
+      const cards = container.querySelectorAll(".hint-card");
+      const lastCard = cards[cards.length - 1];
+      if (lastCard) {
+        lastCard.tabIndex = -1;
+        lastCard.focus({ preventScroll: true });
+        lastCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    }
+  }, 50);
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -351,6 +471,7 @@ function applyEditorState(val) {
   buffers[currentLessonId][activeTab] = val;
   updateLineNums();
   highlight();
+  scheduleSave();
   if (autorun) {
     clearTimeout(autorunTimer);
     autorunTimer = setTimeout(runCode, 900);
@@ -377,6 +498,9 @@ function onEditorInput() {
   }
 
   pushUndoState(key, newVal);
+
+  // Live goal validation on every keystroke
+  validateGoals();
 }
 
 function pushUndoState(key, val) {
@@ -914,6 +1038,160 @@ function toggleLessonPane() {
 }
 
 /* ══════════════════════════════════════════════════════════
+   🎯 LESSON GOAL CHECKLIST  (#75 — sanket1035)
+   Rules engine: validates each goal against the live buffer
+   without touching the iframe — pure string/regex matching.
+══════════════════════════════════════════════════════════ */
+
+/**
+ * Check one goal rule against the current code buffers.
+ * Supported rule types:
+ *   html-tag          — tag present in HTML buffer
+ *   html-attr         — attribute string present in HTML buffer
+ *   html-count-min    — at least N occurrences of a tag in HTML
+ *   css-property      — CSS property used in CSS buffer
+ *   css-property-value — CSS property with specific value
+ *   css-contains      — any raw string in CSS buffer
+ *   css-selector      — a selector exists before {
+ *   js-contains       — raw string in JS buffer
+ */
+function escapeRegExp(str) {
+  return String(str).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function checkGoalRule(rule, buf) {
+  if (!rule || !rule.type) return false;
+  const css = buf.css || "";
+  const js = buf.js || "";
+
+  switch (rule.type) {
+    case "html-tag":
+      // Matches <tagname> or <tagname ...>
+      return new RegExp(`<${escapeRegExp(rule.value)}[\\s>/]`, "i").test(buf.html || "");
+
+    case "html-attr":
+      // Matches attribute=... patterns in HTML
+      return (buf.html || "").toLowerCase().includes(rule.attr.toLowerCase());
+
+    case "html-count-min": {
+      // Counts how many times a tag opening appears
+      const matches = (buf.html || "").match(new RegExp(`<${escapeRegExp(rule.tag)}[\\s>/]`, "gi"));
+      return matches !== null && matches.length >= rule.min;
+    }
+
+    case "css-property":
+      // Checks if a CSS property name is used (before a colon)
+       return new RegExp(`${escapeRegExp(rule.value)}\\s*:`, "i").test(css);
+
+    case "css-property-value":
+      // Checks if property: value combo appears
+      return new RegExp(`${escapeRegExp(rule.property)}\\s*:\\s*[^;]*${escapeRegExp(rule.value)}`, "i").test(css);
+
+    case "css-contains":
+      // Raw substring match in CSS
+      return css.toLowerCase().includes(rule.value.toLowerCase());
+
+    case "css-selector":
+      // Checks if selector exists before a {
+      return new RegExp(`${escapeRegExp(rule.value)}[\\s,:{]`, "i").test(css);
+
+    case "js-contains":
+      // Raw substring match in JS
+      return js.includes(rule.value);
+
+    default:
+      return false;
+  }
+}
+
+/**
+ * Rebuild and animate the Goals checklist panel for the current lesson.
+ * Called on every editor input and on lesson load.
+ */
+function validateGoals() {
+  const lesson = getLesson(currentLessonId);
+  const panel = document.getElementById("goalsPanel");
+  const list = document.getElementById("goalsList");
+  const badge = document.getElementById("goalsBadge");
+
+  // Hide panel if lesson has no goals
+  if (!lesson || !lesson.goals || lesson.goals.length === 0) {
+    panel.style.display = "none";
+    return;
+  }
+  panel.style.display = "flex";
+
+  const buf = buffers[currentLessonId] || {};
+  let doneCount = 0;
+  const total = lesson.goals.length;
+
+  // Rebuild goal items
+  list.innerHTML = "";
+
+  // Progress bar lives above the list so the list keeps native ul/li semantics.
+  let progressBar = panel.querySelector(".goals-progress-bar");
+  if (!progressBar) {
+    progressBar = document.createElement("div");
+    progressBar.className = "goals-progress-bar";
+    progressBar.setAttribute("aria-hidden", "true");
+    const progressFill = document.createElement("div");
+    progressFill.className = "goals-progress-fill";
+    progressBar.appendChild(progressFill);
+    panel.insertBefore(progressBar, list);
+  }
+  const progressFill = progressBar.querySelector(".goals-progress-fill");
+
+  lesson.goals.forEach(goal => {
+    let met = false;
+    try {
+      met = checkGoalRule(goal.rule, buf);
+    } catch (error) {
+      console.warn("Goal validation failed for:", goal, error);
+    }
+    if (met) doneCount++;
+
+    const item = document.createElement("li");
+    item.className = "goal-item " + (met ? "done" : "pending");
+    item.setAttribute("aria-label", (met ? "Completed: " : "Pending: ") + goal.label);
+    item.innerHTML = `
+      <span class="goal-icon">${met ? "✅" : "○"}</span>
+      <span class="goal-label">${escapeHtml(goal.label)}</span>
+      <span class="goal-status-dot"></span>`;
+    list.appendChild(item);
+  });
+
+  // Update progress bar width
+  progressFill.style.width = total > 0 ? `${(doneCount / total) * 100}%` : "0%";
+
+  // Update badge
+  const badgeText = `${doneCount} / ${total}`;
+  if (badge.textContent !== badgeText) {
+    badge.textContent = badgeText;
+  }
+  badge.classList.toggle("all-done", doneCount === total && total > 0);
+
+  // Celebrate when all goals met
+  panel.classList.toggle("all-complete", doneCount === total && total > 0);
+
+  // Show toast only when all goals newly met (avoid repeated toasts)
+  if (doneCount === total && total > 0 && !panel.dataset.celebrated) {
+    panel.dataset.celebrated = "1";
+    showToast(`🎯 All ${total} goals met! Great work!`, "success", "🎯");
+  } else if (doneCount < total) {
+    delete panel.dataset.celebrated;
+  }
+}
+
+/** Toggle goals panel open/collapsed */
+function toggleGoalsPanel() {
+  goalsPanelOpen = !goalsPanelOpen;
+  document.getElementById("goalsPanel").classList.toggle("collapsed", !goalsPanelOpen);
+  const btn = document.getElementById("goalsCollapseBtn");
+  btn.style.transform = goalsPanelOpen ? "" : "rotate(180deg)";
+  btn.setAttribute("aria-expanded", goalsPanelOpen ? "true" : "false");
+}
+
+/* ══════════════════════════════════════════════════════════
    PROGRESS BAR
 ══════════════════════════════════════════════════════════ */
 function updateProgress() {
@@ -938,6 +1216,7 @@ function toggleAutorun() {
   document.getElementById("autorunLabel").textContent = autorun ? "Auto ✓" : "Auto";
   const wrap = document.querySelector(".autorun-wrap");
   if (wrap) wrap.setAttribute("aria-checked", autorun);
+  saveProgress();
   showToast(
     autorun ? "Auto-run ON — preview updates as you type" : "Auto-run OFF",
     autorun ? "success" : "warn",
@@ -971,6 +1250,7 @@ function setPreviewSize(size) {
    global keydown handler below. */
 let activeModalEl = null;
 let modalReturnFocus = null;
+let pendingImportData = null; // Holds parsed backup JSON during confirmation (#78)
 
 function getModalFocusable(modalEl) {
   return Array.from(
@@ -1003,10 +1283,122 @@ function closeModal(modalEl) {
 
 function showResetModal() {
   openModal(document.getElementById("resetModal"));
+  announce("Reset confirmation dialog opened");
 }
 
 function hideResetModal() {
   closeModal(document.getElementById("resetModal"));
+}
+
+/* ══════════════════════════════════════════════════════════
+   IMPORT / EXPORT BACKUP SYSTEM  (#78 — sanket1035)
+   Allows learners to download progress as JSON and restore it.
+══════════════════════════════════════════════════════════ */
+function showImportModal() {
+  openModal(document.getElementById("importConfirmModal"));
+}
+
+function hideImportModal() {
+  closeModal(document.getElementById("importConfirmModal"));
+  pendingImportData = null;
+}
+
+function exportProgress() {
+  try {
+    const backup = {
+      version: "devforge:backup:v1",
+      timestamp: Date.now(),
+      xp: xp,
+      streak: streak,
+      done: Array.from(doneSet),
+      buffers: buffers,
+    };
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `devforge-progress-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast("Progress exported successfully!", "success", "📤");
+  } catch {
+    showToast("Export failed.", "error", "❌");
+  }
+}
+
+function triggerImport() {
+  const fileInput = document.getElementById("importFileInput");
+  if (fileInput) fileInput.click();
+}
+
+function importProgress(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data || typeof data !== "object") throw new Error("Invalid object");
+      if (data.version !== "devforge:backup:v1") throw new Error("Unsupported version");
+      if (!Number.isFinite(data.xp) || data.xp < 0) throw new Error("Invalid XP");
+      if (!Number.isFinite(data.streak) || data.streak < 0) throw new Error("Invalid Streak");
+      if (!Array.isArray(data.done)) throw new Error("Invalid Done list");
+      if (!data.buffers || typeof data.buffers !== "object" || Array.isArray(data.buffers)) {
+        throw new Error("Invalid Buffers");
+      }
+      for (const key of Object.keys(data.buffers)) {
+         const b = data.buffers[key];
+         if (
+           !b || typeof b !== "object" ||
+           typeof b.html !== "string" || typeof b.css !== "string" || typeof b.js !== "string"
+         ) {
+           throw new Error("Invalid buffer entry: " + key);
+         }
+      }
+
+      pendingImportData = data;
+      showImportModal();
+    } catch {
+      showToast("Invalid backup file format.", "error", "❌");
+    } finally {
+      event.target.value = ""; // Reset input so same file can be re-selected
+    }
+  };
+  reader.readAsText(file);
+}
+
+function confirmImportProgress() {
+  if (!pendingImportData) return;
+
+  try {
+    xp = pendingImportData.xp;
+    streak = pendingImportData.streak;
+    doneSet.clear();
+    pendingImportData.done.forEach(id => doneSet.add(id));
+
+    // Clear old buffers and copy new ones
+    Object.keys(buffers).forEach(key => delete buffers[key]);
+    Object.keys(pendingImportData.buffers).forEach(id => {
+      const b = pendingImportData.buffers[id];
+      buffers[id] = { html: b.html, css: b.css, js: b.js };
+    });
+
+    saveProgress();
+    hideImportModal();
+
+    // Re-render UI
+    document.getElementById("xpVal").textContent = xp;
+    document.getElementById("streakLabel").textContent = `🔥 ${streak} streak`;
+    buildSidebar();
+    loadLesson(currentLessonId, { trackProgress: false });
+
+    showToast("Progress restored successfully!", "success", "✅");
+  } catch {
+    showToast("Import failed.", "error", "❌");
+  }
 }
 
 function confirmReset() {
@@ -1048,23 +1440,79 @@ function changeFontSize(val) {
   document.documentElement.style.setProperty("--fs", val + "px");
   document.getElementById("fsValLabel").textContent = val + "px";
   updateLineNums();
+  saveProgress();
 }
 
 function toggleFsPanel() {
   fsPanelVisible = !fsPanelVisible;
   document.getElementById("fsPanel").classList.toggle("show", fsPanelVisible);
   document.getElementById("fsSizeBtn").classList.toggle("active", fsPanelVisible);
-  if (shortcutsVisible) toggleShortcuts();
+  if (document.getElementById("shortcutsModal").classList.contains("show")) closeShortcutsModal();
 }
 
 /* ══════════════════════════════════════════════════════════
-   KEYBOARD SHORTCUTS PANEL
+   KEYBOARD SHORTCUTS MODAL  (#76 — sanket1035)
+   Replaces old floating panel with a proper accessible modal.
+   Triggered by: ? key (when not in editor), ⌨ button, ? button.
 ══════════════════════════════════════════════════════════ */
+function openShortcutsModal() {
+  if (fsPanelVisible) toggleFsPanel(); // close any open floating panel first
+  openModal(document.getElementById("shortcutsModal"));
+  const helpBtn = document.getElementById("helpBtn");
+  if (helpBtn) helpBtn.classList.add("active");
+}
+
+function closeShortcutsModal() {
+  closeModal(document.getElementById("shortcutsModal"));
+  const helpBtn = document.getElementById("helpBtn");
+  if (helpBtn) helpBtn.classList.remove("active");
+}
+
+/** Back-compat stub — old onclick references in HTML may still call toggleShortcuts() */
 function toggleShortcuts() {
-  shortcutsVisible = !shortcutsVisible;
-  document.getElementById("shortcutsPanel").classList.toggle("show", shortcutsVisible);
-  document.getElementById("shortcutsBtn").classList.toggle("active", shortcutsVisible);
-  if (fsPanelVisible) toggleFsPanel();
+  openShortcutsModal();
+}
+
+/* ══════════════════════════════════════════════════════════
+   THEME TOGGLE
+══════════════════════════════════════════════════════════ */
+function updateThemeButton() {
+  const btn = document.getElementById("themeToggleBtn");
+  if (btn) {
+    btn.textContent = darkTheme ? "🌙" : "☀️";
+    btn.setAttribute("aria-pressed", String(!darkTheme));
+  }
+}
+
+function applyTheme() {
+  if (darkTheme) {
+    document.documentElement.removeAttribute("data-theme");
+  } else {
+    document.documentElement.setAttribute("data-theme", "light");
+  }
+  updateThemeButton();
+}
+
+function toggleTheme() {
+  darkTheme = !darkTheme;
+  applyTheme();
+  try {
+    localStorage.setItem("devforge_theme", darkTheme ? "dark" : "light");
+  } catch (error) {
+    console.warn("Unable to save DevForge theme", error);
+  }
+}
+
+function applySavedTheme() {
+  try {
+    const saved = localStorage.getItem("devforge_theme");
+    if (saved === "light") {
+      darkTheme = false;
+    }
+    applyTheme();
+  } catch (error) {
+    console.warn("Unable to load DevForge theme", error);
+  }
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -1131,6 +1579,16 @@ function showToast(msg, type = "info", icon = "") {
   toast.className = `toast show ${type}`;
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toast.classList.remove("show"), 3200);
+}
+
+function announce(msg) {
+  const el = document.getElementById("srAnnouncer");
+  if (el) {
+    el.textContent = "";
+    requestAnimationFrame(() => {
+      el.textContent = msg;
+    });
+  }
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -1262,10 +1720,24 @@ document.addEventListener("keydown", e => {
     editorRedo();
   }
 
+  // ? key — open shortcuts modal (skip when focus is textarea/input)
+  if (
+    e.key === "?" &&
+    !e.ctrlKey &&
+    !e.metaKey &&
+    !e.altKey &&
+    document.activeElement?.tagName !== "TEXTAREA" &&
+    document.activeElement?.tagName !== "INPUT"
+  ) {
+    e.preventDefault();
+    openShortcutsModal();
+  }
+
   if (e.key === "Escape") {
-    if (shortcutsVisible) toggleShortcuts();
+    if (document.getElementById("shortcutsModal").classList.contains("show")) closeShortcutsModal();
     if (fsPanelVisible) toggleFsPanel();
     hideResetModal();
+    hideImportModal();
     hideCompletion();
     if (document.activeElement && document.activeElement.id === "searchInput") {
       document.activeElement.blur();
@@ -1277,17 +1749,13 @@ document.addEventListener("keydown", e => {
    CLOSE FLOATING PANELS ON OUTSIDE CLICK
 ══════════════════════════════════════════════════════════ */
 document.addEventListener("click", e => {
-  if (
-    shortcutsVisible &&
-    !e.target.closest("#shortcutsPanel") &&
-    !e.target.closest("#shortcutsBtn")
-  ) {
-    toggleShortcuts();
-  }
   if (fsPanelVisible && !e.target.closest("#fsPanel") && !e.target.closest("#fsSizeBtn")) {
     toggleFsPanel();
   }
+  // Shortcuts modal closes via its own overlay click (handled in openModal pattern)
+  if (e.target === document.getElementById("shortcutsModal")) closeShortcutsModal();
   if (e.target === document.getElementById("resetModal")) hideResetModal();
+  if (e.target === document.getElementById("importConfirmModal")) hideImportModal();
   if (e.target === document.getElementById("completionBanner")) hideCompletion();
 });
 
@@ -1320,9 +1788,16 @@ if ("serviceWorker" in navigator) {
 ════════════════════════════════════════════════════════════ */
 // Toolbar
 window.switchTab = switchTab;
+window.exportProgress = exportProgress;
+window.triggerImport = triggerImport;
+window.importProgress = importProgress;
+window.confirmImportProgress = confirmImportProgress;
+window.toggleTheme = toggleTheme;
 window.toggleAutorun = toggleAutorun;
 window.toggleFsPanel = toggleFsPanel;
 window.toggleShortcuts = toggleShortcuts;
+window.openShortcutsModal = openShortcutsModal;
+window.closeShortcutsModal = closeShortcutsModal;
 window.runCode = runCode;
 // Lesson search
 window.filterLessons = filterLessons;
@@ -1356,3 +1831,6 @@ window.editorRedo = editorRedo;
 // Completion modal
 window.hideCompletion = hideCompletion;
 window.restartAll = restartAll;
+// Goals checklist (#75)
+window.validateGoals = validateGoals;
+window.toggleGoalsPanel = toggleGoalsPanel;
