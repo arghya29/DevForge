@@ -18,10 +18,10 @@ window.CURRICULUM = [
         title: "Your First Element",
         xp: 20,
         paneTitle: "01 · Your First Element",
-        hints: [
-          "Make sure to wrap your text inside <code>&lt;h1&gt;</code> and <code>&lt;/h1&gt;</code> tags.",
-          "You can add a new paragraph with <code>&lt;p&gt;My first webpage.&lt;/p&gt;</code> below the heading.",
-          "Both your heading and paragraph elements should reside inside the <code>&lt;body&gt;</code> and <code>&lt;/body&gt;</code> tags.",
+        goals: [
+          { label: "Use an <h1> heading tag", rule: { type: "html-tag", value: "h1" } },
+          { label: "Add at least one <p> paragraph", rule: { type: "html-tag", value: "p" } },
+          { label: "Include a <body> element", rule: { type: "html-tag", value: "body" } },
         ],
         instruction: `
           <h2>What is an HTML element?</h2>
@@ -65,9 +65,14 @@ h1 {
         title: "Headings & Paragraphs",
         xp: 20,
         paneTitle: "02 · Headings & Paragraphs",
-        hints: [
-          "<code>&lt;h1&gt;</code> is for the main title, <code>&lt;h2&gt;</code> for sections, and <code>&lt;h3&gt;</code> for subsections.",
-          "To add a blockquote, wrap your quote text with <code>&lt;blockquote&gt;Your quote text&lt;/blockquote&gt;</code>.",
+        goals: [
+          { label: "Use an <h1> main title", rule: { type: "html-tag", value: "h1" } },
+          { label: "Add an <h2> section heading", rule: { type: "html-tag", value: "h2" } },
+          { label: "Add an <h3> sub-heading", rule: { type: "html-tag", value: "h3" } },
+          {
+            label: "Add a <blockquote> (challenge)",
+            rule: { type: "html-tag", value: "blockquote" },
+          },
         ],
         instruction: `
           <h2>Hierarchy with headings</h2>
@@ -130,9 +135,17 @@ blockquote {
         title: "Lists & Links",
         xp: 20,
         paneTitle: "03 · Lists & Links",
-        hints: [
-          "An unordered list uses <code>&lt;ul&gt;</code> with nested <code>&lt;li&gt;</code> elements. An ordered list uses <code>&lt;ol&gt;</code> with nested <code>&lt;li&gt;</code> elements.",
-          'An anchor link is written as <code>&lt;a href="url"&gt;Link Text&lt;/a&gt;</code>. Make sure to specify the <code>href</code> attribute correctly.',
+        goals: [
+          { label: "Use a <ul> unordered list", rule: { type: "html-tag", value: "ul" } },
+          { label: "Use an <ol> ordered list", rule: { type: "html-tag", value: "ol" } },
+          {
+            label: "Include at least one <a href> link",
+            rule: { type: "html-attr", attr: "href" },
+          },
+          {
+            label: "Add a new <li> item of your own",
+            rule: { type: "html-count-min", tag: "li", min: 4 },
+          },
         ],
         instruction: `
           <h2>Organise content with lists</h2>
@@ -190,9 +203,18 @@ li {
         title: "Images & Attributes",
         xp: 20,
         paneTitle: "04 · Images & Attributes",
-        hints: [
-          "The <code>&lt;img&gt;</code> tag needs a <code>src</code> attribute pointing to the image URL, and an <code>alt</code> attribute for accessibility.",
-          "Wrap your image inside a <code>&lt;figure&gt;</code> container, and place a <code>&lt;figcaption&gt;</code> inside the same figure element.",
+        goals: [
+          { label: "Use an <img> element", rule: { type: "html-tag", value: "img" } },
+          {
+            label: "Add an alt attribute for accessibility",
+            rule: { type: "html-attr", attr: "alt" },
+          },
+          { label: "Wrap image in <figure>", rule: { type: "html-tag", value: "figure" } },
+          { label: "Add a <figcaption>", rule: { type: "html-tag", value: "figcaption" } },
+          {
+            label: "Add a second <figure> (challenge)",
+            rule: { type: "html-count-min", tag: "figure", min: 2 },
+          },
         ],
         instruction: `
           <h2>Embedding images</h2>
@@ -256,10 +278,18 @@ figcaption {
         title: "Forms & Inputs",
         xp: 30,
         paneTitle: "05 · Forms & Inputs",
-        hints: [
-          "Use a <code>&lt;form&gt;</code> tag to enclose your inputs.",
-          'Add text inputs using <code>&lt;input type="text"&gt;</code> and email inputs using <code>&lt;input type="email"&gt;</code>.',
-          "For the biography textarea, use the <code>&lt;textarea&gt;&lt;/textarea&gt;</code> element.",
+        goals: [
+          { label: "Use a <form> element", rule: { type: "html-tag", value: "form" } },
+          { label: "Add a text <input> field", rule: { type: "html-attr", attr: 'type="text"' } },
+          {
+            label: "Add an email <input> field",
+            rule: { type: "html-attr", attr: 'type="email"' },
+          },
+          { label: "Add a <label> for each field", rule: { type: "html-tag", value: "label" } },
+          {
+            label: "Add a <textarea> for bio (challenge)",
+            rule: { type: "html-tag", value: "textarea" },
+          },
         ],
         instruction: `
           <h2>Collecting user input</h2>
@@ -377,10 +407,17 @@ button:hover {
         title: "Selectors & Specificity",
         xp: 25,
         paneTitle: "01 · Selectors & Specificity",
-        hints: [
-          "A tag selector targets plain tags like <code>h1 { color: blue; }</code>.",
-          "A class selector starts with a dot: <code>.highlight { ... }</code>.",
-          "An ID selector starts with a hash: <code>#main-title { ... }</code>.",
+        goals: [
+          {
+            label: "Use a tag selector (e.g. h1 { })",
+            rule: { type: "css-selector", value: "h1" },
+          },
+          { label: "Use a class selector (.class)", rule: { type: "css-contains", value: "." } },
+          { label: "Use an ID selector (#id)", rule: { type: "css-contains", value: "#" } },
+          {
+            label: "Add a .highlight class style (hint)",
+            rule: { type: "css-contains", value: ".highlight" },
+          },
         ],
         instruction: `
           <h2>Targeting elements with CSS</h2>
@@ -442,10 +479,17 @@ li.special {
         title: "The Box Model",
         xp: 25,
         paneTitle: "02 · The Box Model",
-        hints: [
-          "Include <code>box-sizing: border-box;</code> inside the universal selector block (<code>* { ... }</code>).",
-          "Set the <code>padding</code> and <code>border</code> properties inside the <code>.box { ... }</code> selector block.",
-          "Apply a box-shadow with <code>box-shadow: horizontal vertical blur color;</code>.",
+        goals: [
+          {
+            label: "Use box-sizing: border-box",
+            rule: { type: "css-property-value", property: "box-sizing", value: "border-box" },
+          },
+          { label: "Set padding on .box", rule: { type: "css-property", value: "padding" } },
+          { label: "Set a border on .box", rule: { type: "css-property", value: "border" } },
+          {
+            label: "Add box-shadow (challenge)",
+            rule: { type: "css-property", value: "box-shadow" },
+          },
         ],
         instruction: `
           <h2>Every element is a box</h2>
@@ -513,10 +557,21 @@ h2 {
         title: "Flexbox Layout",
         xp: 30,
         paneTitle: "03 · Flexbox Layout",
-        hints: [
-          "Set <code>display: flex;</code> on the parent <code>.container</code> selector.",
-          "Align items with <code>justify-content: space-between;</code> and <code>align-items: center;</code>.",
-          "Add space between items using <code>gap: 15px;</code>.",
+        goals: [
+          {
+            label: "Use display: flex on a container",
+            rule: { type: "css-property-value", property: "display", value: "flex" },
+          },
+          {
+            label: "Set justify-content",
+            rule: { type: "css-property", value: "justify-content" },
+          },
+          { label: "Set align-items", rule: { type: "css-property", value: "align-items" } },
+          { label: "Use gap between flex items", rule: { type: "css-property", value: "gap" } },
+          {
+            label: "Add flex-direction: column (challenge)",
+            rule: { type: "css-property-value", property: "flex-direction", value: "column" },
+          },
         ],
         instruction: `
           <h2>One-dimensional layouts</h2>
@@ -619,10 +674,20 @@ h2 {
         title: "CSS Grid",
         xp: 30,
         paneTitle: "04 · CSS Grid",
-        hints: [
-          "Set <code>display: grid;</code> on the parent <code>.grid</code> selector.",
-          "Define columns with <code>grid-template-columns: repeat(3, 1fr);</code>.",
-          "To make the hero element span the full grid width, set <code>grid-column: span 3;</code>.",
+        goals: [
+          {
+            label: "Use display: grid",
+            rule: { type: "css-property-value", property: "display", value: "grid" },
+          },
+          {
+            label: "Define grid-template-columns",
+            rule: { type: "css-property", value: "grid-template-columns" },
+          },
+          { label: "Use gap between grid cells", rule: { type: "css-property", value: "gap" } },
+          {
+            label: "Span an item with grid-column",
+            rule: { type: "css-property", value: "grid-column" },
+          },
         ],
         instruction: `
           <h2>Two-dimensional layouts</h2>
@@ -686,10 +751,27 @@ h2 {
         title: "Transitions & Animations",
         xp: 35,
         paneTitle: "05 · Transitions & Animations",
-        hints: [
-          "Add <code>transition: transform 0.3s ease;</code> on the class representing the card.",
-          "Create a keyframes animation using <code>@keyframes float { 0% { transform: translateY(0); } 50% { transform: translateY(-10px); } }</code>.",
-          "Apply the animation to the element using <code>animation: float 2s infinite;</code>.",
+        goals: [
+          {
+            label: "Use transition on a property",
+            rule: { type: "css-property", value: "transition" },
+          },
+          {
+            label: "Define a @keyframes animation",
+            rule: { type: "css-contains", value: "@keyframes" },
+          },
+          {
+            label: "Apply animation to an element",
+            rule: { type: "css-property", value: "animation" },
+          },
+          {
+            label: "Use transform in animation/hover",
+            rule: { type: "css-property", value: "transform" },
+          },
+          {
+            label: "Create a @keyframes shake (challenge)",
+            rule: { type: "css-contains", value: "@keyframes shake" },
+          },
         ],
         instruction: `
           <h2>Bringing CSS to life</h2>
@@ -819,10 +901,14 @@ h2 {
         title: "Variables & Types",
         xp: 25,
         paneTitle: "01 · Variables & Types",
-        hints: [
-          "Declare constant variables using the <code>const</code> keyword.",
-          "Declare variables that can be reassigned using the <code>let</code> keyword.",
-          "Template literals use backticks (<code>`</code>) and allow embedded expressions using <code>${variable}</code>.",
+        goals: [
+          { label: "Declare a const variable", rule: { type: "js-contains", value: "const " } },
+          { label: "Declare a let variable", rule: { type: "js-contains", value: "let " } },
+          { label: "Use a template literal (backtick)", rule: { type: "js-contains", value: "`" } },
+          {
+            label: "Log something with console.log()",
+            rule: { type: "js-contains", value: "console.log" },
+          },
         ],
         instruction: `
           <h2>Storing data in variables</h2>
@@ -891,10 +977,17 @@ typeof year = "\${typeof year}"\`;`,
         title: "Functions",
         xp: 25,
         paneTitle: "02 · Functions",
-        hints: [
-          "Write a standard function using the <code>function greet(name) { ... }</code> declaration.",
-          "Arrow functions have the syntax: <code>const add = (a, b) => a + b;</code>.",
-          "Use the <code>return</code> keyword inside your functions to specify the result value.",
+        goals: [
+          {
+            label: "Write a function declaration (function name(){})",
+            rule: { type: "js-contains", value: "function " },
+          },
+          { label: "Write an arrow function (=>)", rule: { type: "js-contains", value: "=>" } },
+          { label: "Use a return statement", rule: { type: "js-contains", value: "return " } },
+          {
+            label: "Add a multiply() function (hint)",
+            rule: { type: "js-contains", value: "multiply" },
+          },
         ],
         instruction: `
           <h2>Reusable blocks of code</h2>
@@ -973,10 +1066,21 @@ log("hypotenuse(3, 4)",  hypotenuse(3, 4));`,
         title: "Arrays & Loops",
         xp: 30,
         paneTitle: "03 · Arrays & Loops",
-        hints: [
-          "Arrays are initialized with square brackets: <code>const list = [1, 2, 3];</code>.",
-          "Use <code>.map()</code> to transform each item, and <code>.filter()</code> to select specific elements.",
-          "To sort fruits alphabetically, use <code>fruits.sort();</code>.",
+        goals: [
+          { label: "Declare an array with []", rule: { type: "js-contains", value: "[" } },
+          { label: "Use .map() to transform items", rule: { type: "js-contains", value: ".map(" } },
+          {
+            label: "Use .filter() to select items",
+            rule: { type: "js-contains", value: ".filter(" },
+          },
+          {
+            label: "Use .forEach() or .reduce()",
+            rule: { type: "js-contains", value: ".forEach(" },
+          },
+          {
+            label: "Sort the array with .sort() (challenge)",
+            rule: { type: "js-contains", value: ".sort(" },
+          },
         ],
         instruction: `
           <h2>Collections of data</h2>
@@ -1067,10 +1171,21 @@ document.getElementById("stats").textContent =
         title: "DOM Manipulation",
         xp: 30,
         paneTitle: "04 · DOM Manipulation",
-        hints: [
-          "Select elements using <code>document.querySelector('#id')</code> or <code>document.querySelector('.class')</code>.",
-          "Listen to user click events using <code>element.addEventListener('click', () => { ... })</code>.",
-          "Create new DOM elements using <code>document.createElement('li')</code> and append them using <code>parent.appendChild(child)</code>.",
+        goals: [
+          {
+            label: "Select an element with querySelector()",
+            rule: { type: "js-contains", value: "querySelector" },
+          },
+          {
+            label: "Listen for an event with addEventListener()",
+            rule: { type: "js-contains", value: "addEventListener" },
+          },
+          { label: "Change element style via JS", rule: { type: "js-contains", value: ".style." } },
+          {
+            label: "Create an element with createElement()",
+            rule: { type: "js-contains", value: "createElement" },
+          },
+          { label: "Listen for dblclick (hint)", rule: { type: "js-contains", value: "dblclick" } },
         ],
         instruction: `
           <h2>Making pages interactive</h2>
@@ -1186,10 +1301,17 @@ document.querySelector("#addBtn").addEventListener("click", () => {
         title: "Fetch & Async/Await",
         xp: 40,
         paneTitle: "05 · Fetch & Async/Await",
-        hints: [
-          "Define async functions using <code>async function load() { ... }</code>.",
-          "Use the <code>await</code> keyword before promises: <code>const res = await fetch(url);</code>.",
-          "Wrap your async/await fetches in <code>try { ... } catch (err) { ... }</code> blocks for safety.",
+        goals: [
+          {
+            label: "Use async function declaration",
+            rule: { type: "js-contains", value: "async " },
+          },
+          { label: "Use await keyword", rule: { type: "js-contains", value: "await " } },
+          { label: "Call fetch() for a URL", rule: { type: "js-contains", value: "fetch(" } },
+          {
+            label: "Wrap in try/catch for error handling",
+            rule: { type: "js-contains", value: "try {" },
+          },
         ],
         instruction: `
           <h2>Talking to the internet</h2>
@@ -1321,10 +1443,23 @@ loadUser();`,
         title: "Build a Todo App",
         xp: 50,
         paneTitle: "06 · Build a Todo App",
-        hints: [
-          "Render the list of todos inside `render()` by iterating with <code>forEach</code> and appending HTML structure.",
-          'Check if checkboxes trigger a change event by reading <code>e.target.type === "checkbox"</code>.',
-          "Convert objects to string using <code>JSON.stringify(todos)</code> before writing to <code>localStorage</code>.",
+        goals: [
+          {
+            label: "Render a list with innerHTML or createElement",
+            rule: { type: "js-contains", value: "innerHTML" },
+          },
+          {
+            label: "Handle click events on buttons",
+            rule: { type: "js-contains", value: "addEventListener" },
+          },
+          {
+            label: "Filter or update an array of todos",
+            rule: { type: "js-contains", value: ".filter(" },
+          },
+          {
+            label: "Persist todos with localStorage (challenge)",
+            rule: { type: "js-contains", value: "localStorage" },
+          },
         ],
         instruction: `
           <h2>Putting it all together</h2>

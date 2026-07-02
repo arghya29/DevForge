@@ -313,6 +313,34 @@
           <div class="lesson-content" id="lessonContent"></div>
         </div>
 
+        <!-- 🎯 Goals Checklist Panel (#75) -->
+        <section
+          class="goals-panel"
+          id="goalsPanel"
+          aria-labelledby="goalsPanelTitle"
+          style="display: none"
+        >
+          <div class="goals-header" id="goalsPanelHeader" onclick="toggleGoalsPanel()">
+            <div class="goals-title-wrap">
+              <span class="goals-icon">🎯</span>
+              <span class="goals-title" id="goalsPanelTitle">GOALS</span>
+              <span class="goals-badge" id="goalsBadge" aria-live="polite" aria-atomic="true">
+                0 / 0
+              </span>
+            </div>
+            <button
+              type="button"
+              class="collapse-btn"
+              id="goalsCollapseBtn"
+              aria-label="Collapse goals panel"
+              aria-expanded="true"
+            >
+              ▼
+            </button>
+          </div>
+          <ul class="goals-list" id="goalsList"></ul>
+        </section>
+
         <!-- Prev / Next navigation -->
         <div class="lesson-nav">
           <button type="button" class="nav-btn" id="prevBtn" onclick="navLesson(-1)">← Prev</button>
