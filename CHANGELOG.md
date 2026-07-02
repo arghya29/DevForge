@@ -9,11 +9,13 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- State persistence system using localStorage (key: `devforge_state`)
-- XP, streak count, completed lessons, autorun toggle, and font size now survive page reload
-- `saveState()` and `loadState()` functions with version-gated schema
-- `beforeunload` event handler for state save on page close
-- `localStorage` declared as readonly global in ESLint config
+- PWA support: manifest.json for installable standalone app experience
+- Service worker (sw.js) for offline caching of all static assets
+- Offline fallback page (offline.html) with reconnect button
+- `<link rel="manifest">`, theme-color, and apple-mobile-web-app meta tags
+- Service worker registration in app.js init
+- PWA-related entries in README features table
+- Extended localStorage progress persistence to also restore autorun and font-size preferences
 - Touch event support for the drag resizer — enables column resizing on tablets and phones
 - Responsive sidebar toggle: sidebar collapses on screens ≤768px with a ☰ toggle button
 - Mobile-optimized layout: sidebar slides in/out, resizer hidden on mobile, progress bar hidden

@@ -7,8 +7,6 @@
 
 "use strict";
 
-const STORAGE_KEY = "devforge_state";
-
 /* ══════════════════════════════════════════════════════════
    STATE
 ══════════════════════════════════════════════════════════ */
@@ -25,52 +23,118 @@ let xp = 0;
 let streak = 0;
 let lastRunLesson = null;
 let errorCount = 0;
+let consoleScrolledUp = false;
+const CONSOLE_MAX_LINES = 200;
+let consoleLineCount = 0;
 
-const doneSet = new Set();
-const buffers = {};
+const doneSet = new Set(); // lesson ids that have been run at least once
+const buffers = {}; // { [lessonId]: { html, css, js } }  — user edits
+const scrollPositions = {}; // { [lessonId_tab]: scrollTop }
+const undoStacks = {}; // { [lessonId_tab]: [string] }
+const redoStacks = {}; // { [lessonId_tab]: [string] }
+const undoPushTimers = {}; // { [lessonId_tab]: timeoutId }
+const pendingUndoValues = {}; // { [lessonId_tab]: string }
+const UNDO_MAX = 50;
 
 /* ══════════════════════════════════════════════════════════
-   STATE PERSISTENCE (localStorage)
+   PERSISTENCE — save/restore learner progress via localStorage
 ══════════════════════════════════════════════════════════ */
-function saveState() {
+const STORAGE_KEY = "devforge:progress:v1";
+let saveTimer = null;
+
+// Persist XP, streak, completed-lesson ids, and per-lesson code buffers.
+function saveProgress() {
   try {
-    const data = {
-      version: 1,
-      xp,
-      streak,
-      doneSet: Array.from(doneSet),
-      autorun,
-      fontSize: document.documentElement.style.getPropertyValue("--fs"),
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch (error) {
-    console.warn("Unable to save DevForge state", error);
+    const fontSize = getComputedStyle(document.documentElement).getPropertyValue("--fs").trim();
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        xp: xp,
+        streak: streak,
+        done: Array.from(doneSet),
+        buffers: buffers,
+        autorun: autorun,
+        fontSize: fontSize,
+      })
+    );
+  } catch {
+    return; // storage unavailable (private mode) or quota exceeded — ignore
   }
 }
 
-function loadState() {
+// Debounced save so we don't write to storage on every keystroke.
+function scheduleSave() {
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveProgress, 500);
+}
+
+// Restore saved progress on load, defensively validating every field.
+function loadProgress() {
+  let data;
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
-    const data = JSON.parse(raw);
-    if (data.version !== 1) return;
-    xp = data.xp || 0;
-    streak = data.streak || 0;
-    if (Array.isArray(data.doneSet)) data.doneSet.forEach(id => doneSet.add(id));
-    if (data.autorun) {
-      autorun = true;
-      document.getElementById("autorunToggle").classList.add("on");
-      document.getElementById("autorunLabel").textContent = "Auto ✓";
-    }
-    if (data.fontSize) {
-      document.documentElement.style.setProperty("--fs", data.fontSize);
-      const slider = document.getElementById("fsSlider");
-      if (slider) slider.value = parseInt(data.fontSize);
-      const label = document.getElementById("fsValLabel");
-      if (label) label.textContent = data.fontSize;
-    }
-  } catch (error) {
-    console.warn("Unable to load DevForge state", error);
+    data = JSON.parse(raw);
+  } catch {
+    return; // storage unavailable or corrupt JSON — start fresh
+  }
+  if (!data || typeof data !== "object") return;
+
+  if (typeof data.xp === "number" && Number.isFinite(data.xp) && data.xp >= 0) {
+    xp = data.xp;
+  }
+  if (typeof data.streak === "number" && Number.isFinite(data.streak) && data.streak >= 0) {
+    streak = data.streak;
+  }
+  const validIds = new Set(getAllLessons().map(l => l.id));
+  if (Array.isArray(data.done)) {
+    data.done.forEach(id => {
+      if (validIds.has(id)) doneSet.add(id);
+    });
+  }
+  if (data.buffers && typeof data.buffers === "object" && !Array.isArray(data.buffers)) {
+    Object.keys(data.buffers).forEach(id => {
+      if (!validIds.has(id)) return;
+      const b = data.buffers[id];
+      if (
+        b &&
+        typeof b === "object" &&
+        typeof b.html === "string" &&
+        typeof b.css === "string" &&
+        typeof b.js === "string"
+      ) {
+        buffers[id] = { html: b.html, css: b.css, js: b.js };
+      }
+    });
+  }
+  if (typeof data.autorun === "boolean") {
+    autorun = data.autorun;
+    const toggle = document.getElementById("autorunToggle");
+    if (toggle) toggle.classList.toggle("on", autorun);
+    const label = document.getElementById("autorunLabel");
+    if (label) label.textContent = autorun ? "Auto ✓" : "Auto";
+    const wrap = document.querySelector(".autorun-wrap");
+    if (wrap) wrap.setAttribute("aria-checked", String(autorun));
+  }
+  if (typeof data.fontSize === "string" && /^\d+(?:\.\d+)?px$/.test(data.fontSize)) {
+    document.documentElement.style.setProperty("--fs", data.fontSize);
+    const slider = document.getElementById("fsSlider");
+    if (slider) slider.value = parseInt(data.fontSize, 10);
+    const label = document.getElementById("fsValLabel");
+    if (label) label.textContent = data.fontSize;
+  }
+}
+
+// Wipe persisted progress (used by the Restart flow).
+function clearProgress() {
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+  }
+  try {
+    window.localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    return; // ignore
   }
 }
 
@@ -101,9 +165,11 @@ function getLessonIndex(id) {
    BOOTSTRAP
 ══════════════════════════════════════════════════════════ */
 function init() {
-  loadState();
+  loadProgress();
   buildSidebar();
-  loadLesson(currentLessonId);
+  loadLesson(currentLessonId, { trackProgress: false });
+  document.getElementById("xpVal").textContent = xp;
+  document.getElementById("streakLabel").textContent = `🔥 ${streak} streak`;
   updateProgress();
   initResizer();
   if (window.innerWidth <= 768) {
@@ -170,7 +236,7 @@ function clearSearch() {
 /* ══════════════════════════════════════════════════════════
    LESSON LOADING
 ══════════════════════════════════════════════════════════ */
-function loadLesson(id) {
+function loadLesson(id, { trackProgress = true } = {}) {
   saveCurrentBuffer();
   currentLessonId = id;
   const lesson = getLesson(id);
@@ -201,12 +267,15 @@ function loadLesson(id) {
   buildFileTabs();
   loadTab(activeTab);
   updateNav();
-  runCode();
+  runCode({ trackProgress });
 }
 
 function saveCurrentBuffer() {
   if (!currentLessonId || !buffers[currentLessonId]) return;
-  buffers[currentLessonId][activeTab] = document.getElementById("codeEditor").value;
+  const editor = document.getElementById("codeEditor");
+  buffers[currentLessonId][activeTab] = editor.value;
+  scrollPositions[currentLessonId + "_" + activeTab] = editor.scrollTop;
+  flushUndoState(currentLessonId + "_" + activeTab);
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -252,27 +321,115 @@ function loadTab(tab) {
 
   const editor = document.getElementById("codeEditor");
   editor.value = buf[tab] || "";
+  seedUndoState(currentLessonId + "_" + tab, editor.value);
   editor.setAttribute("aria-label", EDITOR_ARIA_LABELS[tab] || "Code editor");
   updateLineNums();
   highlight();
 
-  // Glitch-in animation on switch
+  requestAnimationFrame(() => {
+    const key = currentLessonId + "_" + tab;
+    if (scrollPositions[key] !== undefined) {
+      editor.scrollTop = scrollPositions[key];
+    }
+  });
+
   editor.classList.add("glitch-in");
   setTimeout(() => editor.classList.remove("glitch-in"), 400);
 }
 
 /* ══════════════════════════════════════════════════════════
-   EDITOR EVENTS
+   UNDO / REDO
 ══════════════════════════════════════════════════════════ */
-function onEditorInput() {
-  if (!buffers[currentLessonId]) return;
-  buffers[currentLessonId][activeTab] = document.getElementById("codeEditor").value;
+function editorUndo() {
+  const key = currentLessonId + "_" + activeTab;
+  flushUndoState(key);
+  const stack = undoStacks[key];
+  if (!stack || stack.length < 2) return;
+  const current = stack.pop();
+  if (!redoStacks[key]) redoStacks[key] = [];
+  redoStacks[key].push(current);
+  const prev = stack[stack.length - 1];
+  applyEditorState(prev);
+}
+
+function editorRedo() {
+  const key = currentLessonId + "_" + activeTab;
+  flushUndoState(key, { preserveRedo: true });
+  const stack = redoStacks[key];
+  if (!stack || stack.length === 0) return;
+  const next = stack.pop();
+  if (!undoStacks[key]) undoStacks[key] = [];
+  undoStacks[key].push(next);
+  applyEditorState(next);
+}
+
+function applyEditorState(val) {
+  if (val === undefined) return;
+  const editor = document.getElementById("codeEditor");
+  editor.value = val;
+  buffers[currentLessonId][activeTab] = val;
   updateLineNums();
   highlight();
+  scheduleSave();
+  if (autorun) {
+    clearTimeout(autorunTimer);
+    autorunTimer = setTimeout(runCode, 900);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   EDITOR EVENTS
+══════════════════════════════════════════════════════════ */
+
+function onEditorInput() {
+  if (!buffers[currentLessonId]) return;
+  const editor = document.getElementById("codeEditor");
+  const newVal = editor.value;
+  const key = currentLessonId + "_" + activeTab;
+  buffers[currentLessonId][activeTab] = newVal;
+  updateLineNums();
+  highlight();
+  scheduleSave();
 
   if (autorun) {
     clearTimeout(autorunTimer);
     autorunTimer = setTimeout(runCode, 900);
+  }
+
+  pushUndoState(key, newVal);
+}
+
+function pushUndoState(key, val) {
+  clearTimeout(undoPushTimers[key]);
+  pendingUndoValues[key] = val;
+  undoPushTimers[key] = setTimeout(() => flushUndoState(key), 100);
+}
+
+function flushUndoState(key, options = {}) {
+  clearTimeout(undoPushTimers[key]);
+  delete undoPushTimers[key];
+  if (!Object.prototype.hasOwnProperty.call(pendingUndoValues, key)) return;
+  const val = pendingUndoValues[key];
+  delete pendingUndoValues[key];
+  commitUndoState(key, val, options);
+}
+
+function seedUndoState(key, val) {
+  if (!undoStacks[key]) undoStacks[key] = [];
+  if (!redoStacks[key]) redoStacks[key] = [];
+  if (undoStacks[key].length === 0 && val !== undefined) {
+    undoStacks[key].push(val);
+  }
+}
+
+function commitUndoState(key, val, options = {}) {
+  if (!undoStacks[key]) undoStacks[key] = [];
+  if (!redoStacks[key]) redoStacks[key] = [];
+  const last = undoStacks[key][undoStacks[key].length - 1];
+  if (last !== val && val !== undefined) {
+    undoStacks[key].push(val);
+    if (!options.preserveRedo) redoStacks[key] = [];
+    if (undoStacks[key].length > UNDO_MAX) undoStacks[key].shift();
   }
 }
 
@@ -348,7 +505,6 @@ function handleEditorKey(e) {
     const wordAfter = /[\w]/.test(nextChar);
     if (wordBefore || wordAfter || nextChar === e.key) return;
   }
-
   // Typing an opening bracket/brace/quote: insert the matching closer. If there's
   // a selection, wrap it in the pair (e.g. select foo, press "(" → (foo)). The
   // opener, any wrapped selection, and the closer are inserted as a single
@@ -505,7 +661,8 @@ function escapeHtml(s) {
 /* ══════════════════════════════════════════════════════════
    RUN CODE → render into the preview iframe
 ══════════════════════════════════════════════════════════ */
-function runCode() {
+function runCode(options = {}) {
+  const { trackProgress = true } = options;
   saveCurrentBuffer();
   const buf = buffers[currentLessonId];
   if (!buf) return;
@@ -526,7 +683,7 @@ function runCode() {
   document.getElementById("previewFrame").srcdoc = doc;
 
   // Award XP on first run of each lesson
-  if (lastRunLesson !== currentLessonId) {
+  if (trackProgress && lastRunLesson !== currentLessonId) {
     const lesson = getLesson(currentLessonId);
     if (!doneSet.has(currentLessonId)) {
       xp += lesson.xp;
@@ -534,17 +691,20 @@ function runCode() {
       document.getElementById("xpVal").textContent = xp;
       document.getElementById("streakLabel").textContent = `🔥 ${streak} streak`;
       showToast(`+${lesson.xp} XP earned! 🎉`, "success", "🏅");
-      saveState();
     }
     lastRunLesson = currentLessonId;
   }
 
   // Mark lesson done
-  doneSet.add(currentLessonId);
-  const sideEl = document.getElementById("sidebar-" + currentLessonId);
-  if (sideEl) sideEl.classList.add("done");
+  if (trackProgress) {
+    const isNewlyDone = !doneSet.has(currentLessonId);
+    doneSet.add(currentLessonId);
+    const sideEl = document.getElementById("sidebar-" + currentLessonId);
+    if (sideEl) sideEl.classList.add("done");
 
-  updateProgress();
+    updateProgress();
+    if (isNewlyDone) saveProgress();
+  }
 
   // Remove overlay after a short delay
   setTimeout(() => {
@@ -554,7 +714,7 @@ function runCode() {
   }, 400);
 
   // Show completion banner if all lessons done
-  if (doneSet.size === getAllLessons().length) {
+  if (trackProgress && doneSet.size === getAllLessons().length) {
     setTimeout(showCompletion, 700);
   }
 }
@@ -631,12 +791,30 @@ function navLesson(dir) {
 ══════════════════════════════════════════════════════════ */
 // Receive console messages forwarded from the iframe
 window.addEventListener("message", e => {
+  // Only accept messages from our own preview iframe. Its srcdoc document has an
+  // opaque origin (reported inconsistently across browsers), so verify the source
+  // window reference rather than e.origin.
+  const previewFrame = document.getElementById("previewFrame");
+  if (!previewFrame || e.source !== previewFrame.contentWindow) return;
   if (!e.data || !["log", "error", "warn", "info"].includes(e.data.type)) return;
+  if (!Array.isArray(e.data.args)) return;
   addConsoleLog(e.data.type, e.data.args.join(" "), e.data.ts);
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const body = document.getElementById("consoleBody");
+  if (body) {
+    body.addEventListener("scroll", () => {
+      const atBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 30;
+      consoleScrolledUp = !atBottom;
+    });
+  }
 });
 
 function clearConsoleUI() {
   errorCount = 0;
+  consoleLineCount = 0;
+  consoleScrolledUp = false;
   document.getElementById("consoleBadge").style.display = "none";
   document.getElementById("consoleBody").innerHTML =
     `<div class="log-line info"><span class="log-prefix">ℹ</span><span>Running…</span></div>`;
@@ -657,14 +835,33 @@ function addConsoleLog(type, text, ts) {
       })
     : "";
 
+  const maxLen = 2000;
+  const displayText = text.length > maxLen ? text.slice(0, maxLen) + "…" : text;
+
   el.className = "log-line " + cls;
   el.innerHTML = `
     <span class="log-prefix">${prefix}</span>
     <span class="log-ts">${time}</span>
-    <span>${escapeHtml(text)}</span>`;
+    <span class="log-msg">${escapeHtml(displayText)}</span>
+    <button type="button" class="log-copy" onclick="copyConsoleText(this)" title="Copy line">⎘</button>`;
+  applyConsoleFilter(el);
 
   body.appendChild(el);
-  body.scrollTop = body.scrollHeight;
+  consoleLineCount++;
+
+  if (consoleLineCount > CONSOLE_MAX_LINES) {
+    const excess = consoleLineCount - CONSOLE_MAX_LINES;
+    for (let i = 0; i < excess; i++) {
+      const first = body.firstElementChild;
+      if (first) body.removeChild(first);
+    }
+    consoleLineCount = CONSOLE_MAX_LINES;
+  }
+
+  // Auto-scroll only if user hasn't scrolled up
+  if (!consoleScrolledUp) {
+    body.scrollTop = body.scrollHeight;
+  }
 
   if (type === "error") {
     errorCount++;
@@ -674,12 +871,51 @@ function addConsoleLog(type, text, ts) {
   }
 }
 
+function copyConsoleText(btn) {
+  const msgEl = btn.parentElement.querySelector(".log-msg");
+  if (!msgEl) return;
+  const text = msgEl.textContent;
+  if (!navigator.clipboard || typeof navigator.clipboard.writeText !== "function") {
+    return;
+  }
+  navigator.clipboard
+    .writeText(text)
+    .then(() => {
+      btn.textContent = "✓";
+      setTimeout(() => {
+        btn.textContent = "⎘";
+      }, 1200);
+    })
+    .catch(() => {});
+}
+
 function toggleConsole() {
   consolePaneOpen = !consolePaneOpen;
   document.getElementById("consolePane").classList.toggle("collapsed", !consolePaneOpen);
   document.getElementById("consolCollapseBtn").style.transform = consolePaneOpen
     ? ""
     : "rotate(180deg)";
+}
+
+function filterConsole(val) {
+  document.querySelectorAll("#consoleBody .log-line").forEach(el => {
+    applyConsoleFilter(el, val);
+  });
+}
+
+function applyConsoleFilter(el, val = null) {
+  const filter = val !== null ? val : document.getElementById("consoleFilter")?.value || "";
+  const q = filter.toLowerCase();
+  const text = el.textContent.toLowerCase();
+  el.style.display = !q || text.includes(q) ? "" : "none";
+}
+
+function clearConsoleFilter() {
+  const inp = document.getElementById("consoleFilter");
+  if (inp) {
+    inp.value = "";
+    filterConsole("");
+  }
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -722,7 +958,7 @@ function toggleAutorun() {
   document.getElementById("autorunLabel").textContent = autorun ? "Auto ✓" : "Auto";
   const wrap = document.querySelector(".autorun-wrap");
   if (wrap) wrap.setAttribute("aria-checked", autorun);
-  saveState();
+  saveProgress();
   showToast(
     autorun ? "Auto-run ON — preview updates as you type" : "Auto-run OFF",
     autorun ? "success" : "warn",
@@ -750,12 +986,48 @@ function setPreviewSize(size) {
 /* ══════════════════════════════════════════════════════════
    RESET MODAL
 ══════════════════════════════════════════════════════════ */
+/* Shared modal focus management: expose dialogs to assistive tech, move
+   focus into the dialog on open, trap Tab within it, and restore focus to
+   the invoking control on close. activeModalEl drives the Tab trap in the
+   global keydown handler below. */
+let activeModalEl = null;
+let modalReturnFocus = null;
+
+function getModalFocusable(modalEl) {
+  return Array.from(
+    modalEl.querySelectorAll(
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )
+  );
+}
+
+function openModal(modalEl) {
+  modalReturnFocus = document.activeElement;
+  modalEl.classList.add("show");
+  activeModalEl = modalEl;
+  const focusable = getModalFocusable(modalEl);
+  if (focusable.length > 0) {
+    focusable[0].focus();
+  } else {
+    modalEl.focus();
+  }
+}
+
+function closeModal(modalEl) {
+  if (!modalEl.classList.contains("show")) return;
+  modalEl.classList.remove("show");
+  if (activeModalEl === modalEl) activeModalEl = null;
+  const target = modalReturnFocus;
+  modalReturnFocus = null;
+  if (target && typeof target.focus === "function") target.focus();
+}
+
 function showResetModal() {
-  document.getElementById("resetModal").classList.add("show");
+  openModal(document.getElementById("resetModal"));
 }
 
 function hideResetModal() {
-  document.getElementById("resetModal").classList.remove("show");
+  closeModal(document.getElementById("resetModal"));
 }
 
 function confirmReset() {
@@ -766,6 +1038,7 @@ function confirmReset() {
     css: lesson.css,
     js: lesson.js,
   };
+  saveProgress();
   loadTab(activeTab);
   runCode();
   hideResetModal();
@@ -779,6 +1052,10 @@ function copyAllCode() {
   const buf = buffers[currentLessonId];
   if (!buf) return;
   const all = `<!-- index.html -->\n${buf.html}\n\n/* index.css */\n${buf.css}\n\n// index.js\n${buf.js}`;
+  if (!navigator.clipboard || typeof navigator.clipboard.writeText !== "function") {
+    showToast("Clipboard unavailable — try Ctrl+A then Ctrl+C", "error", "✖");
+    return;
+  }
   navigator.clipboard
     .writeText(all)
     .then(() => showToast("All code copied to clipboard!", "success", "⎘"))
@@ -792,7 +1069,7 @@ function changeFontSize(val) {
   document.documentElement.style.setProperty("--fs", val + "px");
   document.getElementById("fsValLabel").textContent = val + "px";
   updateLineNums();
-  saveState();
+  saveProgress();
 }
 
 function toggleFsPanel() {
@@ -817,12 +1094,12 @@ function toggleShortcuts() {
 ══════════════════════════════════════════════════════════ */
 function showCompletion() {
   document.getElementById("finalXp").textContent = xp;
-  document.getElementById("completionBanner").classList.add("show");
+  openModal(document.getElementById("completionBanner"));
   spawnConfetti();
 }
 
 function hideCompletion() {
-  document.getElementById("completionBanner").classList.remove("show");
+  closeModal(document.getElementById("completionBanner"));
 }
 
 function restartAll() {
@@ -830,14 +1107,16 @@ function restartAll() {
   xp = 0;
   streak = 0;
   lastRunLesson = null;
+  Object.keys(buffers).forEach(id => {
+    delete buffers[id];
+  });
+  clearProgress();
   document.getElementById("xpVal").textContent = "0";
   document.getElementById("streakLabel").textContent = "🔥 0 streak";
   hideCompletion();
   buildSidebar();
-  loadLesson(CURRICULUM[0].lessons[0].id);
+  loadLesson(CURRICULUM[0].lessons[0].id, { trackProgress: false });
   updateProgress();
-  saveState();
-  localStorage.removeItem(STORAGE_KEY);
 }
 
 function spawnConfetti() {
@@ -946,6 +1225,22 @@ function toggleSidebar() {
 ══════════════════════════════════════════════════════════ */
 document.addEventListener("keydown", e => {
   const ctrl = e.ctrlKey || e.metaKey;
+  const key = e.key.toLowerCase();
+
+  if (activeModalEl && e.key === "Tab") {
+    const focusable = getModalFocusable(activeModalEl);
+    if (focusable.length > 0) {
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }
 
   if (ctrl && e.key === "Enter") {
     e.preventDefault();
@@ -980,10 +1275,20 @@ document.addEventListener("keydown", e => {
     copyAllCode();
   }
 
+  if (ctrl && key === "z" && !e.shiftKey) {
+    e.preventDefault();
+    editorUndo();
+  }
+  if ((ctrl && key === "y") || (ctrl && e.shiftKey && key === "z")) {
+    e.preventDefault();
+    editorRedo();
+  }
+
   if (e.key === "Escape") {
     if (shortcutsVisible) toggleShortcuts();
     if (fsPanelVisible) toggleFsPanel();
     hideResetModal();
+    hideCompletion();
     if (document.activeElement && document.activeElement.id === "searchInput") {
       document.activeElement.blur();
     }
@@ -1012,7 +1317,17 @@ document.addEventListener("click", e => {
    BOOT
 ══════════════════════════════════════════════════════════ */
 init();
-window.addEventListener("beforeunload", saveState);
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") saveProgress();
+});
+window.addEventListener("pagehide", saveProgress);
+
+// Register service worker for offline/PWA support
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch(error => {
+    console.warn("DevForge service worker registration failed", error);
+  });
+}
 
 /* ════════════════════════════════════════════════════════════
    Expose EVERY handler referenced by an inline HTML event
@@ -1049,11 +1364,17 @@ window.showResetModal = showResetModal;
 window.copyAllCode = copyAllCode;
 // Console
 window.toggleConsole = toggleConsole;
+window.filterConsole = filterConsole;
+window.clearConsoleFilter = clearConsoleFilter;
+window.copyConsoleText = copyConsoleText;
 // Font size
 window.changeFontSize = changeFontSize;
 // Reset modal
 window.hideResetModal = hideResetModal;
 window.confirmReset = confirmReset;
+// Undo/redo
+window.editorUndo = editorUndo;
+window.editorRedo = editorRedo;
 // Completion modal
 window.hideCompletion = hideCompletion;
 window.restartAll = restartAll;
