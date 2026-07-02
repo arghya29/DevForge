@@ -1176,9 +1176,15 @@ header {
 
 /* Celebration flash when all goals done */
 @keyframes goalsCelebrate {
-  0%   { background: var(--surface2); }
-  30%  { background: rgba(63, 185, 80, 0.1); }
-  100% { background: var(--surface2); }
+  0% {
+    background: var(--surface2);
+  }
+  30% {
+    background: rgba(63, 185, 80, 0.1);
+  }
+  100% {
+    background: var(--surface2);
+  }
 }
 .goals-panel.all-complete {
   animation: goalsCelebrate 0.8s ease forwards;
@@ -1186,7 +1192,9 @@ header {
 
 /* Responsive: hide progress bar inside pane on very small heights */
 @media (max-height: 500px) {
-  .goals-panel { max-height: 120px; }
+  .goals-panel {
+    max-height: 120px;
+  }
 }
 
 /* ── LESSON NAVIGATION ── */

@@ -1057,8 +1057,8 @@ function toggleLessonPane() {
  */
 function checkGoalRule(rule, buf) {
   if (!rule || !rule.type) return false;
-  const css  = buf.css  || "";
-  const js   = buf.js   || "";
+  const css = buf.css || "";
+  const js = buf.js || "";
 
   switch (rule.type) {
     case "html-tag":
@@ -1106,9 +1106,9 @@ function checkGoalRule(rule, buf) {
  */
 function validateGoals() {
   const lesson = getLesson(currentLessonId);
-  const panel  = document.getElementById("goalsPanel");
-  const list   = document.getElementById("goalsList");
-  const badge  = document.getElementById("goalsBadge");
+  const panel = document.getElementById("goalsPanel");
+  const list = document.getElementById("goalsList");
+  const badge = document.getElementById("goalsBadge");
 
   // Hide panel if lesson has no goals
   if (!lesson || !lesson.goals || lesson.goals.length === 0) {
@@ -1137,7 +1137,7 @@ function validateGoals() {
   }
   const progressFill = progressBar.querySelector(".goals-progress-fill");
 
-  lesson.goals.forEach((goal) => {
+  lesson.goals.forEach(goal => {
     let met = false;
     try {
       met = checkGoalRule(goal.rule, buf);

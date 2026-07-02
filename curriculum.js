@@ -69,7 +69,10 @@ h1 {
           { label: "Use an <h1> main title", rule: { type: "html-tag", value: "h1" } },
           { label: "Add an <h2> section heading", rule: { type: "html-tag", value: "h2" } },
           { label: "Add an <h3> sub-heading", rule: { type: "html-tag", value: "h3" } },
-          { label: "Add a <blockquote> (challenge)", rule: { type: "html-tag", value: "blockquote" } },
+          {
+            label: "Add a <blockquote> (challenge)",
+            rule: { type: "html-tag", value: "blockquote" },
+          },
         ],
         instruction: `
           <h2>Hierarchy with headings</h2>
@@ -135,8 +138,14 @@ blockquote {
         goals: [
           { label: "Use a <ul> unordered list", rule: { type: "html-tag", value: "ul" } },
           { label: "Use an <ol> ordered list", rule: { type: "html-tag", value: "ol" } },
-          { label: "Include at least one <a href> link", rule: { type: "html-attr", attr: "href" } },
-          { label: "Add a new <li> item of your own", rule: { type: "html-count-min", tag: "li", min: 4 } },
+          {
+            label: "Include at least one <a href> link",
+            rule: { type: "html-attr", attr: "href" },
+          },
+          {
+            label: "Add a new <li> item of your own",
+            rule: { type: "html-count-min", tag: "li", min: 4 },
+          },
         ],
         instruction: `
           <h2>Organise content with lists</h2>
@@ -196,10 +205,16 @@ li {
         paneTitle: "04 · Images & Attributes",
         goals: [
           { label: "Use an <img> element", rule: { type: "html-tag", value: "img" } },
-          { label: "Add an alt attribute for accessibility", rule: { type: "html-attr", attr: "alt" } },
+          {
+            label: "Add an alt attribute for accessibility",
+            rule: { type: "html-attr", attr: "alt" },
+          },
           { label: "Wrap image in <figure>", rule: { type: "html-tag", value: "figure" } },
           { label: "Add a <figcaption>", rule: { type: "html-tag", value: "figcaption" } },
-          { label: "Add a second <figure> (challenge)", rule: { type: "html-count-min", tag: "figure", min: 2 } },
+          {
+            label: "Add a second <figure> (challenge)",
+            rule: { type: "html-count-min", tag: "figure", min: 2 },
+          },
         ],
         instruction: `
           <h2>Embedding images</h2>
@@ -265,10 +280,16 @@ figcaption {
         paneTitle: "05 · Forms & Inputs",
         goals: [
           { label: "Use a <form> element", rule: { type: "html-tag", value: "form" } },
-          { label: "Add a text <input> field", rule: { type: "html-attr", attr: "type=\"text\"" } },
-          { label: "Add an email <input> field", rule: { type: "html-attr", attr: "type=\"email\"" } },
+          { label: "Add a text <input> field", rule: { type: "html-attr", attr: 'type="text"' } },
+          {
+            label: "Add an email <input> field",
+            rule: { type: "html-attr", attr: 'type="email"' },
+          },
           { label: "Add a <label> for each field", rule: { type: "html-tag", value: "label" } },
-          { label: "Add a <textarea> for bio (challenge)", rule: { type: "html-tag", value: "textarea" } },
+          {
+            label: "Add a <textarea> for bio (challenge)",
+            rule: { type: "html-tag", value: "textarea" },
+          },
         ],
         instruction: `
           <h2>Collecting user input</h2>
@@ -387,10 +408,16 @@ button:hover {
         xp: 25,
         paneTitle: "01 · Selectors & Specificity",
         goals: [
-          { label: "Use a tag selector (e.g. h1 { })", rule: { type: "css-selector", value: "h1" } },
+          {
+            label: "Use a tag selector (e.g. h1 { })",
+            rule: { type: "css-selector", value: "h1" },
+          },
           { label: "Use a class selector (.class)", rule: { type: "css-contains", value: "." } },
           { label: "Use an ID selector (#id)", rule: { type: "css-contains", value: "#" } },
-          { label: "Add a .highlight class style (hint)", rule: { type: "css-contains", value: ".highlight" } },
+          {
+            label: "Add a .highlight class style (hint)",
+            rule: { type: "css-contains", value: ".highlight" },
+          },
         ],
         instruction: `
           <h2>Targeting elements with CSS</h2>
@@ -453,10 +480,16 @@ li.special {
         xp: 25,
         paneTitle: "02 · The Box Model",
         goals: [
-          { label: "Use box-sizing: border-box", rule: { type: "css-property-value", property: "box-sizing", value: "border-box" } },
+          {
+            label: "Use box-sizing: border-box",
+            rule: { type: "css-property-value", property: "box-sizing", value: "border-box" },
+          },
           { label: "Set padding on .box", rule: { type: "css-property", value: "padding" } },
           { label: "Set a border on .box", rule: { type: "css-property", value: "border" } },
-          { label: "Add box-shadow (challenge)", rule: { type: "css-property", value: "box-shadow" } },
+          {
+            label: "Add box-shadow (challenge)",
+            rule: { type: "css-property", value: "box-shadow" },
+          },
         ],
         instruction: `
           <h2>Every element is a box</h2>
@@ -525,11 +558,20 @@ h2 {
         xp: 30,
         paneTitle: "03 · Flexbox Layout",
         goals: [
-          { label: "Use display: flex on a container", rule: { type: "css-property-value", property: "display", value: "flex" } },
-          { label: "Set justify-content", rule: { type: "css-property", value: "justify-content" } },
+          {
+            label: "Use display: flex on a container",
+            rule: { type: "css-property-value", property: "display", value: "flex" },
+          },
+          {
+            label: "Set justify-content",
+            rule: { type: "css-property", value: "justify-content" },
+          },
           { label: "Set align-items", rule: { type: "css-property", value: "align-items" } },
           { label: "Use gap between flex items", rule: { type: "css-property", value: "gap" } },
-          { label: "Add flex-direction: column (challenge)", rule: { type: "css-property-value", property: "flex-direction", value: "column" } },
+          {
+            label: "Add flex-direction: column (challenge)",
+            rule: { type: "css-property-value", property: "flex-direction", value: "column" },
+          },
         ],
         instruction: `
           <h2>One-dimensional layouts</h2>
@@ -633,10 +675,19 @@ h2 {
         xp: 30,
         paneTitle: "04 · CSS Grid",
         goals: [
-          { label: "Use display: grid", rule: { type: "css-property-value", property: "display", value: "grid" } },
-          { label: "Define grid-template-columns", rule: { type: "css-property", value: "grid-template-columns" } },
+          {
+            label: "Use display: grid",
+            rule: { type: "css-property-value", property: "display", value: "grid" },
+          },
+          {
+            label: "Define grid-template-columns",
+            rule: { type: "css-property", value: "grid-template-columns" },
+          },
           { label: "Use gap between grid cells", rule: { type: "css-property", value: "gap" } },
-          { label: "Span an item with grid-column", rule: { type: "css-property", value: "grid-column" } },
+          {
+            label: "Span an item with grid-column",
+            rule: { type: "css-property", value: "grid-column" },
+          },
         ],
         instruction: `
           <h2>Two-dimensional layouts</h2>
@@ -701,11 +752,26 @@ h2 {
         xp: 35,
         paneTitle: "05 · Transitions & Animations",
         goals: [
-          { label: "Use transition on a property", rule: { type: "css-property", value: "transition" } },
-          { label: "Define a @keyframes animation", rule: { type: "css-contains", value: "@keyframes" } },
-          { label: "Apply animation to an element", rule: { type: "css-property", value: "animation" } },
-          { label: "Use transform in animation/hover", rule: { type: "css-property", value: "transform" } },
-          { label: "Create a @keyframes shake (challenge)", rule: { type: "css-contains", value: "@keyframes shake" } },
+          {
+            label: "Use transition on a property",
+            rule: { type: "css-property", value: "transition" },
+          },
+          {
+            label: "Define a @keyframes animation",
+            rule: { type: "css-contains", value: "@keyframes" },
+          },
+          {
+            label: "Apply animation to an element",
+            rule: { type: "css-property", value: "animation" },
+          },
+          {
+            label: "Use transform in animation/hover",
+            rule: { type: "css-property", value: "transform" },
+          },
+          {
+            label: "Create a @keyframes shake (challenge)",
+            rule: { type: "css-contains", value: "@keyframes shake" },
+          },
         ],
         instruction: `
           <h2>Bringing CSS to life</h2>
@@ -839,7 +905,10 @@ h2 {
           { label: "Declare a const variable", rule: { type: "js-contains", value: "const " } },
           { label: "Declare a let variable", rule: { type: "js-contains", value: "let " } },
           { label: "Use a template literal (backtick)", rule: { type: "js-contains", value: "`" } },
-          { label: "Log something with console.log()", rule: { type: "js-contains", value: "console.log" } },
+          {
+            label: "Log something with console.log()",
+            rule: { type: "js-contains", value: "console.log" },
+          },
         ],
         instruction: `
           <h2>Storing data in variables</h2>
@@ -909,10 +978,16 @@ typeof year = "\${typeof year}"\`;`,
         xp: 25,
         paneTitle: "02 · Functions",
         goals: [
-          { label: "Write a function declaration (function name(){})", rule: { type: "js-contains", value: "function " } },
+          {
+            label: "Write a function declaration (function name(){})",
+            rule: { type: "js-contains", value: "function " },
+          },
           { label: "Write an arrow function (=>)", rule: { type: "js-contains", value: "=>" } },
           { label: "Use a return statement", rule: { type: "js-contains", value: "return " } },
-          { label: "Add a multiply() function (hint)", rule: { type: "js-contains", value: "multiply" } },
+          {
+            label: "Add a multiply() function (hint)",
+            rule: { type: "js-contains", value: "multiply" },
+          },
         ],
         instruction: `
           <h2>Reusable blocks of code</h2>
@@ -994,9 +1069,18 @@ log("hypotenuse(3, 4)",  hypotenuse(3, 4));`,
         goals: [
           { label: "Declare an array with []", rule: { type: "js-contains", value: "[" } },
           { label: "Use .map() to transform items", rule: { type: "js-contains", value: ".map(" } },
-          { label: "Use .filter() to select items", rule: { type: "js-contains", value: ".filter(" } },
-          { label: "Use .forEach() or .reduce()", rule: { type: "js-contains", value: ".forEach(" } },
-          { label: "Sort the array with .sort() (challenge)", rule: { type: "js-contains", value: ".sort(" } },
+          {
+            label: "Use .filter() to select items",
+            rule: { type: "js-contains", value: ".filter(" },
+          },
+          {
+            label: "Use .forEach() or .reduce()",
+            rule: { type: "js-contains", value: ".forEach(" },
+          },
+          {
+            label: "Sort the array with .sort() (challenge)",
+            rule: { type: "js-contains", value: ".sort(" },
+          },
         ],
         instruction: `
           <h2>Collections of data</h2>
@@ -1088,10 +1172,19 @@ document.getElementById("stats").textContent =
         xp: 30,
         paneTitle: "04 · DOM Manipulation",
         goals: [
-          { label: "Select an element with querySelector()", rule: { type: "js-contains", value: "querySelector" } },
-          { label: "Listen for an event with addEventListener()", rule: { type: "js-contains", value: "addEventListener" } },
+          {
+            label: "Select an element with querySelector()",
+            rule: { type: "js-contains", value: "querySelector" },
+          },
+          {
+            label: "Listen for an event with addEventListener()",
+            rule: { type: "js-contains", value: "addEventListener" },
+          },
           { label: "Change element style via JS", rule: { type: "js-contains", value: ".style." } },
-          { label: "Create an element with createElement()", rule: { type: "js-contains", value: "createElement" } },
+          {
+            label: "Create an element with createElement()",
+            rule: { type: "js-contains", value: "createElement" },
+          },
           { label: "Listen for dblclick (hint)", rule: { type: "js-contains", value: "dblclick" } },
         ],
         instruction: `
@@ -1209,10 +1302,16 @@ document.querySelector("#addBtn").addEventListener("click", () => {
         xp: 40,
         paneTitle: "05 · Fetch & Async/Await",
         goals: [
-          { label: "Use async function declaration", rule: { type: "js-contains", value: "async " } },
+          {
+            label: "Use async function declaration",
+            rule: { type: "js-contains", value: "async " },
+          },
           { label: "Use await keyword", rule: { type: "js-contains", value: "await " } },
           { label: "Call fetch() for a URL", rule: { type: "js-contains", value: "fetch(" } },
-          { label: "Wrap in try/catch for error handling", rule: { type: "js-contains", value: "try {" } },
+          {
+            label: "Wrap in try/catch for error handling",
+            rule: { type: "js-contains", value: "try {" },
+          },
         ],
         instruction: `
           <h2>Talking to the internet</h2>
@@ -1345,10 +1444,22 @@ loadUser();`,
         xp: 50,
         paneTitle: "06 · Build a Todo App",
         goals: [
-          { label: "Render a list with innerHTML or createElement", rule: { type: "js-contains", value: "innerHTML" } },
-          { label: "Handle click events on buttons", rule: { type: "js-contains", value: "addEventListener" } },
-          { label: "Filter or update an array of todos", rule: { type: "js-contains", value: ".filter(" } },
-          { label: "Persist todos with localStorage (challenge)", rule: { type: "js-contains", value: "localStorage" } },
+          {
+            label: "Render a list with innerHTML or createElement",
+            rule: { type: "js-contains", value: "innerHTML" },
+          },
+          {
+            label: "Handle click events on buttons",
+            rule: { type: "js-contains", value: "addEventListener" },
+          },
+          {
+            label: "Filter or update an array of todos",
+            rule: { type: "js-contains", value: ".filter(" },
+          },
+          {
+            label: "Persist todos with localStorage (challenge)",
+            rule: { type: "js-contains", value: "localStorage" },
+          },
         ],
         instruction: `
           <h2>Putting it all together</h2>
