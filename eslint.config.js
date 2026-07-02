@@ -19,6 +19,7 @@ export default [
         window: "readonly",
         document: "readonly",
         navigator: "readonly",
+        localStorage: "readonly",
         getComputedStyle: "readonly",
         console: "readonly",
         setTimeout: "readonly",

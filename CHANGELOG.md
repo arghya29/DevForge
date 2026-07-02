@@ -9,6 +9,11 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- Light theme with full color palette override via `[data-theme="light"]`
+- Theme toggle button in header (🌙/☀️) with localStorage persistence
+- `toggleTheme()`, `applyTheme()`, `updateThemeButton()`, and `applySavedTheme()` functions
+- Theme preference saved as `devforge_theme` in localStorage
+- Dark/Light Theme entry in README features table
 - PWA support: manifest.json for installable standalone app experience
 - Service worker (sw.js) for offline caching of all static assets
 - Offline fallback page (offline.html) with reconnect button

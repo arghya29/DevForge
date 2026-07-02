@@ -150,6 +150,7 @@ DevForge/
 | **Auto-close**          | Brackets and quotes auto-close as you type                        |
 | **PWA Offline**         | Installable as standalone app; works offline once loaded          |
 | **Keyboard Shortcuts**  | Full set — see table below                                        |
+| **Dark/Light Theme**    | Toggle between dark and light mode with a persistent preference   |
 | **Completion Confetti** | Celebration when all 16 lessons are done                          |
 
 ### ⌨ Keyboard Shortcuts
