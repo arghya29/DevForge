@@ -616,6 +616,9 @@ header {
   .contribute-text {
     display: none;
   }
+  .contribute-btn {
+    padding: 6px 10px;
+  }
   .progress-wrap {
     display: none;
   }
