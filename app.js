@@ -351,6 +351,7 @@ function applyEditorState(val) {
   buffers[currentLessonId][activeTab] = val;
   updateLineNums();
   highlight();
+  scheduleSave();
   if (autorun) {
     clearTimeout(autorunTimer);
     autorunTimer = setTimeout(runCode, 900);
