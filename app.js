@@ -947,7 +947,6 @@ function toggleLessonPane() {
  */
 function checkGoalRule(rule, buf) {
   if (!rule || !rule.type) return false;
-  const html = (buf.html || "").toLowerCase();
   const css  = buf.css  || "";
   const js   = buf.js   || "";
 
@@ -1015,21 +1014,25 @@ function validateGoals() {
   // Rebuild goal items
   list.innerHTML = "";
 
-  // Progress bar (inserted as first child of goals-list wrapper)
-  const progressBar = document.createElement("div");
-  progressBar.className = "goals-progress-bar";
-  const progressFill = document.createElement("div");
-  progressFill.className = "goals-progress-fill";
-  progressBar.appendChild(progressFill);
-  list.appendChild(progressBar);
+  // Progress bar lives above the list so the list keeps native ul/li semantics.
+  let progressBar = panel.querySelector(".goals-progress-bar");
+  if (!progressBar) {
+    progressBar = document.createElement("div");
+    progressBar.className = "goals-progress-bar";
+    progressBar.setAttribute("aria-hidden", "true");
+    const progressFill = document.createElement("div");
+    progressFill.className = "goals-progress-fill";
+    progressBar.appendChild(progressFill);
+    panel.insertBefore(progressBar, list);
+  }
+  const progressFill = progressBar.querySelector(".goals-progress-fill");
 
   lesson.goals.forEach((goal) => {
     const met = checkGoalRule(goal.rule, buf);
     if (met) doneCount++;
 
-    const item = document.createElement("div");
+    const item = document.createElement("li");
     item.className = "goal-item " + (met ? "done" : "pending");
-    item.setAttribute("role", "listitem");
     item.setAttribute("aria-label", (met ? "Completed: " : "Pending: ") + goal.label);
     item.innerHTML = `
       <span class="goal-icon">${met ? "✅" : "○"}</span>
