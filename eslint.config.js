@@ -19,6 +19,7 @@ export default [
         window: "readonly",
         document: "readonly",
         navigator: "readonly",
+        localStorage: "readonly",
         getComputedStyle: "readonly",
         console: "readonly",
         setTimeout: "readonly",
@@ -37,6 +38,7 @@ export default [
         Promise: "readonly",
         Set: "readonly",
         Map: "readonly",
+        localStorage: "readonly",
         // DevForge globals — CURRICULUM is defined in curriculum.js
         // and used by app.js, so we declare it here
         CURRICULUM: "readonly",
