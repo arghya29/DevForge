@@ -8,23 +8,36 @@
 
 const CACHE = "devforge-v1";
 
+// Scope-relative paths so the same worker functions regardless of the base path
+// it is served from — GitHub Pages (/DevForge/), Netlify (/), a custom domain, or
+// local dev at the root. Each entry resolves against the worker's own location.
 const PRECACHE = [
-  "/DevForge/",
-  "/DevForge/index.html",
-  "/DevForge/styles.css",
-  "/DevForge/app.js",
-  "/DevForge/curriculum.js",
-  "/DevForge/manifest.json",
-  "/DevForge/icon-192.png",
-  "/DevForge/icon-512.png",
-  "/DevForge/offline.html",
+  "./",
+  "./index.html",
+  "./styles.css",
+  "./app.js",
+  "./curriculum.js",
+  "./manifest.json",
+  "./icon-192.png",
+  "./icon-512.png",
+  "./offline.html",
 ];
 
 self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE).then(cache => {
-      return cache.addAll(PRECACHE);
-    })
+    caches.open(CACHE).then(cache =>
+      // Cache each entry independently so one missing/renamed asset (or a
+      // transient failure on a single file) can't reject the whole install and
+      // disable offline support entirely. Rejected entries are logged so a
+      // failed asset is diagnosable rather than silently swallowed.
+      Promise.allSettled(PRECACHE.map(url => cache.add(url))).then(results => {
+        results.forEach((result, i) => {
+          if (result.status === "rejected") {
+            console.warn(`[DevForge SW] Failed to precache ${PRECACHE[i]}:`, result.reason);
+          }
+        });
+      })
+    )
   );
   self.skipWaiting();
 });
@@ -53,7 +66,7 @@ self.addEventListener("fetch", event => {
           return response;
         })
         .catch(() => {
-          if (isNavigation) return caches.match("/DevForge/offline.html");
+          if (isNavigation) return caches.match("./offline.html");
           return cached || Response.error();
         });
       return cached || fetched;
