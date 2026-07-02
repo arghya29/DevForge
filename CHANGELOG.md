@@ -15,6 +15,7 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `<link rel="manifest">`, theme-color, and apple-mobile-web-app meta tags
 - Service worker registration in app.js init
 - PWA-related entries in README features table
+- Extended localStorage progress persistence to also restore autorun and font-size preferences
 - Touch event support for the drag resizer — enables column resizing on tablets and phones
 - Responsive sidebar toggle: sidebar collapses on screens ≤768px with a ☰ toggle button
 - Mobile-optimized layout: sidebar slides in/out, resizer hidden on mobile, progress bar hidden
