@@ -1089,14 +1089,14 @@ function toggleFsPanel() {
 function openShortcutsModal() {
   if (fsPanelVisible) toggleFsPanel(); // close any open floating panel first
   openModal(document.getElementById("shortcutsModal"));
-  document.getElementById("shortcutsBtn").classList.add("active");
-  document.getElementById("helpBtn").classList.add("active");
+  const helpBtn = document.getElementById("helpBtn");
+  if (helpBtn) helpBtn.classList.add("active");
 }
 
 function closeShortcutsModal() {
   closeModal(document.getElementById("shortcutsModal"));
-  document.getElementById("shortcutsBtn").classList.remove("active");
-  document.getElementById("helpBtn").classList.remove("active");
+  const helpBtn = document.getElementById("helpBtn");
+  if (helpBtn) helpBtn.classList.remove("active");
 }
 
 /** Back-compat stub — old onclick references in HTML may still call toggleShortcuts() */
