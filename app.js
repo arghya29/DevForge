@@ -16,7 +16,6 @@ let lessonPaneOpen = true;
 let consolePaneOpen = true;
 let autorun = false;
 let autorunTimer = null;
-let shortcutsVisible = false;
 let fsPanelVisible = false;
 let sidebarOpen = true;
 let xp = 0;
@@ -1055,17 +1054,30 @@ function toggleFsPanel() {
   fsPanelVisible = !fsPanelVisible;
   document.getElementById("fsPanel").classList.toggle("show", fsPanelVisible);
   document.getElementById("fsSizeBtn").classList.toggle("active", fsPanelVisible);
-  if (shortcutsVisible) toggleShortcuts();
+  if (document.getElementById("shortcutsModal").classList.contains("show")) closeShortcutsModal();
 }
 
 /* ══════════════════════════════════════════════════════════
-   KEYBOARD SHORTCUTS PANEL
+   KEYBOARD SHORTCUTS MODAL  (#76 — sanket1035)
+   Replaces old floating panel with a proper accessible modal.
+   Triggered by: ? key (when not in editor), ⌨ button, ? button.
 ══════════════════════════════════════════════════════════ */
+function openShortcutsModal() {
+  if (fsPanelVisible) toggleFsPanel(); // close any open floating panel first
+  openModal(document.getElementById("shortcutsModal"));
+  document.getElementById("shortcutsBtn").classList.add("active");
+  document.getElementById("helpBtn").classList.add("active");
+}
+
+function closeShortcutsModal() {
+  closeModal(document.getElementById("shortcutsModal"));
+  document.getElementById("shortcutsBtn").classList.remove("active");
+  document.getElementById("helpBtn").classList.remove("active");
+}
+
+/** Back-compat stub — old onclick references in HTML may still call toggleShortcuts() */
 function toggleShortcuts() {
-  shortcutsVisible = !shortcutsVisible;
-  document.getElementById("shortcutsPanel").classList.toggle("show", shortcutsVisible);
-  document.getElementById("shortcutsBtn").classList.toggle("active", shortcutsVisible);
-  if (fsPanelVisible) toggleFsPanel();
+  openShortcutsModal();
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -1263,8 +1275,21 @@ document.addEventListener("keydown", e => {
     editorRedo();
   }
 
+  // ? key — open shortcuts modal (skip when focus is textarea/input)
+  if (
+    e.key === "?" &&
+    !e.ctrlKey &&
+    !e.metaKey &&
+    !e.altKey &&
+    document.activeElement?.tagName !== "TEXTAREA" &&
+    document.activeElement?.tagName !== "INPUT"
+  ) {
+    e.preventDefault();
+    openShortcutsModal();
+  }
+
   if (e.key === "Escape") {
-    if (shortcutsVisible) toggleShortcuts();
+    if (document.getElementById("shortcutsModal").classList.contains("show")) closeShortcutsModal();
     if (fsPanelVisible) toggleFsPanel();
     hideResetModal();
     hideCompletion();
@@ -1278,16 +1303,11 @@ document.addEventListener("keydown", e => {
    CLOSE FLOATING PANELS ON OUTSIDE CLICK
 ══════════════════════════════════════════════════════════ */
 document.addEventListener("click", e => {
-  if (
-    shortcutsVisible &&
-    !e.target.closest("#shortcutsPanel") &&
-    !e.target.closest("#shortcutsBtn")
-  ) {
-    toggleShortcuts();
-  }
   if (fsPanelVisible && !e.target.closest("#fsPanel") && !e.target.closest("#fsSizeBtn")) {
     toggleFsPanel();
   }
+  // Shortcuts modal closes via its own overlay click (handled in openModal pattern)
+  if (e.target === document.getElementById("shortcutsModal")) closeShortcutsModal();
   if (e.target === document.getElementById("resetModal")) hideResetModal();
   if (e.target === document.getElementById("completionBanner")) hideCompletion();
 });
@@ -1324,6 +1344,8 @@ window.switchTab = switchTab;
 window.toggleAutorun = toggleAutorun;
 window.toggleFsPanel = toggleFsPanel;
 window.toggleShortcuts = toggleShortcuts;
+window.openShortcutsModal = openShortcutsModal;
+window.closeShortcutsModal = closeShortcutsModal;
 window.runCode = runCode;
 // Lesson search
 window.filterLessons = filterLessons;
