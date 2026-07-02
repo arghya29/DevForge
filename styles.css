@@ -1625,3 +1625,92 @@ header {
 .glitch-in {
   animation: glitch 0.35s steps(1) forwards;
 }
+
+/* ══════════════════════════════════════════════
+   🎯 PROGRESSIVE HINTS SYSTEM  (#77)
+══════════════════════════════════════════════ */
+.hints-section {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px dashed var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hints-cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hints-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--amber-dim);
+  border: 1px solid var(--amber);
+  border-radius: 6px;
+  color: var(--amber);
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.hints-btn:hover {
+  background: var(--amber);
+  color: #000;
+  box-shadow: 0 4px 12px rgba(210, 153, 34, 0.25);
+}
+.hints-btn:active {
+  transform: scale(0.97);
+}
+
+.hint-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--amber);
+  border-radius: 6px;
+  padding: 10px 14px;
+  animation: hint-card-in 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes hint-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.hint-card-title {
+  font-size: 0.68rem;
+  font-family: var(--font-code);
+  color: var(--amber);
+  margin-bottom: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.hint-card-body {
+  font-size: 0.76rem;
+  color: var(--text);
+  line-height: 1.45;
+}
+
+.hint-card-body code {
+  background: var(--surface3);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-family: var(--font-code);
+  font-size: 0.72rem;
+  color: var(--pink);
+}
