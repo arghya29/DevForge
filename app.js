@@ -22,6 +22,7 @@ let xp = 0;
 let streak = 0;
 let lastRunLesson = null;
 let errorCount = 0;
+let darkTheme = true;
 let consoleScrolledUp = false;
 const CONSOLE_MAX_LINES = 200;
 let consoleLineCount = 0;
@@ -164,6 +165,7 @@ function getLessonIndex(id) {
    BOOTSTRAP
 ══════════════════════════════════════════════════════════ */
 function init() {
+  applySavedTheme();
   loadProgress();
   buildSidebar();
   loadLesson(currentLessonId, { trackProgress: false });
@@ -1103,6 +1105,48 @@ function toggleShortcuts() {
 }
 
 /* ══════════════════════════════════════════════════════════
+   THEME TOGGLE
+══════════════════════════════════════════════════════════ */
+function updateThemeButton() {
+  const btn = document.getElementById("themeToggleBtn");
+  if (btn) {
+    btn.textContent = darkTheme ? "🌙" : "☀️";
+    btn.setAttribute("aria-pressed", String(!darkTheme));
+  }
+}
+
+function applyTheme() {
+  if (darkTheme) {
+    document.documentElement.removeAttribute("data-theme");
+  } else {
+    document.documentElement.setAttribute("data-theme", "light");
+  }
+  updateThemeButton();
+}
+
+function toggleTheme() {
+  darkTheme = !darkTheme;
+  applyTheme();
+  try {
+    localStorage.setItem("devforge_theme", darkTheme ? "dark" : "light");
+  } catch (error) {
+    console.warn("Unable to save DevForge theme", error);
+  }
+}
+
+function applySavedTheme() {
+  try {
+    const saved = localStorage.getItem("devforge_theme");
+    if (saved === "light") {
+      darkTheme = false;
+    }
+    applyTheme();
+  } catch (error) {
+    console.warn("Unable to load DevForge theme", error);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
    COMPLETION BANNER + CONFETTI
 ══════════════════════════════════════════════════════════ */
 function showCompletion() {
@@ -1373,6 +1417,7 @@ if ("serviceWorker" in navigator) {
 ════════════════════════════════════════════════════════════ */
 // Toolbar
 window.switchTab = switchTab;
+window.toggleTheme = toggleTheme;
 window.toggleAutorun = toggleAutorun;
 window.toggleFsPanel = toggleFsPanel;
 window.toggleShortcuts = toggleShortcuts;
