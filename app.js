@@ -1189,15 +1189,21 @@ function initResizer() {
 }
 
 /* ══════════════════════════════════════════════════════════
-   SIDEBAR TOGGLE  (for mobile / narrow screens)
+   SIDEBAR TOGGLE
 ══════════════════════════════════════════════════════════ */
 function toggleSidebar() {
   sidebarOpen = !sidebarOpen;
+
   document.querySelector(".sidebar").classList.toggle("collapsed", !sidebarOpen);
+
+  document.getElementById("workspace").classList.toggle("sidebar-collapsed", !sidebarOpen);
+
   const sidebarToggleBtn = document.getElementById("sidebarToggleBtn");
   sidebarToggleBtn.classList.toggle("active", !sidebarOpen);
   sidebarToggleBtn.setAttribute("aria-expanded", String(sidebarOpen));
 }
+
+window.toggleSidebar = toggleSidebar;
 
 /* ══════════════════════════════════════════════════════════
    GLOBAL KEYBOARD SHORTCUTS
