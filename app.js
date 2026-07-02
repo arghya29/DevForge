@@ -5,6 +5,7 @@
    Depends on: curriculum.js (CURRICULUM array must load first)
 ═══════════════════════════════════════════════════════════════ */
 
+/* global Blob, FileReader */
 "use strict";
 
 /* ══════════════════════════════════════════════════════════
@@ -972,6 +973,7 @@ function setPreviewSize(size) {
    global keydown handler below. */
 let activeModalEl = null;
 let modalReturnFocus = null;
+let pendingImportData = null; // Holds parsed backup JSON during confirmation (#78)
 
 function getModalFocusable(modalEl) {
   return Array.from(
@@ -1008,6 +1010,108 @@ function showResetModal() {
 
 function hideResetModal() {
   closeModal(document.getElementById("resetModal"));
+}
+
+/* ══════════════════════════════════════════════════════════
+   IMPORT / EXPORT BACKUP SYSTEM  (#78 — sanket1035)
+   Allows learners to download progress as JSON and restore it.
+══════════════════════════════════════════════════════════ */
+function showImportModal() {
+  openModal(document.getElementById("importConfirmModal"));
+}
+
+function hideImportModal() {
+  closeModal(document.getElementById("importConfirmModal"));
+  pendingImportData = null;
+}
+
+function exportProgress() {
+  try {
+    const backup = {
+      version: "devforge:backup:v1",
+      timestamp: Date.now(),
+      xp: xp,
+      streak: streak,
+      done: Array.from(doneSet),
+      buffers: buffers,
+    };
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `devforge-progress-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast("Progress exported successfully!", "success", "📤");
+  } catch {
+    showToast("Export failed.", "error", "❌");
+  }
+}
+
+function triggerImport() {
+  const fileInput = document.getElementById("importFileInput");
+  if (fileInput) fileInput.click();
+}
+
+function importProgress(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data || typeof data !== "object") throw new Error("Invalid object");
+      if (data.version !== "devforge:backup:v1") throw new Error("Unsupported version");
+      if (typeof data.xp !== "number" || data.xp < 0) throw new Error("Invalid XP");
+      if (typeof data.streak !== "number" || data.streak < 0) throw new Error("Invalid Streak");
+      if (!Array.isArray(data.done)) throw new Error("Invalid Done list");
+      if (!data.buffers || typeof data.buffers !== "object" || Array.isArray(data.buffers)) {
+        throw new Error("Invalid Buffers");
+      }
+
+      pendingImportData = data;
+      showImportModal();
+    } catch {
+      showToast("Invalid backup file format.", "error", "❌");
+    } finally {
+      event.target.value = ""; // Reset input so same file can be re-selected
+    }
+  };
+  reader.readAsText(file);
+}
+
+function confirmImportProgress() {
+  if (!pendingImportData) return;
+
+  try {
+    xp = pendingImportData.xp;
+    streak = pendingImportData.streak;
+    doneSet.clear();
+    pendingImportData.done.forEach(id => doneSet.add(id));
+
+    // Clear old buffers and copy new ones
+    Object.keys(buffers).forEach(key => delete buffers[key]);
+    Object.keys(pendingImportData.buffers).forEach(id => {
+      const b = pendingImportData.buffers[id];
+      buffers[id] = { html: b.html, css: b.css, js: b.js };
+    });
+
+    saveProgress();
+    hideImportModal();
+
+    // Re-render UI
+    document.getElementById("xpVal").textContent = xp;
+    document.getElementById("streakLabel").textContent = `🔥 ${streak} streak`;
+    buildSidebar();
+    loadLesson(currentLessonId, { trackProgress: false });
+
+    showToast("Progress restored successfully!", "success", "✅");
+  } catch {
+    showToast("Import failed.", "error", "❌");
+  }
 }
 
 function confirmReset() {
@@ -1267,6 +1371,7 @@ document.addEventListener("keydown", e => {
     if (shortcutsVisible) toggleShortcuts();
     if (fsPanelVisible) toggleFsPanel();
     hideResetModal();
+    hideImportModal();
     hideCompletion();
     if (document.activeElement && document.activeElement.id === "searchInput") {
       document.activeElement.blur();
@@ -1289,6 +1394,7 @@ document.addEventListener("click", e => {
     toggleFsPanel();
   }
   if (e.target === document.getElementById("resetModal")) hideResetModal();
+  if (e.target === document.getElementById("importConfirmModal")) hideImportModal();
   if (e.target === document.getElementById("completionBanner")) hideCompletion();
 });
 
@@ -1357,3 +1463,9 @@ window.editorRedo = editorRedo;
 // Completion modal
 window.hideCompletion = hideCompletion;
 window.restartAll = restartAll;
+// Import / Export (#78)
+window.exportProgress = exportProgress;
+window.triggerImport = triggerImport;
+window.importProgress = importProgress;
+window.confirmImportProgress = confirmImportProgress;
+window.hideImportModal = hideImportModal;
