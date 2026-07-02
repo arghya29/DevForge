@@ -203,7 +203,7 @@
                 width: 1px;
                 height: 1px;
                 overflow: hidden;
-                clip: rect(0, 0, 0, 0);
+                clip-path: inset(50%);
               "
             >
               Search lessons
@@ -622,10 +622,13 @@
     </div>
 
     <!-- Toast notification -->
-    <div class="toast" id="toast">
+    <div class="toast" id="toast" role="alert" aria-live="assertive">
       <span class="toast-icon" id="toastIcon"></span>
       <span id="toastMsg"></span>
     </div>
+
+    <!-- Screen reader announcer (visually hidden, always reads updates) -->
+    <div id="srAnnouncer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
     <!-- Reset confirmation modal -->
     <div

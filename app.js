@@ -1003,6 +1003,7 @@ function closeModal(modalEl) {
 
 function showResetModal() {
   openModal(document.getElementById("resetModal"));
+  announce("Reset confirmation dialog opened");
 }
 
 function hideResetModal() {
@@ -1144,6 +1145,16 @@ function showToast(msg, type = "info", icon = "") {
   toast.className = `toast show ${type}`;
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toast.classList.remove("show"), 3200);
+}
+
+function announce(msg) {
+  const el = document.getElementById("srAnnouncer");
+  if (el) {
+    el.textContent = "";
+    requestAnimationFrame(() => {
+      el.textContent = msg;
+    });
+  }
 }
 
 /* ══════════════════════════════════════════════════════════
