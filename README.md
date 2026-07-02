@@ -92,6 +92,8 @@ DevForge/
 | `curriculum.js` | Single `CURRICULUM` array — add new lessons here, nothing else changes |
 | `app.js`        | Brain — sidebar, editor, run/preview, console, XP, keyboard shortcuts  |
 
+📖 **Detailed architecture and API docs:** [ARCHITECTURE.md](./ARCHITECTURE.md), [API.md](./API.md)
+
 ---
 
 ## 📚 Curriculum (16 lessons · 455 XP total)
@@ -145,6 +147,7 @@ DevForge/
 | **Font Size**           | Slider from 11px to 20px                                          |
 | **Auto-indent**         | Enter key matches current line indentation                        |
 | **Auto-close**          | Brackets and quotes auto-close as you type                        |
+| **PWA Offline**         | Installable as standalone app; works offline once loaded          |
 | **Keyboard Shortcuts**  | Full set — see table below                                        |
 | **Completion Confetti** | Celebration when all 16 lessons are done                          |
 
@@ -160,6 +163,9 @@ DevForge/
 | `Ctrl + 3`         | Switch to JS tab      |
 | `Ctrl + Shift + R` | Reset code to starter |
 | `Ctrl + Shift + C` | Copy all code         |
+| `Ctrl + Z`         | Undo last edit        |
+| `Ctrl + Y`         | Redo last undo        |
+| `Ctrl + Shift + Z` | Redo last undo        |
 | `Escape`           | Close any open panel  |
 
 ---

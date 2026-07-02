@@ -10,6 +10,11 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icon-192.png" />
+    <meta name="theme-color" content="#161b22" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="DevForge" />
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https: data:; connect-src 'self' https:; frame-src 'self' https:;"
@@ -206,7 +211,7 @@
       <!-- ── EDITOR PANEL ── -->
       <div class="editor-panel" id="editorPanel">
         <!-- File tabs (HTML / CSS / JS) -->
-        <div class="panel-tabs" id="fileTabs"></div>
+        <div class="panel-tabs" id="fileTabs" role="tablist" aria-label="Open files"></div>
 
         <!-- Code editor with highlight layer + line numbers -->
         <div class="editor-wrap" id="editorWrap">
@@ -231,7 +236,15 @@
         <div class="lesson-pane" id="lessonPane">
           <div class="lesson-pane-head" onclick="toggleLessonPane()">
             <span class="lesson-pane-title" id="lessonPaneTitle">📖 LESSON</span>
-            <button type="button" class="collapse-btn" id="collapseBtn">▼</button>
+            <button
+              type="button"
+              class="collapse-btn"
+              id="collapseBtn"
+              aria-label="Collapse lesson panel"
+              aria-expanded="true"
+            >
+              ▼
+            </button>
           </div>
           <div class="lesson-content" id="lessonContent"></div>
         </div>
@@ -264,6 +277,8 @@
                 id="sizeDesktop"
                 onclick="setPreviewSize('desktop')"
                 title="Desktop"
+                aria-label="Desktop preview"
+                aria-pressed="true"
               >
                 🖥
               </button>
@@ -273,6 +288,8 @@
                 id="sizeTablet"
                 onclick="setPreviewSize('tablet')"
                 title="Tablet"
+                aria-label="Tablet preview"
+                aria-pressed="false"
               >
                 📱
               </button>
@@ -282,15 +299,37 @@
                 id="sizeMobile"
                 onclick="setPreviewSize('mobile')"
                 title="Mobile"
+                aria-label="Mobile preview"
+                aria-pressed="false"
               >
                 📲
               </button>
             </div>
-            <button type="button" class="icon-btn" title="Refresh" onclick="runCode()">↻</button>
-            <button type="button" class="icon-btn" title="Reset code" onclick="showResetModal()">
+            <button
+              type="button"
+              class="icon-btn"
+              title="Refresh"
+              aria-label="Refresh preview"
+              onclick="runCode()"
+            >
+              ↻
+            </button>
+            <button
+              type="button"
+              class="icon-btn"
+              title="Reset code"
+              aria-label="Reset code to starter"
+              onclick="showResetModal()"
+            >
               ⟳
             </button>
-            <button type="button" class="icon-btn" title="Copy all code" onclick="copyAllCode()">
+            <button
+              type="button"
+              class="icon-btn"
+              title="Copy all code"
+              aria-label="Copy all code"
+              onclick="copyAllCode()"
+            >
               ⎘
             </button>
           </div>
@@ -317,6 +356,23 @@
               <span class="console-badge" id="consoleBadge">0</span>
             </div>
             <div class="console-actions">
+              <input
+                type="text"
+                class="console-filter"
+                id="consoleFilter"
+                placeholder="Filter…"
+                oninput="filterConsole(this.value)"
+                aria-label="Filter console output"
+              />
+              <button
+                type="button"
+                class="tiny-btn"
+                onclick="clearConsoleFilter()"
+                title="Clear filter"
+                aria-label="Clear console filter"
+              >
+                ✕
+              </button>
               <button
                 type="button"
                 class="tiny-btn"
@@ -450,9 +506,16 @@
     </div>
 
     <!-- Reset confirmation modal -->
-    <div class="modal-overlay" id="resetModal">
+    <div
+      class="modal-overlay"
+      id="resetModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="resetModalTitle"
+      tabindex="-1"
+    >
       <div class="modal">
-        <h3>Reset to starter code?</h3>
+        <h3 id="resetModalTitle">Reset to starter code?</h3>
         <p>
           This will discard your current edits for this lesson and restore the original starter
           code.
@@ -465,10 +528,17 @@
     </div>
 
     <!-- Completion banner -->
-    <div class="completion-banner" id="completionBanner">
+    <div
+      class="completion-banner"
+      id="completionBanner"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="completionTitle"
+      tabindex="-1"
+    >
       <div class="completion-card">
         <span class="completion-emoji">🏆</span>
-        <h2>All Lessons Complete!</h2>
+        <h2 id="completionTitle">All Lessons Complete!</h2>
         <p>
           You've finished every lesson in the DevForge curriculum.
           <br />

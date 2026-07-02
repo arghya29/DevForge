@@ -9,6 +9,12 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- PWA support: manifest.json for installable standalone app experience
+- Service worker (sw.js) for offline caching of all static assets
+- Offline fallback page (offline.html) with reconnect button
+- `<link rel="manifest">`, theme-color, and apple-mobile-web-app meta tags
+- Service worker registration in app.js init
+- PWA-related entries in README features table
 - Touch event support for the drag resizer — enables column resizing on tablets and phones
 - Responsive sidebar toggle: sidebar collapses on screens ≤768px with a ☰ toggle button
 - Mobile-optimized layout: sidebar slides in/out, resizer hidden on mobile, progress bar hidden

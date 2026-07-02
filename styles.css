@@ -618,6 +618,10 @@ header {
   overflow-x: auto;
 }
 .file-tab {
+  -webkit-appearance: none;
+  appearance: none;
+  background: none;
+  border: none;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -1182,6 +1186,45 @@ header {
   flex-shrink: 0;
   font-size: 0.65rem;
   margin-top: 2px;
+}
+.log-msg {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+.log-copy {
+  background: none;
+  border: none;
+  color: var(--surface3);
+  cursor: pointer;
+  font-size: 0.7rem;
+  flex-shrink: 0;
+  padding: 0 4px;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.log-line:hover .log-copy,
+.log-copy:focus,
+.log-copy:focus-visible {
+  opacity: 1;
+}
+.log-copy:hover {
+  color: var(--cyan);
+}
+
+.console-filter {
+  padding: 2px 6px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text);
+  font-family: var(--font-code);
+  font-size: 0.65rem;
+  width: 90px;
+  outline: none;
+}
+.console-filter:focus {
+  border-color: var(--cyan);
 }
 
 /* ══════════════════════════════════════════════
