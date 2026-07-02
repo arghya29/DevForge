@@ -258,6 +258,11 @@ function loadLesson(id, { trackProgress = true } = {}) {
     goalsPanel.classList.remove("collapsed");
     delete goalsPanel.dataset.celebrated;
   }
+  const goalsCollapseBtn = document.getElementById("goalsCollapseBtn");
+  if (goalsCollapseBtn) {
+    goalsCollapseBtn.style.transform = "";
+    goalsCollapseBtn.setAttribute("aria-expanded", "true");
+  }
   validateGoals();
 }
 
@@ -1028,7 +1033,12 @@ function validateGoals() {
   const progressFill = progressBar.querySelector(".goals-progress-fill");
 
   lesson.goals.forEach((goal) => {
-    const met = checkGoalRule(goal.rule, buf);
+    let met = false;
+    try {
+      met = checkGoalRule(goal.rule, buf);
+    } catch (error) {
+      console.warn("Goal validation failed for:", goal, error);
+    }
     if (met) doneCount++;
 
     const item = document.createElement("li");
