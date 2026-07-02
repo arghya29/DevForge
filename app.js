@@ -23,6 +23,9 @@ let xp = 0;
 let streak = 0;
 let lastRunLesson = null;
 let errorCount = 0;
+let consoleScrolledUp = false;
+const CONSOLE_MAX_LINES = 200;
+let consoleLineCount = 0;
 
 const doneSet = new Set(); // lesson ids that have been run at least once
 const buffers = {}; // { [lessonId]: { html, css, js } }  — user edits
@@ -686,8 +689,20 @@ window.addEventListener("message", e => {
   addConsoleLog(e.data.type, e.data.args.join(" "), e.data.ts);
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+  const body = document.getElementById("consoleBody");
+  if (body) {
+    body.addEventListener("scroll", () => {
+      const atBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 30;
+      consoleScrolledUp = !atBottom;
+    });
+  }
+});
+
 function clearConsoleUI() {
   errorCount = 0;
+  consoleLineCount = 0;
+  consoleScrolledUp = false;
   document.getElementById("consoleBadge").style.display = "none";
   document.getElementById("consoleBody").innerHTML =
     `<div class="log-line info"><span class="log-prefix">ℹ</span><span>Running…</span></div>`;
@@ -708,14 +723,33 @@ function addConsoleLog(type, text, ts) {
       })
     : "";
 
+  const maxLen = 2000;
+  const displayText = text.length > maxLen ? text.slice(0, maxLen) + "…" : text;
+
   el.className = "log-line " + cls;
   el.innerHTML = `
     <span class="log-prefix">${prefix}</span>
     <span class="log-ts">${time}</span>
-    <span>${escapeHtml(text)}</span>`;
+    <span class="log-msg">${escapeHtml(displayText)}</span>
+    <button type="button" class="log-copy" onclick="copyConsoleText(this)" title="Copy line">⎘</button>`;
+  applyConsoleFilter(el);
 
   body.appendChild(el);
-  body.scrollTop = body.scrollHeight;
+  consoleLineCount++;
+
+  if (consoleLineCount > CONSOLE_MAX_LINES) {
+    const excess = consoleLineCount - CONSOLE_MAX_LINES;
+    for (let i = 0; i < excess; i++) {
+      const first = body.firstElementChild;
+      if (first) body.removeChild(first);
+    }
+    consoleLineCount = CONSOLE_MAX_LINES;
+  }
+
+  // Auto-scroll only if user hasn't scrolled up
+  if (!consoleScrolledUp) {
+    body.scrollTop = body.scrollHeight;
+  }
 
   if (type === "error") {
     errorCount++;
@@ -725,12 +759,51 @@ function addConsoleLog(type, text, ts) {
   }
 }
 
+function copyConsoleText(btn) {
+  const msgEl = btn.parentElement.querySelector(".log-msg");
+  if (!msgEl) return;
+  const text = msgEl.textContent;
+  if (!navigator.clipboard || typeof navigator.clipboard.writeText !== "function") {
+    return;
+  }
+  navigator.clipboard
+    .writeText(text)
+    .then(() => {
+      btn.textContent = "✓";
+      setTimeout(() => {
+        btn.textContent = "⎘";
+      }, 1200);
+    })
+    .catch(() => {});
+}
+
 function toggleConsole() {
   consolePaneOpen = !consolePaneOpen;
   document.getElementById("consolePane").classList.toggle("collapsed", !consolePaneOpen);
   document.getElementById("consolCollapseBtn").style.transform = consolePaneOpen
     ? ""
     : "rotate(180deg)";
+}
+
+function filterConsole(val) {
+  document.querySelectorAll("#consoleBody .log-line").forEach(el => {
+    applyConsoleFilter(el, val);
+  });
+}
+
+function applyConsoleFilter(el, val = null) {
+  const filter = val !== null ? val : document.getElementById("consoleFilter")?.value || "";
+  const q = filter.toLowerCase();
+  const text = el.textContent.toLowerCase();
+  el.style.display = !q || text.includes(q) ? "" : "none";
+}
+
+function clearConsoleFilter() {
+  const inp = document.getElementById("consoleFilter");
+  if (inp) {
+    inp.value = "";
+    filterConsole("");
+  }
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -829,6 +902,10 @@ function copyAllCode() {
   const buf = buffers[currentLessonId];
   if (!buf) return;
   const all = `<!-- index.html -->\n${buf.html}\n\n/* index.css */\n${buf.css}\n\n// index.js\n${buf.js}`;
+  if (!navigator.clipboard || typeof navigator.clipboard.writeText !== "function") {
+    showToast("Clipboard unavailable — try Ctrl+A then Ctrl+C", "error", "✖");
+    return;
+  }
   navigator.clipboard
     .writeText(all)
     .then(() => showToast("All code copied to clipboard!", "success", "⎘"))
@@ -1105,6 +1182,9 @@ window.showResetModal = showResetModal;
 window.copyAllCode = copyAllCode;
 // Console
 window.toggleConsole = toggleConsole;
+window.filterConsole = filterConsole;
+window.clearConsoleFilter = clearConsoleFilter;
+window.copyConsoleText = copyConsoleText;
 // Font size
 window.changeFontSize = changeFontSize;
 // Reset modal
