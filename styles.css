@@ -131,6 +131,37 @@ header {
   }
 }
 
+.contribute-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 4px;
+  padding: 3px 9px;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.contribute-btn:hover {
+  background: var(--surface2);
+  color: var(--text);
+  border-color: var(--muted);
+}
+.contribute-btn:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+.contribute-icon {
+  flex-shrink: 0;
+}
+
 .header-center {
   display: flex;
   align-items: center;
@@ -581,6 +612,9 @@ header {
   .tab-btn {
     padding: 4px 8px;
     font-size: 0.7rem;
+  }
+  .contribute-text {
+    display: none;
   }
   .progress-wrap {
     display: none;
