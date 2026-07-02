@@ -383,12 +383,16 @@
                 id="consoleFilter"
                 placeholder="Filter…"
                 oninput="filterConsole(this.value)"
+                onclick="event.stopPropagation()"
                 aria-label="Filter console output"
               />
               <button
                 type="button"
                 class="tiny-btn"
-                onclick="clearConsoleFilter()"
+                onclick="
+                  event.stopPropagation();
+                  clearConsoleFilter();
+                "
                 title="Clear filter"
                 aria-label="Clear console filter"
               >
