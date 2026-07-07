@@ -5,7 +5,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "lint:js": "eslint app.js curriculum.js --max-warnings 0",
+    "lint:js": "eslint app.js commands.js curriculum.js editor.js lesson.js preview.js storage.js ui.js analytics.js --max-warnings 0",
     "lint:html": "html-validate --config html-validate.json index.html",
     "format:check": "prettier --check \"*.html\" \"*.css\" \"*.js\" \"*.md\" \".github/**/*.md\"",
     "format:fix": "prettier --write \"*.html\" \"*.css\" \"*.js\" \"*.md\" \".github/**/*.md\"",

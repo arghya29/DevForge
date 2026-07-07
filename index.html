@@ -17,8 +17,15 @@
     <meta name="apple-mobile-web-app-title" content="DevForge" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https: data:; connect-src 'self' https:; frame-src 'self' https:;"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https: data:; connect-src 'self' https:; frame-src 'self' https:;"
     />
+    <!-- LZString for compression/decompression of snapshots (#82) -->
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"
+      integrity="sha512-qtX0GLM3qX8rxJN1gyDfcnMFFrKvixfoEOwbBib9VafR5vbChV5LeE5wSI/x+IlCkTY5ZFddFDCCfaVJJNnuKQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
   </head>
   <body>
     <!-- ══════════════════════════════════════
@@ -95,18 +102,6 @@
       </div>
 
       <div class="header-right">
-        <button
-          type="button"
-          class="sidebar-toggle icon-btn"
-          id="sidebarToggleBtn"
-          onclick="toggleSidebar()"
-          title="Toggle sidebar"
-          aria-label="Toggle sidebar"
-          aria-expanded="true"
-          aria-controls="appSidebar"
-        >
-          ☰
-        </button>
         <div
           class="autorun-wrap"
           onclick="toggleAutorun()"
@@ -170,6 +165,26 @@
         >
           ?
         </button>
+        <button
+          type="button"
+          class="icon-btn"
+          id="shareBtn"
+          title="Share snapshot"
+          aria-label="Generate shareable snapshot link"
+          onclick="generateSnapshot()"
+        >
+          🔗
+        </button>
+        <button
+          type="button"
+          class="icon-btn"
+          id="analyticsBtn"
+          title="Learner Analytics"
+          aria-label="Open learner analytics modal"
+          onclick="openAnalyticsModal()"
+        >
+          📊
+        </button>
         <button type="button" class="run-btn" id="runBtn" onclick="runCode()" aria-label="Run code">
           ▶ Run
         </button>
@@ -187,12 +202,14 @@
             <span>Curriculum</span>
             <button
               type="button"
-              class="sidebar-close-btn"
-              id="sidebarCloseBtn"
+              class="sidebar-toggle-btn"
+              id="sidebarToggleBtn"
               onclick="toggleSidebar()"
-              aria-label="Close sidebar"
+              aria-label="Toggle sidebar"
+              aria-expanded="true"
+              aria-controls="appSidebar"
             >
-              &times;
+              ☰
             </button>
           </div>
           <div class="search-wrap">
@@ -293,6 +310,31 @@
               oninput="onEditorInput()"
               onscroll="syncScroll(this)"
             ></textarea>
+          </div>
+          <!-- Go to Line Popover (`#81`) -->
+          <div
+            class="go-to-line-popover"
+            id="goToLinePopover"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Go to line"
+            style="display: none"
+          >
+            <input
+              type="number"
+              id="goToLineInput"
+              placeholder="Go to line..."
+              min="1"
+              aria-label="Line number"
+            />
+            <span
+              class="go-to-line-error"
+              id="goToLineError"
+              aria-live="assertive"
+              style="display: none"
+            >
+              Line out of range
+            </span>
           </div>
         </div>
 
@@ -515,6 +557,110 @@
        FLOATING PANELS
   ══════════════════════════════════════ -->
 
+    <!-- Learner Analytics Modal (#79) -->
+    <div
+      class="modal-overlay"
+      id="analyticsModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="analyticsModalTitle"
+      tabindex="-1"
+    >
+      <div class="modal analytics-modal-inner">
+        <div class="shortcuts-modal-header">
+          <h2 id="analyticsModalTitle" class="shortcuts-modal-title">
+            <span class="shortcuts-modal-icon">📊</span>
+            Learner Analytics
+          </h2>
+          <button
+            type="button"
+            class="shortcuts-close-btn"
+            id="analyticsCloseBtn"
+            aria-label="Close learner analytics"
+            onclick="closeAnalyticsModal()"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div class="shortcuts-modal-body analytics-modal-body">
+          <div class="analytics-section">
+            <h3 class="analytics-section-title">Consistency (Last 7 Days)</h3>
+            <div id="streakDotsRow" class="streak-dots-row">
+              <!-- 7 circles, green/grey -->
+            </div>
+            <p id="streakStatsText" class="streak-stats-text"></p>
+          </div>
+
+          <div class="analytics-section">
+            <h3 class="analytics-section-title">Lesson Stats</h3>
+            <div class="analytics-table-wrap">
+              <table class="analytics-table">
+                <thead>
+                  <tr>
+                    <th>Lesson</th>
+                    <th>Time</th>
+                    <th>Retries</th>
+                  </tr>
+                </thead>
+                <tbody id="analyticsTableBody">
+                  <!-- Table rows with lesson stats -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="analytics-modal-footer">
+          <button
+            type="button"
+            class="btn-cancel btn-reset-analytics"
+            onclick="resetAnalyticsConfirm()"
+          >
+            Reset Analytics
+          </button>
+          <button type="button" class="btn-cancel" onclick="closeAnalyticsModal()">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Command Palette Modal (`#80`) -->
+    <div
+      class="modal-overlay"
+      id="commandPaletteModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="commandPaletteTitle"
+      tabindex="-1"
+    >
+      <div class="modal command-palette-inner">
+        <h2 id="commandPaletteTitle" class="sr-only">Command Palette</h2>
+        <div class="command-palette-search-wrap">
+          <span class="command-palette-search-icon" aria-hidden="true">🔍</span>
+          <input
+            type="text"
+            id="commandPaletteInput"
+            placeholder="Type a command..."
+            autocomplete="off"
+            spellcheck="false"
+            aria-autocomplete="list"
+            aria-controls="commandPaletteList"
+            aria-label="Command palette search"
+            role="combobox"
+            aria-expanded="true"
+          />
+        </div>
+        <!-- [html-validate-disable-next prefer-native-element -- command palette search list uses role="listbox" for key navigation ARIA pattern] -->
+        <ul
+          id="commandPaletteList"
+          class="command-palette-list"
+          role="listbox"
+          aria-label="Commands"
+        >
+          <!-- Command list items will be injected dynamically -->
+        </ul>
+      </div>
+    </div>
     <!-- Keyboard Shortcuts Modal (#76) -->
     <div
       class="modal-overlay"
@@ -771,6 +917,13 @@
        SCRIPTS  (order matters)
   ══════════════════════════════════════ -->
     <script src="curriculum.js"></script>
+    <script src="storage.js"></script>
+    <script src="analytics.js"></script>
+    <script src="ui.js"></script>
+    <script src="editor.js"></script>
+    <script src="lesson.js"></script>
+    <script src="preview.js"></script>
+    <script src="commands.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
