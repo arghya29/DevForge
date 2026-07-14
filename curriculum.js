@@ -984,11 +984,23 @@ h2 {
         xp: 30,
         paneTitle: "06 · Flexbox Layout",
         goals: [
-          { label: "Use display: flex on a container", rule: { type: "css-property-value", property: "display", value: "flex" } },
-          { label: "Use justify-content to align items", rule: { type: "css-property", value: "justify-content" } },
-          { label: "Use align-items for cross-axis alignment", rule: { type: "css-property", value: "align-items" } },
+          {
+            label: "Use display: flex on a container",
+            rule: { type: "css-property-value", property: "display", value: "flex" },
+          },
+          {
+            label: "Use justify-content to align items",
+            rule: { type: "css-property", value: "justify-content" },
+          },
+          {
+            label: "Use align-items for cross-axis alignment",
+            rule: { type: "css-property", value: "align-items" },
+          },
           { label: "Use gap for spacing flex items", rule: { type: "css-property", value: "gap" } },
-          { label: "Use flex-wrap for wrapping items", rule: { type: "css-property", value: "flex-wrap" } },
+          {
+            label: "Use flex-wrap for wrapping items",
+            rule: { type: "css-property", value: "flex-wrap" },
+          },
         ],
         instruction: `
           <h2>Flexbox — one-dimensional layout</h2>
@@ -1899,11 +1911,26 @@ render();`,
         xp: 35,
         paneTitle: "07 · JavaScript Classes & OOP",
         goals: [
-          { label: "Define a class with a constructor", rule: { type: "js-contains", value: "class " } },
-          { label: "Create an instance using the new keyword", rule: { type: "js-contains", value: "new " } },
-          { label: "Add a method to the class prototype", rule: { type: "js-contains", value: "()" } },
-          { label: "Use the this keyword inside a method", rule: { type: "js-contains", value: "this." } },
-          { label: "Log instance properties to the console", rule: { type: "js-contains", value: "console.log" } },
+          {
+            label: "Define a class with a constructor",
+            rule: { type: "js-contains", value: "class " },
+          },
+          {
+            label: "Create an instance using the new keyword",
+            rule: { type: "js-contains", value: "new " },
+          },
+          {
+            label: "Add a method to the class prototype",
+            rule: { type: "js-contains", value: "()" },
+          },
+          {
+            label: "Use the this keyword inside a method",
+            rule: { type: "js-contains", value: "this." },
+          },
+          {
+            label: "Log instance properties to the console",
+            rule: { type: "js-contains", value: "console.log" },
+          },
         ],
         instruction: `
           <h2>Object-Oriented Programming with Classes</h2>

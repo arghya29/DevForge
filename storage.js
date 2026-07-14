@@ -7,6 +7,7 @@
    doneSet, buffers, revealedHints, autorun)
 ╔═══════════════════════════════════════════════════════════════ */
 /* exported saveProgress, scheduleSave, loadProgress, clearProgress */
+/* global getAchievementData, setAchievementData, clearAchievementData, LayoutManager */
 "use strict";
 
 const STORAGE_KEY = "devforge:progress:v2";
@@ -70,8 +71,7 @@ function takeSnapshot() {
 function saveProgress() {
   try {
     const fontSize = getComputedStyle(document.documentElement).getPropertyValue("--fs").trim();
-    const achievementsData =
-      typeof getAchievementData === "function" ? getAchievementData() : {};
+    const achievementsData = typeof getAchievementData === "function" ? getAchievementData() : {};
     window.localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({
@@ -83,7 +83,10 @@ function saveProgress() {
         autorun: autorun,
         fontSize: fontSize,
         achievements: achievementsData, // Persist unlocked achievements
-        layout: typeof LayoutManager !== "undefined" && LayoutManager._current ? LayoutManager._current : undefined,
+        layout:
+          typeof LayoutManager !== "undefined" && LayoutManager._current
+            ? LayoutManager._current
+            : undefined,
       })
     );
     takeSnapshot();
@@ -183,7 +186,11 @@ function loadProgress() {
     const label = document.getElementById("fsValLabel");
     if (label) label.textContent = data.fontSize;
   }
-  if (data.achievements && typeof data.achievements === "object" && !Array.isArray(data.achievements)) {
+  if (
+    data.achievements &&
+    typeof data.achievements === "object" &&
+    !Array.isArray(data.achievements)
+  ) {
     if (typeof setAchievementData === "function") {
       setAchievementData(data.achievements);
     }
@@ -198,11 +205,22 @@ function loadProgress() {
     }
     if (typeof xp !== "number" || !Number.isFinite(xp) || xp < 0) xp = 0;
     if (typeof streak !== "number" || !Number.isFinite(streak) || streak < 0) streak = 0;
-    doneSet.forEach(id => { if (!valIds.has(id)) doneSet.delete(id); });
+    doneSet.forEach(id => {
+      if (!valIds.has(id)) doneSet.delete(id);
+    });
     Object.keys(buffers).forEach(id => {
-      if (!valIds.has(id)) { delete buffers[id]; return; }
+      if (!valIds.has(id)) {
+        delete buffers[id];
+        return;
+      }
       const b = buffers[id];
-      if (!b || typeof b !== "object" || typeof b.html !== "string" || typeof b.css !== "string" || typeof b.js !== "string") {
+      if (
+        !b ||
+        typeof b !== "object" ||
+        typeof b.html !== "string" ||
+        typeof b.css !== "string" ||
+        typeof b.js !== "string"
+      ) {
         delete buffers[id];
       }
     });
@@ -216,11 +234,14 @@ function loadProgress() {
       if (snapshots.length > 0) {
         const snap = snapshots[snapshots.length - 1];
         if (typeof snap.xp === "number" && Number.isFinite(snap.xp) && snap.xp >= 0) xp = snap.xp;
-        if (typeof snap.streak === "number" && Number.isFinite(snap.streak) && snap.streak >= 0) streak = snap.streak;
+        if (typeof snap.streak === "number" && Number.isFinite(snap.streak) && snap.streak >= 0)
+          streak = snap.streak;
         if (Array.isArray(snap.done)) {
           doneSet.clear();
           const valIds = new Set(getAllLessons().map(l => l.id));
-          snap.done.forEach(id => { if (valIds.has(id)) doneSet.add(id); });
+          snap.done.forEach(id => {
+            if (valIds.has(id)) doneSet.add(id);
+          });
         }
         if (snap.buffers && typeof snap.buffers === "object") {
           Object.keys(buffers).forEach(k => delete buffers[k]);
@@ -228,7 +249,13 @@ function loadProgress() {
           Object.keys(snap.buffers).forEach(id => {
             if (!valIds.has(id)) return;
             const b = snap.buffers[id];
-            if (b && typeof b === "object" && typeof b.html === "string" && typeof b.css === "string" && typeof b.js === "string") {
+            if (
+              b &&
+              typeof b === "object" &&
+              typeof b.html === "string" &&
+              typeof b.css === "string" &&
+              typeof b.js === "string"
+            ) {
               buffers[id] = { html: b.html, css: b.css, js: b.js };
             }
           });
@@ -236,7 +263,9 @@ function loadProgress() {
         console.info("[Recovery] Restored from snapshot via recovery flag");
       }
     }
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 
 // Wipe persisted progress (used by the Restart flow).

@@ -28,6 +28,7 @@
   hideGoToLine,
   executeGoToLine
 */
+/* global PerformanceMonitor, throttle */
 "use strict";
 
 const undoStacks = {}; // { [lessonId_tab]: [string] }

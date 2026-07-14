@@ -46,6 +46,7 @@
   toggleAutorun,
   setPreviewSize
 */
+/* global getAchievementData, setAchievementData, checkAchievements, LayoutManager, layoutPanelVisible: writable, RecoveryManager */
 "use strict";
 
 let activeModalEl = null;

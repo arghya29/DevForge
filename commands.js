@@ -6,6 +6,7 @@
    fsPanelVisible), all action functions resolved at call time.
 ═══════════════════════════════════════════════════════════════ */
 /* exported CommandPalette, commandPaletteSelectedIdx, filteredCommands */
+/* global openSnippetModal, CodeExporter */
 "use strict";
 
 let commandPaletteSelectedIdx = 0;
@@ -249,6 +250,9 @@ CommandPalette.register({
   id: "load-snippet",
   label: "Load Code Snippet",
   action: () => openSnippetModal(),
+});
+
+CommandPalette.register({
   id: "export-standalone",
   label: "Export as Standalone HTML",
   action: () => CodeExporter.exportAsStandaloneHtml(),

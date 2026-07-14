@@ -35,6 +35,7 @@
   CONSOLE_MAX_LINES,
   init
 */
+/* global PerformanceMonitor, LayoutManager, initAchievements, checkAchievements, toggleLayoutPanel, closeAchievementsModal, openAchievementsModal, SnippetManager, openSnippetModal, closeSnippetModal, saveSnippetFromModal, CodeExporter, toggleExportMenu, closeExportMenu */
 "use strict";
 
 /* ══════════════════════════════════════════════════════════
@@ -58,7 +59,7 @@ let consoleScrolledUp = false;
 const CONSOLE_MAX_LINES = 200;
 let consoleLineCount = 0;
 let isReadOnlyMode = false;
-let layoutPanelVisible = false;
+let layoutPanelVisible = false; // eslint-disable-line prefer-const
 
 const doneSet = new Set(); // lesson ids that have been run at least once
 const buffers = {}; // { [lessonId]: { html, css, js } }  — user edits
@@ -114,7 +115,7 @@ function init() {
 
   // Check for snapshot link on load
   checkSnapshotOnLoad();
-  
+
   // Initialise achievements from stored data and check for newly met milestones
   initAchievements();
   checkAchievements();
@@ -129,7 +130,7 @@ function init() {
       }
     };
   }
-  
+
   PerformanceMonitor.mark("initComplete");
   PerformanceMonitor.measure("full-init", "bootstrapStart", "initComplete");
 
@@ -301,7 +302,8 @@ document.addEventListener("keydown", e => {
     }
     if (document.getElementById("shortcutsModal").classList.contains("show")) closeShortcutsModal();
     if (document.getElementById("analyticsModal").classList.contains("show")) closeAnalyticsModal();
-    if (document.getElementById("achievementsModal").classList.contains("show")) closeAchievementsModal();
+    if (document.getElementById("achievementsModal").classList.contains("show"))
+      closeAchievementsModal();
     if (document.getElementById("commandPaletteModal").classList.contains("show")) {
       CommandPalette.close();
     }

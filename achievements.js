@@ -191,9 +191,8 @@ function renderAchievements() {
   grid.innerHTML = "";
   ACHIEVEMENT_DEFS.forEach(def => {
     const unlocked = unlockedAchievements[def.id];
-    const card = document.createElement("div");
+    const card = document.createElement("li");
     card.className = "achievement-card" + (unlocked ? " unlocked" : " locked");
-    card.setAttribute("role", "listitem");
     card.setAttribute("aria-label", (unlocked ? "Unlocked: " : "Locked: ") + def.title);
     card.innerHTML =
       '<div class="achievement-icon">' +

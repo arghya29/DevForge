@@ -34,6 +34,7 @@ DevForge provides a **Development Container** (dev container) configuration for 
 ### Setup Steps
 
 1. **Clone the repository:**
+
    ```bash
    git clone https://github.com/arghya29/DevForge.git
    cd DevForge
@@ -45,6 +46,7 @@ DevForge provides a **Development Container** (dev container) configuration for 
    - The container builds from `node:20-bookworm` with `git`, `curl`, and Node.js 20 pre-installed
 
 3. **Install dependencies** (runs automatically via `postCreateCommand`):
+
    ```bash
    npm install
    ```

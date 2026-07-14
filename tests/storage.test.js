@@ -21,22 +21,29 @@ describe("Storage Functions", () => {
     };
 
     const { saveProgress } = (function () {
-      let xp = 100, streak = 5;
+      let xp = 100,
+        streak = 5;
       const doneSet = new Set(["html-01", "css-01"]);
       const buffers = { "html-01": { html: "<h1>Hi</h1>", css: "", js: "" } };
       const revealedHints = {};
 
       function saveProgress() {
         try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify({
-            xp, streak,
-            done: Array.from(doneSet),
-            buffers,
-            hints: revealedHints,
-            autorun: false,
-            fontSize: "13px",
-          }));
-        } catch { /* ignore */ }
+          localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify({
+              xp,
+              streak,
+              done: Array.from(doneSet),
+              buffers,
+              hints: revealedHints,
+              autorun: false,
+              fontSize: "13px",
+            })
+          );
+        } catch {
+          /* ignore */
+        }
       }
       return { saveProgress };
     })();
@@ -53,7 +60,11 @@ describe("Storage Functions", () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ xp: 50 }));
     const { clearProgress } = (function () {
       function clearProgress() {
-        try { localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch {
+          /* ignore */
+        }
       }
       return { clearProgress };
     })();
@@ -64,7 +75,8 @@ describe("Storage Functions", () => {
   it("defensive validation catches corrupt data gracefully", () => {
     localStorage.setItem(STORAGE_KEY, "not valid json");
     const { loadProgress } = (function () {
-      let xp = 0, streak = 0;
+      let xp = 0,
+        streak = 0;
       const doneSet = new Set();
       const buffers = {};
 
@@ -74,7 +86,9 @@ describe("Storage Functions", () => {
           const raw = localStorage.getItem(STORAGE_KEY);
           if (!raw) return;
           data = JSON.parse(raw);
-        } catch { return; }
+        } catch {
+          return;
+        }
         if (!data || typeof data !== "object") return;
         if (typeof data.xp === "number" && Number.isFinite(data.xp) && data.xp >= 0) xp = data.xp;
       }
