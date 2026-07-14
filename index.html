@@ -48,7 +48,7 @@
     <!-- ══════════════════════════════════════
        HEADER
   ══════════════════════════════════════ -->
-    <header id="appHeader" role="banner">
+    <header id="appHeader">
       <div class="logo">
         <span class="logo-icon" aria-hidden="true">⚡</span>
         DevForge
@@ -244,7 +244,7 @@
     <!-- ══════════════════════════════════════
        WORKSPACE  (3-column grid)
   ══════════════════════════════════════ -->
-    <div class="workspace" id="workspace" role="main" aria-label="Main workspace">
+    <main class="workspace" id="workspace" aria-label="Main workspace">
       <!-- ── SIDEBAR ── -->
       <aside class="sidebar" id="appSidebar" aria-label="Curriculum sidebar">
         <div class="sidebar-head">
@@ -528,10 +528,50 @@
                 ⬇
               </button>
               <div class="export-menu" id="exportMenu" role="menu" aria-label="Export format menu">
-                <button type="button" class="export-menu-item" role="menuitem" onclick="CodeExporter.exportAsStandaloneHtml(); closeExportMenu();">Standalone HTML</button>
-                <button type="button" class="export-menu-item" role="menuitem" onclick="CodeExporter.exportAsCodePen(); closeExportMenu();">Open in CodePen</button>
-                <button type="button" class="export-menu-item" role="menuitem" onclick="CodeExporter.exportAsJSFiddle(); closeExportMenu();">Open in JSFiddle</button>
-                <button type="button" class="export-menu-item" role="menuitem" onclick="CodeExporter.exportCurrentTab(); closeExportMenu();">Export Current Tab</button>
+                <button
+                  type="button"
+                  class="export-menu-item"
+                  role="menuitem"
+                  onclick="
+                    CodeExporter.exportAsStandaloneHtml();
+                    closeExportMenu();
+                  "
+                >
+                  Standalone HTML
+                </button>
+                <button
+                  type="button"
+                  class="export-menu-item"
+                  role="menuitem"
+                  onclick="
+                    CodeExporter.exportAsCodePen();
+                    closeExportMenu();
+                  "
+                >
+                  Open in CodePen
+                </button>
+                <button
+                  type="button"
+                  class="export-menu-item"
+                  role="menuitem"
+                  onclick="
+                    CodeExporter.exportAsJSFiddle();
+                    closeExportMenu();
+                  "
+                >
+                  Open in JSFiddle
+                </button>
+                <button
+                  type="button"
+                  class="export-menu-item"
+                  role="menuitem"
+                  onclick="
+                    CodeExporter.exportCurrentTab();
+                    closeExportMenu();
+                  "
+                >
+                  Export Current Tab
+                </button>
               </div>
             </div>
           </div>
@@ -618,7 +658,7 @@
         </div>
       </div>
       <!-- /preview-panel -->
-    </div>
+    </main>
     <!-- /workspace -->
 
     <!-- ══════════════════════════════════════
@@ -652,7 +692,9 @@
 
         <div class="snippet-modal-body">
           <div class="snippet-save-area">
-            <label for="snippetNameInput" class="snippet-label">Save current code as snippet:</label>
+            <label for="snippetNameInput" class="snippet-label">
+              Save current code as snippet:
+            </label>
             <div class="snippet-save-row">
               <input
                 type="text"
@@ -660,9 +702,13 @@
                 class="snippet-name-input"
                 placeholder="My snippet name..."
                 maxlength="100"
-                onkeydown="if(event.key==='Enter')saveSnippetFromModal()"
+                onkeydown="if (event.key === 'Enter') saveSnippetFromModal();"
               />
-              <button type="button" class="btn-confirm snippet-save-btn" onclick="saveSnippetFromModal()">
+              <button
+                type="button"
+                class="btn-confirm snippet-save-btn"
+                onclick="saveSnippetFromModal()"
+              >
                 Save
               </button>
             </div>
@@ -815,9 +861,9 @@
             <span class="achievements-stats-label">Progress</span>
             <span class="achievements-stats-count" id="achievementStats">0 / 0</span>
           </div>
-          <div class="achievement-grid" id="achievementGrid" role="list">
+          <ul class="achievement-grid" id="achievementGrid">
             <!-- Cards injected dynamically by achievements.js -->
-          </div>
+          </ul>
         </div>
 
         <div class="shortcuts-modal-footer">

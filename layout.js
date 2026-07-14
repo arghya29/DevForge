@@ -167,9 +167,12 @@ const LayoutManager = {
       ...this._current,
       sidebarW: sidebarW || this._current.sidebarW,
       editorRatio: editorRatio || this._current.editorRatio,
-      lessonPaneOpen: typeof lessonPaneOpen !== "undefined" ? lessonPaneOpen : this._current.lessonPaneOpen,
-      consolePaneOpen: typeof consolePaneOpen !== "undefined" ? consolePaneOpen : this._current.consolePaneOpen,
-      goalsPanelOpen: typeof goalsPanelOpen !== "undefined" ? goalsPanelOpen : this._current.goalsPanelOpen,
+      lessonPaneOpen:
+        typeof lessonPaneOpen !== "undefined" ? lessonPaneOpen : this._current.lessonPaneOpen,
+      consolePaneOpen:
+        typeof consolePaneOpen !== "undefined" ? consolePaneOpen : this._current.consolePaneOpen,
+      goalsPanelOpen:
+        typeof goalsPanelOpen !== "undefined" ? goalsPanelOpen : this._current.goalsPanelOpen,
     };
     this.saveLayout();
   },

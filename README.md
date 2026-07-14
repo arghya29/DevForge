@@ -159,25 +159,25 @@ DevForge/
 
 ### HTML Foundations
 
-| #   | Lesson                      | XP  |
-| --- | --------------------------- | --- |
-| 01  | Your First Element          | 20  |
-| 02  | Headings & Paragraphs       | 20  |
-| 03  | Lists & Links               | 20  |
-| 04  | Images & Attributes         | 20  |
-| 05  | Forms & Inputs              | 30  |
-| 06  | Semantic HTML Elements      | 30  |
+| #   | Lesson                 | XP  |
+| --- | ---------------------- | --- |
+| 01  | Your First Element     | 20  |
+| 02  | Headings & Paragraphs  | 20  |
+| 03  | Lists & Links          | 20  |
+| 04  | Images & Attributes    | 20  |
+| 05  | Forms & Inputs         | 30  |
+| 06  | Semantic HTML Elements | 30  |
 
 ### CSS Styling
 
-| #   | Lesson                      | XP  |
-| --- | --------------------------- | --- |
-| 01  | Selectors & Specificity     | 25  |
-| 02  | The Box Model               | 25  |
-| 03  | Flexbox Layout              | 30  |
-| 04  | CSS Grid                    | 30  |
-| 05  | Transitions & Animations    | 35  |
-| 06  | Flexbox Layout (advanced)   | 30  |
+| #   | Lesson                    | XP  |
+| --- | ------------------------- | --- |
+| 01  | Selectors & Specificity   | 25  |
+| 02  | The Box Model             | 25  |
+| 03  | Flexbox Layout            | 30  |
+| 04  | CSS Grid                  | 30  |
+| 05  | Transitions & Animations  | 35  |
+| 06  | Flexbox Layout (advanced) | 30  |
 
 ### JavaScript
 

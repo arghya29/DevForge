@@ -52,8 +52,8 @@ describe("Editor Functions", () => {
       return { highlightHTML };
     })();
     const result = highlightHTML('&lt;div class="main"&gt;');
-    expect(result).toContain('tok-tag');
-    expect(result).toContain('tok-attr');
+    expect(result).toContain("tok-tag");
+    expect(result).toContain("tok-attr");
   });
 
   it("highlightCSS detects selectors, properties, and values", () => {
@@ -64,7 +64,10 @@ describe("Editor Functions", () => {
           .replace(/(#[0-9a-fA-F]{3,8})\b/g, (_, hex) => {
             return `<span class="tok-val" style="border-bottom:2px solid ${hex}">${hex}</span>`;
           })
-          .replace(/([.#]?[\w-]+(?:\s*,\s*[.#]?[\w-]+)*)\s*\{/g, (m, sel) => `<span class="tok-sel">${sel}</span> {`)
+          .replace(
+            /([.#]?[\w-]+(?:\s*,\s*[.#]?[\w-]+)*)\s*\{/g,
+            (m, sel) => `<span class="tok-sel">${sel}</span> {`
+          )
           .replace(/([\w-]+)\s*:/g, (_, p) => `<span class="tok-prop">${p}</span>:`);
       }
       return { highlightCSS };
@@ -76,7 +79,8 @@ describe("Editor Functions", () => {
 
   it("highlightJS handles keywords, strings, and functions", () => {
     const { highlightJS } = (function () {
-      const KW = /\b(const|let|var|function|return|if|else|for|while|of|in|new|this|class|extends|super|async|await|try|catch|finally|throw|import|export|default|typeof|instanceof|void|delete|switch|case|break|continue)\b/g;
+      const KW =
+        /\b(const|let|var|function|return|if|else|for|while|of|in|new|this|class|extends|super|async|await|try|catch|finally|throw|import|export|default|typeof|instanceof|void|delete|switch|case|break|continue)\b/g;
       function highlightJS(code) {
         return code
           .replace(/(\/\/[^\n]*)/g, '<span class="tok-cmt">$1</span>')

@@ -4,7 +4,10 @@
 const CodeExporter = {
   exportAsStandaloneHtml() {
     const buf = buffers[currentLessonId];
-    if (!buf) { showToast("No code to export", "warn", "⚠️"); return; }
+    if (!buf) {
+      showToast("No code to export", "warn", "⚠️");
+      return;
+    }
     const lesson = getLesson(currentLessonId);
     const title = lesson ? lesson.title : "DevForge Export";
     const doc = `<!DOCTYPE html>
@@ -31,7 +34,10 @@ ${buf.js || ""}
 
   exportAsCodePen() {
     const buf = buffers[currentLessonId];
-    if (!buf) { showToast("No code to export", "warn", "⚠️"); return; }
+    if (!buf) {
+      showToast("No code to export", "warn", "⚠️");
+      return;
+    }
     const lesson = getLesson(currentLessonId);
     const title = lesson ? lesson.title : "DevForge Export";
     const form = document.createElement("form");
@@ -58,7 +64,10 @@ ${buf.js || ""}
 
   exportAsJSFiddle() {
     const buf = buffers[currentLessonId];
-    if (!buf) { showToast("No code to export", "warn", "⚠️"); return; }
+    if (!buf) {
+      showToast("No code to export", "warn", "⚠️");
+      return;
+    }
     const form = document.createElement("form");
     form.action = "https://jsfiddle.net/api/post/library/publish/";
     form.method = "POST";
@@ -86,9 +95,15 @@ ${buf.js || ""}
 
   exportCurrentTab() {
     const buf = buffers[currentLessonId];
-    if (!buf) { showToast("No code to export", "warn", "⚠️"); return; }
+    if (!buf) {
+      showToast("No code to export", "warn", "⚠️");
+      return;
+    }
     const code = buf[activeTab] || "";
-    if (!code) { showToast("Current tab is empty", "warn", "⚠️"); return; }
+    if (!code) {
+      showToast("Current tab is empty", "warn", "⚠️");
+      return;
+    }
     const ext = activeTab === "html" ? "html" : activeTab === "css" ? "css" : "js";
     this._downloadFile(code, `index.${ext}`, "text/plain");
     showToast(`Exported index.${ext}`, "success", "📄");
@@ -96,17 +111,23 @@ ${buf.js || ""}
 
   copyAllToClipboard() {
     const buf = buffers[currentLessonId];
-    if (!buf) { showToast("No code to copy", "warn", "⚠️"); return; }
+    if (!buf) {
+      showToast("No code to copy", "warn", "⚠️");
+      return;
+    }
     const all = `<!-- index.html -->\n${buf.html || ""}\n\n/* index.css */\n${buf.css || ""}\n\n// index.js\n${buf.js || ""}`;
     if (!navigator.clipboard || typeof navigator.clipboard.writeText !== "function") {
       showToast("Clipboard not available", "error", "❌");
       return;
     }
-    navigator.clipboard.writeText(all).then(() => {
-      showToast("All code copied to clipboard!", "success", "📋");
-    }).catch(() => {
-      showToast("Copy failed", "error", "❌");
-    });
+    navigator.clipboard
+      .writeText(all)
+      .then(() => {
+        showToast("All code copied to clipboard!", "success", "📋");
+      })
+      .catch(() => {
+        showToast("Copy failed", "error", "❌");
+      });
   },
 
   _downloadFile(content, filename, mimeType) {

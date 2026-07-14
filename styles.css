@@ -2248,7 +2248,9 @@ header {
   padding: 0.25rem 0.5rem;
   font-size: 0.8rem;
   border-radius: 4px;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
   flex-shrink: 0;
 }
 .snippet-delete-btn:hover {
@@ -2352,7 +2354,7 @@ header {
   gap: 8px;
   font-size: 0.85rem;
   color: var(--fg);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   animation: recoveryFadeIn 0.3s ease;
 }
 .recovery-indicator[hidden] {
@@ -2362,8 +2364,14 @@ header {
   font-size: 1rem;
 }
 @keyframes recoveryFadeIn {
-  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
-  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 /* ══════════════════════════════════════════════
@@ -2864,7 +2872,7 @@ header {
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   z-index: 100;
   min-width: 180px;
   padding: 4px;

@@ -28,8 +28,12 @@ describe("Analytics Module", () => {
       let sessionStartTime = null;
 
       return {
-        _getTimes() { return times; },
-        _saveTimes(t) { Object.assign(times, t); },
+        _getTimes() {
+          return times;
+        },
+        _saveTimes(t) {
+          Object.assign(times, t);
+        },
         startSession(lessonId) {
           if (!lessonId) return;
           activeLessonId = lessonId;
@@ -45,7 +49,9 @@ describe("Analytics Module", () => {
           activeLessonId = null;
           sessionStartTime = null;
         },
-        getStats() { return { times }; },
+        getStats() {
+          return { times };
+        },
       };
     })();
 
@@ -59,13 +65,19 @@ describe("Analytics Module", () => {
     const Analytics = (function () {
       const retries = {};
       return {
-        _getRetries() { return retries; },
-        _saveRetries(r) { Object.assign(retries, r); },
+        _getRetries() {
+          return retries;
+        },
+        _saveRetries(r) {
+          Object.assign(retries, r);
+        },
         recordRetry(lessonId) {
           if (!lessonId) return;
           retries[lessonId] = (retries[lessonId] || 0) + 1;
         },
-        getStats() { return { retries }; },
+        getStats() {
+          return { retries };
+        },
       };
     })();
 
@@ -86,7 +98,9 @@ describe("Analytics Module", () => {
           if (!id) return;
           active = true;
         },
-        isActive() { return active; },
+        isActive() {
+          return active;
+        },
       };
     })();
     Analytics.startSession(null);

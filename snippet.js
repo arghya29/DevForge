@@ -111,7 +111,9 @@ const SnippetManager = {
         </div>
         <button type="button" class="snippet-delete-btn" title="Delete snippet" aria-label="Delete snippet ${s.name}">✕</button>
       `;
-      item.querySelector(".snippet-item-info").addEventListener("click", () => this.loadSnippet(s.id));
+      item
+        .querySelector(".snippet-item-info")
+        .addEventListener("click", () => this.loadSnippet(s.id));
       item.querySelector(".snippet-delete-btn").addEventListener("click", e => {
         e.stopPropagation();
         this.deleteSnippet(s.id);

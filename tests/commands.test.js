@@ -13,7 +13,8 @@ describe("CommandPalette", () => {
       commands: [],
 
       register(command) {
-        if (!command || !command.id || !command.label || typeof command.action !== "function") return;
+        if (!command || !command.id || !command.label || typeof command.action !== "function")
+          return;
         this.commands.push(command);
       },
 
@@ -25,7 +26,11 @@ describe("CommandPalette", () => {
 
       executeCommand(cmd) {
         if (cmd && typeof cmd.action === "function") {
-          try { cmd.action(); } catch (err) { console.error(err); }
+          try {
+            cmd.action();
+          } catch (err) {
+            console.error(err);
+          }
         }
       },
     };
@@ -75,7 +80,9 @@ describe("CommandPalette", () => {
   });
 
   it("executeCommand handles errors gracefully", () => {
-    const action = vi.fn(() => { throw new Error("fail"); });
+    const action = vi.fn(() => {
+      throw new Error("fail");
+    });
     CommandPalette.register({ id: "fail", label: "Fail", action });
     expect(() => CommandPalette.executeCommand(CommandPalette.commands[0])).not.toThrow();
   });
