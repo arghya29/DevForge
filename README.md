@@ -2,7 +2,8 @@
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=for-the-badge)](./LICENSE)&nbsp;&nbsp;
 [![GitHub Pages](https://img.shields.io/badge/Deployed-GitHub%20Pages-brightgreen?style=for-the-badge)](https://arghya29.github.io/DevForge/)&nbsp;&nbsp;
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](./CONTRIBUTING.md)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](./CONTRIBUTING.md)&nbsp;&nbsp;
+[![Dev Containers](https://img.shields.io/badge/Dev%20Containers-Ready-blue?style=for-the-badge&logo=visualstudiocode)](https://code.visualstudio.com/docs/devcontainers/containers)
 
 ![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red.svg?style=for-the-badge)
 
@@ -16,7 +17,7 @@ A fully client-side, **zero-dependency** interactive coding environment for lear
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│  ⚡ DevForge     [HTML] [CSS] [JS]      Auto  0/16 ░░░░  Aa  ⌨  ▶ Run │
+│  ⚡ DevForge     [HTML] [CSS] [JS]      Auto  0/19 ░░░░  Aa  ⌨  ▶ Run │
 ├────────────┬──────────────────────────┬───┬────────────────────────┤
 │            │  1  <!DOCTYPE html>       │   │  🟢 LIVE PREVIEW       │
 │ Curriculum │  2  <html lang="en">      │   │                        │
@@ -38,17 +39,75 @@ A fully client-side, **zero-dependency** interactive coding environment for lear
 
 Visit **[arghya29.github.io/DevForge](https://arghya29.github.io/DevForge/)** — nothing to install.
 
-### Option 2 — Run locally
+### Option 2 — Dev Container (recommended for contributors)
+
+Open the project in VS Code with the **Dev Containers** extension. The container comes with Node.js 20, ESLint, Prettier, and HTML Validate pre-configured.
 
 ```bash
 git clone https://github.com/arghya29/DevForge.git
 cd DevForge
-open index.html        # macOS
-xdg-open index.html    # Linux
-start index.html       # Windows
+# VS Code will prompt: "Reopen in Container"
+# Or: Ctrl+Shift+P → Dev Containers: Reopen in Container
 ```
 
-No `npm install`. No build step. It just works.
+Once inside the container, run `npm install` (or let the `postCreateCommand` run it automatically).
+
+### Option 3 — Run locally
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/arghya29/DevForge.git
+   cd DevForge
+   ```
+2. **Install developer dependencies:**
+   Ensure you have [Node.js](https://nodejs.org/) installed, then run:
+   ```bash
+   npm install
+   ```
+3. **Open the App:**
+   No local server build step is required! You can open the `index.html` file directly in your browser:
+   - macOS: `open index.html`
+   - Linux: `xdg-open index.html`
+   - Windows: `start index.html`
+
+---
+
+## 🛠️ Testing & Development Workflow
+
+DevForge uses modern tools like ESLint, Prettier, and Vitest to ensure code quality and prevent regressions.
+
+### Available Scripts
+
+Run the following commands in your terminal:
+
+- **Run all checks (Lint, Format, Tests):**
+  ```bash
+  npm run check
+  ```
+- **Run automated unit tests:**
+  ```bash
+  npm run test
+  ```
+- **Run tests in watch mode:**
+  ```bash
+  npm run test:watch
+  ```
+- **Auto-format code style:**
+  ```bash
+  npm run format:fix
+  ```
+- **Lint JavaScript files:**
+  ```bash
+  npm run lint:js
+  ```
+- **Validate HTML syntax:**
+  ```bash
+  npm run lint:html
+  ```
+
+### Adding Tests
+
+Unit and integration tests are located in the `tests/` directory and run via [Vitest](https://vitest.dev/). When adding new features or fixing bugs, please add corresponding tests in `tests/app.test.js` to ensure the core behaviors remain fully covered.
 
 ---
 
@@ -58,7 +117,7 @@ No `npm install`. No build step. It just works.
 DevForge/
 ├── index.html              # Pure HTML structure — zero inline styles or scripts
 ├── styles.css              # All CSS — variables, layout, components, animations
-├── curriculum.js           # All 16 lesson objects with starter code + instructions
+├── curriculum.js           # All 19 lesson objects with starter code + instructions
 ├── app.js                  # All application logic — editor, preview, XP, shortcuts
 │
 ├── README.md
@@ -96,27 +155,29 @@ DevForge/
 
 ---
 
-## 📚 Curriculum (16 lessons · 455 XP total)
+## 📚 Curriculum (19 lessons · 545 XP total)
 
 ### HTML Foundations
 
-| #   | Lesson                | XP  |
-| --- | --------------------- | --- |
-| 01  | Your First Element    | 20  |
-| 02  | Headings & Paragraphs | 20  |
-| 03  | Lists & Links         | 20  |
-| 04  | Images & Attributes   | 20  |
-| 05  | Forms & Inputs        | 30  |
+| #   | Lesson                 | XP  |
+| --- | ---------------------- | --- |
+| 01  | Your First Element     | 20  |
+| 02  | Headings & Paragraphs  | 20  |
+| 03  | Lists & Links          | 20  |
+| 04  | Images & Attributes    | 20  |
+| 05  | Forms & Inputs         | 30  |
+| 06  | Semantic HTML Elements | 30  |
 
 ### CSS Styling
 
-| #   | Lesson                   | XP  |
-| --- | ------------------------ | --- |
-| 01  | Selectors & Specificity  | 25  |
-| 02  | The Box Model            | 25  |
-| 03  | Flexbox Layout           | 30  |
-| 04  | CSS Grid                 | 30  |
-| 05  | Transitions & Animations | 35  |
+| #   | Lesson                    | XP  |
+| --- | ------------------------- | --- |
+| 01  | Selectors & Specificity   | 25  |
+| 02  | The Box Model             | 25  |
+| 03  | Flexbox Layout            | 30  |
+| 04  | CSS Grid                  | 30  |
+| 05  | Transitions & Animations  | 35  |
+| 06  | Flexbox Layout (advanced) | 30  |
 
 ### JavaScript
 
@@ -128,6 +189,7 @@ DevForge/
 | 04  | DOM Manipulation            | 30  |
 | 05  | Fetch & Async/Await         | 40  |
 | 06  | Build a Todo App (capstone) | 50  |
+| 07  | JavaScript Classes & OOP    | 35  |
 
 ---
 
@@ -151,7 +213,7 @@ DevForge/
 | **PWA Offline**         | Installable as standalone app; works offline once loaded          |
 | **Keyboard Shortcuts**  | Full set — see table below                                        |
 | **Dark/Light Theme**    | Toggle between dark and light mode with a persistent preference   |
-| **Completion Confetti** | Celebration when all 16 lessons are done                          |
+| **Completion Confetti** | Celebration when all 19 lessons are done                          |
 
 ### ⌨ Keyboard Shortcuts
 

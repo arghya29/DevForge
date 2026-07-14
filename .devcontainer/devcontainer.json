@@ -1,0 +1,30 @@
+{
+  "name": "DevForge Development",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "forwardPorts": [],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "html-validate.vscode-html-validate",
+        "bierner.github-markdown-preview",
+        "EditorConfig.EditorConfig"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        },
+        "html.validate.enable": true,
+        "files.eol": "\n",
+        "prettier.requireConfig": true
+      }
+    }
+  },
+  "postCreateCommand": "npm ci",
+  "remoteUser": "node"
+}

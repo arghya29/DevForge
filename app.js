@@ -35,6 +35,7 @@
   CONSOLE_MAX_LINES,
   init
 */
+/* global PerformanceMonitor, LayoutManager, initAchievements, checkAchievements, toggleLayoutPanel, closeAchievementsModal, openAchievementsModal, SnippetManager, openSnippetModal, closeSnippetModal, saveSnippetFromModal, CodeExporter, toggleExportMenu, closeExportMenu */
 "use strict";
 
 /* ══════════════════════════════════════════════════════════
@@ -58,6 +59,7 @@ let consoleScrolledUp = false;
 const CONSOLE_MAX_LINES = 200;
 let consoleLineCount = 0;
 let isReadOnlyMode = false;
+let layoutPanelVisible = false; // eslint-disable-line prefer-const
 
 const doneSet = new Set(); // lesson ids that have been run at least once
 const buffers = {}; // { [lessonId]: { html, css, js } }  — user edits
@@ -67,6 +69,7 @@ const scrollPositions = {}; // { [lessonId_tab]: scrollTop }
    BOOTSTRAP / INIT
 ══════════════════════════════════════════════════════════ */
 function init() {
+  PerformanceMonitor.mark("bootstrapStart");
   applySavedTheme();
   loadProgress();
   buildSidebar();
@@ -75,6 +78,10 @@ function init() {
   document.getElementById("streakLabel").textContent = `🔥 ${streak} streak`;
   updateProgress();
   initResizer();
+
+  // Initialize a11y module
+  if (typeof initA11y === "function") initA11y();
+
   const commandPaletteInput = document.getElementById("commandPaletteInput");
   if (commandPaletteInput) {
     commandPaletteInput.addEventListener("input", e => {
@@ -101,8 +108,50 @@ function init() {
     sidebarToggleBtn.setAttribute("aria-expanded", "false");
   }
 
+  // Initialize layout manager
+  if (typeof LayoutManager !== "undefined") {
+    LayoutManager.init();
+  }
+
   // Check for snapshot link on load
   checkSnapshotOnLoad();
+
+  // Initialise achievements from stored data and check for newly met milestones
+  initAchievements();
+  checkAchievements();
+
+  // Wrap loadLesson to auto-check achievements after each lesson transition
+  const origLoadLesson = window.loadLesson;
+  if (origLoadLesson) {
+    window.loadLesson = function achievementsLoadLesson(id, opts) {
+      origLoadLesson(id, opts);
+      if (typeof checkAchievements === "function") {
+        setTimeout(checkAchievements, 100);
+      }
+    };
+  }
+
+  PerformanceMonitor.mark("initComplete");
+  PerformanceMonitor.measure("full-init", "bootstrapStart", "initComplete");
+
+  // Register a11y handlers for tab switches
+  const origSwitchTab = window.switchTab;
+  if (typeof A11y !== "undefined" && origSwitchTab) {
+    window.switchTab = function a11ySwitchTab(tab) {
+      origSwitchTab(tab);
+      A11y.announceTabChange(tab);
+    };
+  }
+
+  // Register a11y handlers for lesson navigation
+  const origNavLesson = window.navLesson;
+  if (typeof A11y !== "undefined" && origNavLesson) {
+    window.navLesson = function a11yNavLesson(dir) {
+      origNavLesson(dir);
+      const lesson = getLesson(currentLessonId);
+      if (lesson) A11y.announceLessonChange(lesson.title || lesson.id);
+    };
+  }
 
   console.info("DevForge initialised — " + getAllLessons().length + " lessons ready.");
 }
@@ -149,13 +198,26 @@ document.addEventListener("keydown", e => {
     if (focusable.length > 0) {
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
+      if (
+        !activeModalEl.contains(document.activeElement) ||
+        !focusable.includes(document.activeElement)
+      ) {
+        e.preventDefault();
+        if (e.shiftKey) {
+          last.focus();
+        } else {
+          first.focus();
+        }
+      } else if (e.shiftKey && document.activeElement === first) {
         e.preventDefault();
         last.focus();
       } else if (!e.shiftKey && document.activeElement === last) {
         e.preventDefault();
         first.focus();
       }
+    } else {
+      e.preventDefault();
+      activeModalEl.focus();
     }
   }
 
@@ -240,6 +302,8 @@ document.addEventListener("keydown", e => {
     }
     if (document.getElementById("shortcutsModal").classList.contains("show")) closeShortcutsModal();
     if (document.getElementById("analyticsModal").classList.contains("show")) closeAnalyticsModal();
+    if (document.getElementById("achievementsModal").classList.contains("show"))
+      closeAchievementsModal();
     if (document.getElementById("commandPaletteModal").classList.contains("show")) {
       CommandPalette.close();
     }
@@ -260,6 +324,9 @@ document.addEventListener("click", e => {
   if (fsPanelVisible && !e.target.closest("#fsPanel") && !e.target.closest("#fsSizeBtn")) {
     toggleFsPanel();
   }
+  if (layoutPanelVisible && !e.target.closest("#layoutPanel") && !e.target.closest("#layoutBtn")) {
+    toggleLayoutPanel();
+  }
   const popover = document.getElementById("goToLinePopover");
   if (
     popover &&
@@ -272,6 +339,7 @@ document.addEventListener("click", e => {
   // Shortcuts modal closes via its own overlay click (handled in openModal pattern)
   if (e.target === document.getElementById("shortcutsModal")) closeShortcutsModal();
   if (e.target === document.getElementById("analyticsModal")) closeAnalyticsModal();
+  if (e.target === document.getElementById("achievementsModal")) closeAchievementsModal();
   if (e.target === document.getElementById("commandPaletteModal")) CommandPalette.close();
   if (e.target === document.getElementById("resetModal")) hideResetModal();
   if (e.target === document.getElementById("importConfirmModal")) hideImportModal();
@@ -350,6 +418,9 @@ window.toggleConsole = toggleConsole;
 window.filterConsole = filterConsole;
 window.clearConsoleFilter = clearConsoleFilter;
 window.copyConsoleText = copyConsoleText;
+// Layout panel
+window.toggleLayoutPanel = toggleLayoutPanel;
+
 // Font size
 window.changeFontSize = changeFontSize;
 // Reset modal
@@ -378,6 +449,12 @@ window.renderLessonHints = renderLessonHints;
 // Command Palette (#80)
 window.CommandPalette = CommandPalette;
 
+// Achievements & Badges System
+window.initAchievements = initAchievements;
+window.checkAchievements = checkAchievements;
+window.openAchievementsModal = openAchievementsModal;
+window.closeAchievementsModal = closeAchievementsModal;
+
 // Go to Line (#81)
 window.toggleGoToLine = toggleGoToLine;
 window.showGoToLine = showGoToLine;
@@ -389,3 +466,13 @@ window.generateSnapshot = generateSnapshot;
 window.checkSnapshotOnLoad = checkSnapshotOnLoad;
 window.enterReadOnlyMode = enterReadOnlyMode;
 window.forkSnapshot = forkSnapshot;
+
+// Snippet Manager
+window.SnippetManager = SnippetManager;
+window.openSnippetModal = openSnippetModal;
+window.closeSnippetModal = closeSnippetModal;
+window.saveSnippetFromModal = saveSnippetFromModal;
+// Code Exporter
+window.CodeExporter = CodeExporter;
+window.toggleExportMenu = toggleExportMenu;
+window.closeExportMenu = closeExportMenu;

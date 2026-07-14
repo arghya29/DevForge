@@ -6,6 +6,7 @@
    fsPanelVisible), all action functions resolved at call time.
 ═══════════════════════════════════════════════════════════════ */
 /* exported CommandPalette, commandPaletteSelectedIdx, filteredCommands */
+/* global openSnippetModal, CodeExporter */
 "use strict";
 
 let commandPaletteSelectedIdx = 0;
@@ -237,4 +238,34 @@ CommandPalette.register({
   label: "Open Keyboard Shortcuts Help",
   shortcut: "?",
   action: () => openShortcutsModal(),
+});
+
+CommandPalette.register({
+  id: "save-snippet",
+  label: "Save Code Snippet",
+  action: () => openSnippetModal(),
+});
+
+CommandPalette.register({
+  id: "load-snippet",
+  label: "Load Code Snippet",
+  action: () => openSnippetModal(),
+});
+
+CommandPalette.register({
+  id: "export-standalone",
+  label: "Export as Standalone HTML",
+  action: () => CodeExporter.exportAsStandaloneHtml(),
+});
+
+CommandPalette.register({
+  id: "export-codepen",
+  label: "Export to CodePen",
+  action: () => CodeExporter.exportAsCodePen(),
+});
+
+CommandPalette.register({
+  id: "export-jsfiddle",
+  label: "Export to JSFiddle",
+  action: () => CodeExporter.exportAsJSFiddle(),
 });

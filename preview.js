@@ -151,10 +151,29 @@ window.addEventListener("message", e => {
   // opaque origin (reported inconsistently across browsers), so verify the source
   // window reference rather than e.origin.
   const previewFrame = document.getElementById("previewFrame");
-  if (!previewFrame || e.source !== previewFrame.contentWindow) return;
-  if (!e.data || !["log", "error", "warn", "info"].includes(e.data.type)) return;
-  if (!Array.isArray(e.data.args)) return;
-  addConsoleLog(e.data.type, e.data.args.join(" "), e.data.ts);
+  if (!previewFrame || !previewFrame.contentWindow || e.source !== previewFrame.contentWindow)
+    return;
+
+  // Stricter payload validation to prevent unexpected message structures
+  if (!e.data || typeof e.data !== "object" || Array.isArray(e.data)) return;
+
+  const { type, args, ts } = e.data;
+
+  if (!["log", "error", "warn", "info"].includes(type)) return;
+  if (!Array.isArray(args)) return;
+  if (typeof ts !== "number" || !Number.isFinite(ts)) return;
+
+  // Map and sanitize arguments to prevent unexpected objects/types
+  const safeArgs = args.map(arg => {
+    if (typeof arg === "string") return arg;
+    try {
+      return String(arg);
+    } catch {
+      return "";
+    }
+  });
+
+  addConsoleLog(type, safeArgs.join(" "), ts);
 });
 
 document.addEventListener("DOMContentLoaded", () => {

@@ -392,6 +392,97 @@ button:hover {
 }`,
         js: ``,
       },
+
+      {
+        id: "html-06",
+        tag: "HTML",
+        title: "Semantic HTML Elements",
+        xp: 30,
+        paneTitle: "06 · Semantic HTML Elements",
+        goals: [
+          { label: "Use a <header> element", rule: { type: "html-tag", value: "header" } },
+          { label: "Use a <nav> element", rule: { type: "html-tag", value: "nav" } },
+          { label: "Use a <main> element", rule: { type: "html-tag", value: "main" } },
+          { label: "Use a <footer> element", rule: { type: "html-tag", value: "footer" } },
+          { label: "Use an <article> element", rule: { type: "html-tag", value: "article" } },
+        ],
+        instruction: `
+          <h2>Semantic HTML for better structure</h2>
+          <p>Semantic elements give meaning to the structure of your webpage, making it more
+          accessible and SEO-friendly. Instead of using generic <code>&lt;div&gt;</code> tags,
+          use elements like <code>&lt;header&gt;</code>, <code>&lt;nav&gt;</code>,
+          <code>&lt;main&gt;</code>, <code>&lt;article&gt;</code>, and
+          <code>&lt;footer&gt;</code>.</p>
+          <p>Replace the placeholder comments below with the correct semantic elements to build
+          a proper page layout.</p>
+          <div class="hint-box">
+            💡 <code>&lt;header&gt;</code> goes at the top, <code>&lt;footer&gt;</code> at the bottom.
+            <code>&lt;nav&gt;</code> holds navigation links.
+          </div>
+          <div class="challenge-box">
+            ⚔ Challenge: Add an <code>&lt;aside&gt;</code> sidebar with related links!
+          </div>`,
+        html: `<!DOCTYPE html>
+<html lang="en">
+<body>
+
+  <!-- Replace this with <header> -->
+  <div id="page-header">
+    <h1>My Semantic Site</h1>
+    <!-- Replace this with <nav> -->
+    <div class="nav-links">
+      <a href="#">Home</a>
+      <a href="#">Blog</a>
+      <a href="#">Contact</a>
+    </div>
+  </div>
+
+  <!-- Replace this with <main> -->
+  <div id="main-content">
+    <!-- Replace this with <article> -->
+    <div class="post">
+      <h2>Why Semantic HTML Matters</h2>
+      <p>Screen readers rely on semantic structure to navigate content effectively.</p>
+    </div>
+    <div class="post">
+      <h2>SEO Benefits</h2>
+      <p>Search engines rank semantic pages higher because they understand the content hierarchy.</p>
+    </div>
+  </div>
+
+  <!-- Replace this with <footer> -->
+  <div id="page-footer">
+    <p>&copy; 2026 Semantic Web</p>
+  </div>
+
+</body>
+</html>`,
+        css: `body {
+  font-family: system-ui, sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #fafafa;
+  color: #222;
+}
+
+h1 { color: #1a73e8; }
+
+.nav-links a {
+  margin-right: 12px;
+  color: #555;
+  text-decoration: none;
+}
+
+.post {
+  background: white;
+  padding: 16px;
+  margin: 12px 0;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}`,
+        js: `console.log("Semantic HTML gives structure meaning!");`,
+      },
     ] /* end HTML lessons */,
   },
 
@@ -885,6 +976,117 @@ h2 {
 .btn:hover  { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(88,166,255,.35); }
 .btn:active { transform: scale(.97); }`,
         js: ``,
+      },
+      {
+        id: "css-06",
+        tag: "CSS",
+        title: "Flexbox Layout",
+        xp: 30,
+        paneTitle: "06 · Flexbox Layout",
+        goals: [
+          {
+            label: "Use display: flex on a container",
+            rule: { type: "css-property-value", property: "display", value: "flex" },
+          },
+          {
+            label: "Use justify-content to align items",
+            rule: { type: "css-property", value: "justify-content" },
+          },
+          {
+            label: "Use align-items for cross-axis alignment",
+            rule: { type: "css-property", value: "align-items" },
+          },
+          { label: "Use gap for spacing flex items", rule: { type: "css-property", value: "gap" } },
+          {
+            label: "Use flex-wrap for wrapping items",
+            rule: { type: "css-property", value: "flex-wrap" },
+          },
+        ],
+        instruction: `
+          <h2>Flexbox — one-dimensional layout</h2>
+          <p>Flexbox makes it easy to arrange items in a row or column. Set
+          <code>display: flex</code> on a container, then use properties like
+          <code>justify-content</code>, <code>align-items</code>, <code>gap</code>, and
+          <code>flex-wrap</code> to control how children behave.</p>
+          <p>Try using <code>justify-content: space-between</code> to evenly distribute the cards
+          across the row.</p>
+          <div class="hint-box">
+            💡 <code>justify-content</code> works on the main axis (horizontal by default).
+            <code>align-items</code> works on the cross axis (vertical by default).
+          </div>
+          <div class="challenge-box">
+            ⚔ Challenge: Use <code>flex-wrap: wrap</code> so cards wrap on smaller screens!
+          </div>`,
+        html: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Flexbox Layout</title>
+</head>
+<body>
+
+  <h1>Featured Projects</h1>
+
+  <div class="card-container">
+    <div class="card">
+      <h3>Project Alpha</h3>
+      <p>A web dashboard built with React and Node.js.</p>
+    </div>
+    <div class="card">
+      <h3>Project Beta</h3>
+      <p>Mobile-first e-commerce platform with payment integration.</p>
+    </div>
+    <div class="card">
+      <h3>Project Gamma</h3>
+      <p>Real-time chat application using WebSockets.</p>
+    </div>
+    <div class="card">
+      <h3>Project Delta</h3>
+      <p>Machine learning model deployment pipeline.</p>
+    </div>
+  </div>
+
+</body>
+</html>`,
+        css: `body {
+  font-family: system-ui, sans-serif;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #0d1117;
+  color: #c9d1d9;
+}
+
+h1 {
+  color: #58a6ff;
+  margin-bottom: 24px;
+}
+
+.card-container {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 16px;
+}
+
+.card {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 200px;
+}
+
+.card h3 {
+  color: #f0f6fc;
+  margin-top: 0;
+}
+
+.card p {
+  color: #8b949e;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}`,
+        js: `console.log("Flexbox makes layout responsive and easy!");`,
       },
     ] /* end CSS lessons */,
   },
@@ -1700,6 +1902,94 @@ todos = [
   { id: nextId++, text: "Add JavaScript logic",  done: false }
 ];
 render();`,
+      },
+
+      {
+        id: "js-07",
+        tag: "JS",
+        title: "JavaScript Classes & OOP",
+        xp: 35,
+        paneTitle: "07 · JavaScript Classes & OOP",
+        goals: [
+          {
+            label: "Define a class with a constructor",
+            rule: { type: "js-contains", value: "class " },
+          },
+          {
+            label: "Create an instance using the new keyword",
+            rule: { type: "js-contains", value: "new " },
+          },
+          {
+            label: "Add a method to the class prototype",
+            rule: { type: "js-contains", value: "()" },
+          },
+          {
+            label: "Use the this keyword inside a method",
+            rule: { type: "js-contains", value: "this." },
+          },
+          {
+            label: "Log instance properties to the console",
+            rule: { type: "js-contains", value: "console.log" },
+          },
+        ],
+        instruction: `
+          <h2>Object-Oriented Programming with Classes</h2>
+          <p>Classes are blueprints for creating objects. A <code>class</code> bundles data
+          (properties) and behaviour (methods) together. Use the <code>constructor</code> method
+          to initialise new instances with <code>new</code>.</p>
+          <p>Create a <code>Book</code> class with <code>title</code> and <code>author</code>
+          properties, then add a <code>getSummary()</code> method.</p>
+          <div class="hint-box">
+            💡 The <code>constructor(title, author)</code> runs when you write
+            <code>new Book(...)</code>. Use <code>this.title = title</code> to store values.
+          </div>
+          <div class="challenge-box">
+            ⚔ Challenge: Add a static method <code>Book.compare(book1, book2)</code> that
+            returns the newer book based on a <code>year</code> property!
+          </div>`,
+        html: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>JS Classes</title>
+</head>
+<body>
+  <h1>Check the Console</h1>
+  <p>Open the console below to see class instances in action.</p>
+</body>
+</html>`,
+        css: `body {
+  font-family: system-ui, sans-serif;
+  padding: 40px;
+  background: #0d1117;
+  color: #c9d1d9;
+  text-align: center;
+}
+h1 { color: #58a6ff; }`,
+        js: `// Define a Book class
+class Book {
+  constructor(title, author, year) {
+    this.title = title;
+    this.author = author;
+    this.year = year;
+  }
+
+  getSummary() {
+    return \`\${this.title} by \${this.author} (\${this.year})\`;
+  }
+
+  isClassic() {
+    const currentYear = new Date().getFullYear();
+    return currentYear - this.year > 50;
+  }
+}
+
+// Create instances
+const book1 = new Book("To Kill a Mockingbird", "Harper Lee", 1960);
+const book2 = new Book("The Great Gatsby", "F. Scott Fitzgerald", 1925);
+
+console.log(book1.getSummary());
+console.log(book2.getSummary());
+console.log(\`"\${book1.title}" is classic? \${book1.isClassic()}\`);`,
       },
     ] /* end JS lessons */,
   },

@@ -3,6 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Apply the saved theme before first paint to prevent a flash of the
+      // default (dark) theme for users who have selected light mode. Mirrors
+      // applySavedTheme() in ui.js: dark is the default (no attribute), light is
+      // data-theme="light". Wrapped in try/catch in case localStorage is
+      // unavailable (e.g. privacy mode), falling back to the dark default.
+      try {
+        if (localStorage.getItem("devforge_theme") === "light") {
+          document.documentElement.setAttribute("data-theme", "light");
+        }
+      } catch (e) {
+        /* no-op: keep the dark default */
+      }
+    </script>
     <title>DevForge — Learn by Building</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
@@ -17,7 +31,7 @@
     <meta name="apple-mobile-web-app-title" content="DevForge" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https: data:; connect-src 'self' https:; frame-src 'self' https:;"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https: data:; connect-src 'self' https:; frame-src 'self' https:; object-src 'none'; base-uri 'self';"
     />
     <!-- LZString for compression/decompression of snapshots (#82) -->
     <script
@@ -28,6 +42,9 @@
     ></script>
   </head>
   <body>
+    <!-- Skip to content link for keyboard/screen reader users -->
+    <a href="#workspace" id="skipToContent" class="skip-link">Skip to content</a>
+
     <!-- ══════════════════════════════════════
        HEADER
   ══════════════════════════════════════ -->
@@ -119,7 +136,7 @@
         </div>
 
         <div class="progress-wrap">
-          <span id="progressText" aria-live="polite">0/16</span>
+          <span id="progressText" aria-live="polite">0/19</span>
           <!-- [html-validate-disable-next prefer-native-element -- custom styled/animated progress uses a valid role="progressbar" ARIA pattern; native <progress> cannot host the animated fill element] -->
           <div
             class="progress-bar"
@@ -127,7 +144,7 @@
             role="progressbar"
             aria-valuenow="0"
             aria-valuemin="0"
-            aria-valuemax="16"
+            aria-valuemax="19"
             aria-label="Progress"
           >
             <div class="progress-fill" id="progressFill" style="width: 0%"></div>
@@ -143,6 +160,18 @@
           onclick="toggleFsPanel()"
         >
           Aa
+        </button>
+        <button
+          type="button"
+          class="icon-btn"
+          id="layoutBtn"
+          title="Workspace layout"
+          aria-label="Change workspace layout"
+          aria-haspopup="true"
+          aria-expanded="false"
+          onclick="toggleLayoutPanel()"
+        >
+          🎨
         </button>
         <button
           type="button"
@@ -185,6 +214,27 @@
         >
           📊
         </button>
+        <button
+          type="button"
+          class="icon-btn"
+          id="snippetBtn"
+          title="Code Snippets"
+          aria-label="Open code snippet manager"
+          onclick="openSnippetModal()"
+        >
+          📌
+        </button>
+
+        <button
+          type="button"
+          class="icon-btn"
+          id="achievementsBtn"
+          title="Achievements &amp; Badges"
+          aria-label="Open achievements modal"
+          onclick="openAchievementsModal()"
+        >
+          🏅
+        </button>
         <button type="button" class="run-btn" id="runBtn" onclick="runCode()" aria-label="Run code">
           ▶ Run
         </button>
@@ -194,9 +244,9 @@
     <!-- ══════════════════════════════════════
        WORKSPACE  (3-column grid)
   ══════════════════════════════════════ -->
-    <div class="workspace" id="workspace">
+    <main class="workspace" id="workspace" aria-label="Main workspace">
       <!-- ── SIDEBAR ── -->
-      <aside class="sidebar" id="appSidebar">
+      <aside class="sidebar" id="appSidebar" aria-label="Curriculum sidebar">
         <div class="sidebar-head">
           <div class="sidebar-title">
             <span>Curriculum</span>
@@ -212,7 +262,7 @@
               ☰
             </button>
           </div>
-          <div class="search-wrap">
+          <div class="search-wrap" role="search" aria-label="Search lessons">
             <span class="search-icon">🔍</span>
             <label
               for="searchInput"
@@ -386,7 +436,7 @@
         <!-- Prev / Next navigation -->
         <div class="lesson-nav">
           <button type="button" class="nav-btn" id="prevBtn" onclick="navLesson(-1)">← Prev</button>
-          <span class="lesson-pos" id="lessonPos">1 / 16</span>
+          <span class="lesson-pos" id="lessonPos">1 / 19</span>
           <button type="button" class="nav-btn primary" id="nextBtn" onclick="navLesson(1)">
             Next →
           </button>
@@ -466,6 +516,64 @@
             >
               ⎘
             </button>
+            <div class="export-btn-wrap">
+              <button
+                type="button"
+                class="icon-btn"
+                id="exportFormatBtn"
+                title="Export code"
+                aria-label="Export code in multiple formats"
+                onclick="toggleExportMenu()"
+              >
+                ⬇
+              </button>
+              <div class="export-menu" id="exportMenu" role="menu" aria-label="Export format menu">
+                <button
+                  type="button"
+                  class="export-menu-item"
+                  role="menuitem"
+                  onclick="
+                    CodeExporter.exportAsStandaloneHtml();
+                    closeExportMenu();
+                  "
+                >
+                  Standalone HTML
+                </button>
+                <button
+                  type="button"
+                  class="export-menu-item"
+                  role="menuitem"
+                  onclick="
+                    CodeExporter.exportAsCodePen();
+                    closeExportMenu();
+                  "
+                >
+                  Open in CodePen
+                </button>
+                <button
+                  type="button"
+                  class="export-menu-item"
+                  role="menuitem"
+                  onclick="
+                    CodeExporter.exportAsJSFiddle();
+                    closeExportMenu();
+                  "
+                >
+                  Open in JSFiddle
+                </button>
+                <button
+                  type="button"
+                  class="export-menu-item"
+                  role="menuitem"
+                  onclick="
+                    CodeExporter.exportCurrentTab();
+                    closeExportMenu();
+                  "
+                >
+                  Export Current Tab
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -550,12 +658,73 @@
         </div>
       </div>
       <!-- /preview-panel -->
-    </div>
+    </main>
     <!-- /workspace -->
 
     <!-- ══════════════════════════════════════
        FLOATING PANELS
   ══════════════════════════════════════ -->
+
+    <!-- Snippet Manager Modal -->
+    <div
+      class="modal-overlay"
+      id="snippetModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="snippetModalTitle"
+      tabindex="-1"
+    >
+      <div class="modal snippet-modal-inner">
+        <div class="shortcuts-modal-header">
+          <h2 id="snippetModalTitle" class="shortcuts-modal-title">
+            <span class="shortcuts-modal-icon">📌</span>
+            Code Snippets
+          </h2>
+          <button
+            type="button"
+            class="shortcuts-close-btn"
+            aria-label="Close snippet manager"
+            onclick="closeSnippetModal()"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div class="snippet-modal-body">
+          <div class="snippet-save-area">
+            <label for="snippetNameInput" class="snippet-label">
+              Save current code as snippet:
+            </label>
+            <div class="snippet-save-row">
+              <input
+                type="text"
+                id="snippetNameInput"
+                class="snippet-name-input"
+                placeholder="My snippet name..."
+                maxlength="100"
+                onkeydown="if (event.key === 'Enter') saveSnippetFromModal();"
+              />
+              <button
+                type="button"
+                class="btn-confirm snippet-save-btn"
+                onclick="saveSnippetFromModal()"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+
+          <div class="snippet-divider"></div>
+
+          <label class="snippet-label">Saved snippets:</label>
+          <ul class="snippet-list" id="snippetList"></ul>
+        </div>
+
+        <div class="shortcuts-modal-footer">
+          <button type="button" class="btn-cancel" onclick="closeSnippetModal()">Close</button>
+        </div>
+      </div>
+    </div>
 
     <!-- Learner Analytics Modal (#79) -->
     <div
@@ -661,6 +830,48 @@
         </ul>
       </div>
     </div>
+    <!-- Achievements & Badges Modal -->
+    <div
+      class="modal-overlay"
+      id="achievementsModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="achievementsModalTitle"
+      tabindex="-1"
+    >
+      <div class="modal achievements-modal-inner">
+        <div class="shortcuts-modal-header">
+          <h2 id="achievementsModalTitle" class="shortcuts-modal-title">
+            <span class="shortcuts-modal-icon">🏅</span>
+            Achievements &amp; Badges
+          </h2>
+          <button
+            type="button"
+            class="shortcuts-close-btn"
+            id="achievementsCloseBtn"
+            aria-label="Close achievements modal"
+            onclick="closeAchievementsModal()"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div class="achievements-modal-body">
+          <div class="achievements-stats-bar">
+            <span class="achievements-stats-label">Progress</span>
+            <span class="achievements-stats-count" id="achievementStats">0 / 0</span>
+          </div>
+          <ul class="achievement-grid" id="achievementGrid">
+            <!-- Cards injected dynamically by achievements.js -->
+          </ul>
+        </div>
+
+        <div class="shortcuts-modal-footer">
+          <button type="button" class="btn-cancel" onclick="closeAchievementsModal()">Close</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Keyboard Shortcuts Modal (#76) -->
     <div
       class="modal-overlay"
@@ -811,6 +1022,16 @@
       </div>
     </div>
 
+    <!-- Layout Preset Panel -->
+    <div class="layout-panel" id="layoutPanel">
+      <div class="layout-panel-header">
+        <span class="layout-panel-title">Layout Presets</span>
+      </div>
+      <div class="layout-preset-list" id="layoutPresetList">
+        <!-- Injected by LayoutManager -->
+      </div>
+    </div>
+
     <!-- Font Size Panel -->
     <div class="fs-panel" id="fsPanel">
       <label for="fsSlider">
@@ -836,6 +1057,12 @@
 
     <!-- Screen reader announcer (visually hidden, always reads updates) -->
     <div id="srAnnouncer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Secondary live region for lesson status updates -->
+    <div id="srLessonStatus" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Live region for goals and progress updates -->
+    <div id="srGoalStatus" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
     <!-- Reset confirmation modal -->
     <div
@@ -920,10 +1147,16 @@
     <script src="storage.js"></script>
     <script src="analytics.js"></script>
     <script src="ui.js"></script>
+    <script src="achievements.js"></script>
     <script src="editor.js"></script>
     <script src="lesson.js"></script>
     <script src="preview.js"></script>
     <script src="commands.js"></script>
+    <script src="a11y.js"></script>
+    <script src="perf.js"></script>
+    <script src="snippet.js"></script>
+    <script src="export.js"></script>
+    <script src="layout.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

@@ -2,9 +2,10 @@
    DevForge — ui.js
    All user-interface helpers: modals, toast, theme, sidebar,
    font-size, resizer, import/export, completion banner, confetti,
-   progress bar, autorun, preview size, keyboard shortcuts modal.
+   progress bar, autorun, preview size, keyboard shortcuts modal,
+   achievement toast notifications.
    Depends on: shared state in app.js, storage.js, analytics.js
-═══════════════════════════════════════════════════════════════ */
+╔═══════════════════════════════════════════════════════════════ */
 /* exported
   activeModalEl,
   modalReturnFocus,
@@ -23,6 +24,7 @@
   copyAllCode,
   changeFontSize,
   toggleFsPanel,
+  toggleLayoutPanel,
   openShortcutsModal,
   closeShortcutsModal,
   toggleShortcuts,
@@ -35,6 +37,7 @@
   restartAll,
   spawnConfetti,
   showToast,
+  showAchievementToast,
   announce,
   initResizer,
   toggleSidebar,
@@ -43,6 +46,7 @@
   toggleAutorun,
   setPreviewSize
 */
+/* global getAchievementData, setAchievementData, checkAchievements, LayoutManager, layoutPanelVisible: writable, RecoveryManager */
 "use strict";
 
 let activeModalEl = null;
@@ -96,7 +100,7 @@ function hideResetModal() {
 /* ══════════════════════════════════════════════════════════
    IMPORT / EXPORT BACKUP SYSTEM  (#78 — sanket1035)
    Allows learners to download progress as JSON and restore it.
-══════════════════════════════════════════════════════════ */
+╔═════════════════════════════════════════════════════════════ */
 function showImportModal() {
   openModal(document.getElementById("importConfirmModal"));
 }
@@ -115,6 +119,7 @@ function exportProgress() {
       streak: streak,
       done: Array.from(doneSet),
       buffers: buffers,
+      achievements: typeof getAchievementData === "function" ? getAchievementData() : {},
     };
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -144,15 +149,36 @@ function importProgress(event) {
   reader.onload = e => {
     try {
       const data = JSON.parse(e.target.result);
-      if (!data || typeof data !== "object") throw new Error("Invalid object");
-      if (data.version !== "devforge:backup:v1") throw new Error("Unsupported version");
-      if (!Number.isFinite(data.xp) || data.xp < 0) throw new Error("Invalid XP");
-      if (!Number.isFinite(data.streak) || data.streak < 0) throw new Error("Invalid Streak");
-      if (!Array.isArray(data.done)) throw new Error("Invalid Done list");
+      if (!data || typeof data !== "object" || Array.isArray(data)) {
+        throw new Error("Invalid backup data structure.");
+      }
+      if (data.version !== "devforge:backup:v1") {
+        throw new Error("Unsupported backup version.");
+      }
+      if (typeof data.xp !== "number" || !Number.isInteger(data.xp) || data.xp < 0) {
+        throw new Error("Invalid XP value.");
+      }
+      if (typeof data.streak !== "number" || !Number.isInteger(data.streak) || data.streak < 0) {
+        throw new Error("Invalid streak value.");
+      }
+      if (!Array.isArray(data.done)) {
+        throw new Error("Completed lessons list is invalid.");
+      }
+
+      const validIds = new Set(getAllLessons().map(l => l.id));
+      for (const id of data.done) {
+        if (typeof id !== "string" || !validIds.has(id)) {
+          throw new Error("Contains unrecognized lesson ID.");
+        }
+      }
+
       if (!data.buffers || typeof data.buffers !== "object" || Array.isArray(data.buffers)) {
-        throw new Error("Invalid Buffers");
+        throw new Error("Editor buffers are invalid.");
       }
       for (const key of Object.keys(data.buffers)) {
+        if (!validIds.has(key)) {
+          throw new Error("Contains unrecognized lesson buffer.");
+        }
         const b = data.buffers[key];
         if (
           !b ||
@@ -161,14 +187,14 @@ function importProgress(event) {
           typeof b.css !== "string" ||
           typeof b.js !== "string"
         ) {
-          throw new Error("Invalid buffer entry: " + key);
+          throw new Error("Lesson buffers contain invalid code values.");
         }
       }
 
       pendingImportData = data;
       showImportModal();
-    } catch {
-      showToast("Invalid backup file format.", "error", "❌");
+    } catch (error) {
+      showToast(error.message || "Invalid backup file format.", "error", "❌");
     } finally {
       event.target.value = ""; // Reset input so same file can be re-selected
     }
@@ -192,6 +218,17 @@ function confirmImportProgress() {
       buffers[id] = { html: b.html, css: b.css, js: b.js };
     });
 
+    // Restore achievements from backup if present
+    if (
+      pendingImportData.achievements &&
+      typeof pendingImportData.achievements === "object" &&
+      !Array.isArray(pendingImportData.achievements)
+    ) {
+      if (typeof setAchievementData === "function") {
+        setAchievementData(pendingImportData.achievements);
+      }
+    }
+
     saveProgress();
     hideImportModal();
 
@@ -201,6 +238,9 @@ function confirmImportProgress() {
     buildSidebar();
     loadLesson(currentLessonId, { trackProgress: false });
     updateProgress();
+    if (typeof checkAchievements === "function") {
+      checkAchievements();
+    }
 
     showToast("Progress restored successfully!", "success", "✅");
   } catch {
@@ -225,7 +265,7 @@ function confirmReset() {
 
 /* ══════════════════════════════════════════════════════════
    COPY ALL CODE
-══════════════════════════════════════════════════════════ */
+╔═════════════════════════════════════════════════════════════ */
 function copyAllCode() {
   const buf = buffers[currentLessonId];
   if (!buf) return;
@@ -242,7 +282,7 @@ function copyAllCode() {
 
 /* ══════════════════════════════════════════════════════════
    FONT SIZE CONTROL
-══════════════════════════════════════════════════════════ */
+╔═════════════════════════════════════════════════════════════ */
 function changeFontSize(val) {
   document.documentElement.style.setProperty("--fs", val + "px");
   document.getElementById("fsValLabel").textContent = val + "px";
@@ -258,10 +298,45 @@ function toggleFsPanel() {
 }
 
 /* ══════════════════════════════════════════════════════════
+   LAYOUT PRESET PANEL
+══════════════════════════════════════════════════════════ */
+function toggleLayoutPanel() {
+  layoutPanelVisible = !layoutPanelVisible;
+  document.getElementById("layoutPanel").classList.toggle("show", layoutPanelVisible);
+  document.getElementById("layoutBtn").classList.toggle("active", layoutPanelVisible);
+  if (layoutPanelVisible) {
+    renderLayoutPresets();
+  }
+  if (fsPanelVisible) toggleFsPanel();
+  if (document.getElementById("shortcutsModal").classList.contains("show")) closeShortcutsModal();
+}
+
+function renderLayoutPresets() {
+  const list = document.getElementById("layoutPresetList");
+  if (!list) return;
+  const presets = LayoutManager.getPresets();
+  const active = LayoutManager.getActivePreset();
+  list.innerHTML = presets
+    .map(
+      p =>
+        `<button type="button" class="layout-preset-btn${p.id === active ? " active" : ""}" data-preset="${p.id}">${p.label}</button>`
+    )
+    .join("");
+  list.querySelectorAll(".layout-preset-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      LayoutManager.applyPreset(btn.dataset.preset);
+      document.getElementById("layoutPanel").classList.remove("show");
+      document.getElementById("layoutBtn").classList.remove("active");
+      layoutPanelVisible = false;
+    });
+  });
+}
+
+/* ══════════════════════════════════════════════════════════
    KEYBOARD SHORTCUTS MODAL  (#76 — sanket1035)
    Replaces old floating panel with a proper accessible modal.
    Triggered by: ? key (when not in editor), ⌨ button, ? button.
-══════════════════════════════════════════════════════════ */
+╔═════════════════════════════════════════════════════════════ */
 function openShortcutsModal() {
   if (fsPanelVisible) toggleFsPanel(); // close any open floating panel first
   openModal(document.getElementById("shortcutsModal"));
@@ -282,7 +357,7 @@ function toggleShortcuts() {
 
 /* ══════════════════════════════════════════════════════════
    THEME TOGGLE
-══════════════════════════════════════════════════════════ */
+╔═════════════════════════════════════════════════════════════ */
 function updateThemeButton() {
   const btn = document.getElementById("themeToggleBtn");
   if (btn) {
@@ -324,7 +399,7 @@ function applySavedTheme() {
 
 /* ══════════════════════════════════════════════════════════
    COMPLETION BANNER + CONFETTI
-══════════════════════════════════════════════════════════ */
+╔═════════════════════════════════════════════════════════════ */
 function showCompletion() {
   document.getElementById("finalXp").textContent = xp;
   openModal(document.getElementById("completionBanner"));
@@ -376,7 +451,39 @@ function spawnConfetti() {
 
 /* ══════════════════════════════════════════════════════════
    TOAST NOTIFICATION
-══════════════════════════════════════════════════════════ */
+╔═════════════════════════════════════════════════════════════ */
+function showRecoveryToast(msg) {
+  const indicator = document.getElementById("recoveryIndicator");
+  if (indicator) {
+    document.getElementById("recoveryIndicatorText").textContent = msg;
+    indicator.removeAttribute("hidden");
+    clearTimeout(indicator._hideTimer);
+    indicator._hideTimer = setTimeout(() => {
+      indicator.setAttribute("hidden", "");
+    }, 4000);
+  }
+  showToast(msg, "info", "🔄");
+}
+
+function recoverLastSession() {
+  if (typeof RecoveryManager === "undefined") {
+    showToast("Recovery system not available.", "error", "❌");
+    return;
+  }
+  const restored = RecoveryManager.restoreLatestSnapshot();
+  if (restored) {
+    saveProgress();
+    document.getElementById("xpVal").textContent = xp;
+    document.getElementById("streakLabel").textContent = `🔥 ${streak} streak`;
+    buildSidebar();
+    loadLesson(currentLessonId, { trackProgress: false });
+    updateProgress();
+    showRecoveryToast("Last session restored successfully ✅");
+  } else {
+    showToast("No recoverable state found.", "warn", "⚠️");
+  }
+}
+
 function showToast(msg, type = "info", icon = "") {
   const toast = document.getElementById("toast");
   document.getElementById("toastIcon").textContent = icon;
@@ -384,6 +491,19 @@ function showToast(msg, type = "info", icon = "") {
   toast.className = `toast show ${type}`;
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toast.classList.remove("show"), 3200);
+  announce(msg);
+}
+
+function showAchievementToast(title, description, icon) {
+  const toast = document.getElementById("toast");
+  document.getElementById("toastIcon").textContent = icon || "🏅";
+  document.getElementById("toastMsg").textContent = "🏆 " + title + " — " + description;
+  toast.className = "toast show success";
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toast.classList.remove("show");
+  }, 4500);
+  announce("Achievement unlocked: " + title);
 }
 
 function announce(msg) {
@@ -399,7 +519,7 @@ function announce(msg) {
 /* ══════════════════════════════════════════════════════════
    DRAG RESIZER  (editor ↔ preview panel)
    Supports mouse + touch for mobile/tablet devices.
-══════════════════════════════════════════════════════════ */
+╔═════════════════════════════════════════════════════════════ */
 function initResizer() {
   const resizer = document.getElementById("resizer");
   const workspace = document.getElementById("workspace");
@@ -439,6 +559,9 @@ function initResizer() {
     resizer.classList.remove("dragging");
     document.body.style.userSelect = "";
     document.body.style.cursor = "";
+    if (typeof LayoutManager !== "undefined" && LayoutManager.saveCurrentLayout) {
+      LayoutManager.saveCurrentLayout();
+    }
   }
 
   resizer.addEventListener("mousedown", startDrag);
@@ -452,7 +575,7 @@ function initResizer() {
 
 /* ══════════════════════════════════════════════════════════
    SIDEBAR TOGGLE
-══════════════════════════════════════════════════════════ */
+╔═════════════════════════════════════════════════════════════ */
 function toggleSidebar() {
   sidebarOpen = !sidebarOpen;
 
@@ -466,10 +589,12 @@ function toggleSidebar() {
 }
 
 window.toggleSidebar = toggleSidebar;
+window.recoverLastSession = recoverLastSession;
+window.showRecoveryToast = showRecoveryToast;
 
 /* ══════════════════════════════════════════════════════════
    LESSON PANE (collapsible instruction area)
-══════════════════════════════════════════════════════════ */
+╔═════════════════════════════════════════════════════════════ */
 function toggleLessonPane() {
   lessonPaneOpen = !lessonPaneOpen;
   document.getElementById("lessonPane").classList.toggle("collapsed", !lessonPaneOpen);
@@ -484,7 +609,7 @@ function toggleLessonPane() {
 
 /* ══════════════════════════════════════════════════════════
    PROGRESS BAR
-══════════════════════════════════════════════════════════ */
+╔═════════════════════════════════════════════════════════════ */
 function updateProgress() {
   const total = getAllLessons().length;
   const done = doneSet.size;
@@ -500,7 +625,7 @@ function updateProgress() {
 
 /* ══════════════════════════════════════════════════════════
    AUTO-RUN TOGGLE
-══════════════════════════════════════════════════════════ */
+╔═════════════════════════════════════════════════════════════ */
 function toggleAutorun() {
   autorun = !autorun;
   document.getElementById("autorunToggle").classList.toggle("on", autorun);
@@ -517,7 +642,7 @@ function toggleAutorun() {
 
 /* ══════════════════════════════════════════════════════════
    PREVIEW SIZE  (desktop / tablet / mobile)
-══════════════════════════════════════════════════════════ */
+╔═════════════════════════════════════════════════════════════ */
 function setPreviewSize(size) {
   const frame = document.getElementById("previewFrame");
   frame.className = "preview-iframe" + (size === "desktop" ? "" : " " + size);

@@ -29,6 +29,9 @@
   - .github/SECURITY.md
   - .github/security.md
 
+"devcontainer 🐳":
+  - .devcontainer/**/*
+
 "config ⚙️":
   - .github/labeler-config.yml
   - .prettierrc

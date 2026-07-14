@@ -1,0 +1,49 @@
+# ═══════════════════════════════════════════════════════════════
+#  DevForge — Dev Container Build Validation
+#  Ensures the .devcontainer configuration builds successfully.
+# ═══════════════════════════════════════════════════════════════
+
+name: Dev Container Check
+
+on:
+  pull_request:
+    paths:
+      - ".devcontainer/**"
+  push:
+    branches: [dev, main]
+    paths:
+      - ".devcontainer/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: devcontainer-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-devcontainer:
+    name: Validate Dev Container Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Validate devcontainer.json schema
+        uses: devcontainers/action@v1.2.0
+        with:
+          validate-only: true
+          config-file: .devcontainer/devcontainer.json
+
+      - name: Validate Dockerfile
+        run: |
+          if [ -f .devcontainer/Dockerfile ]; then
+            echo "Dockerfile exists"
+          else
+            echo "No Dockerfile found"
+            exit 1
+          fi

@@ -127,6 +127,10 @@ const devforgeGlobals = {
   commandPaletteSelectedIdx: "writable",
   filteredCommands: "writable",
 
+  // a11y.js
+  A11y: "readonly",
+  initA11y: "readonly",
+
   // app.js
   currentLessonId: "writable",
   activeTab: "writable",
@@ -262,6 +266,7 @@ const definitions = {
     "clearConsoleFilter",
   ],
   "commands.js": ["CommandPalette", "commandPaletteSelectedIdx", "filteredCommands"],
+  "a11y.js": ["A11y", "initA11y"],
   "app.js": [
     "currentLessonId",
     "activeTab",

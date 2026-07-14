@@ -43,3 +43,10 @@ updates:
     labels:
       - "dependencies"
       - "github-actions"
+    groups:
+      actions-deps:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"

@@ -116,23 +116,33 @@ function checkSnapshotOnLoad() {
 
     try {
       const json = LZString.decompressFromEncodedURIComponent(encoded);
-      if (json) {
-        const data = JSON.parse(json);
-        // Load this snapshot into the active lesson buffers
-        if (!buffers[currentLessonId]) {
-          buffers[currentLessonId] = { html: "", css: "", js: "" };
-        }
-        buffers[currentLessonId].html = data.html || "";
-        buffers[currentLessonId].css = data.css || "";
-        buffers[currentLessonId].js = data.js || "";
-
-        // Switch to active tab and reload it
-        loadTab(activeTab || "html");
-        runCode({ trackProgress: false });
-
-        // Enter read-only mode
-        enterReadOnlyMode();
+      if (!json) throw new Error("Decompression failed");
+      const data = JSON.parse(json);
+      if (!data || typeof data !== "object" || Array.isArray(data)) {
+        throw new Error("Invalid snapshot format");
       }
+      if (
+        (data.html !== undefined && typeof data.html !== "string") ||
+        (data.css !== undefined && typeof data.css !== "string") ||
+        (data.js !== undefined && typeof data.js !== "string")
+      ) {
+        throw new Error("Invalid code fields in snapshot");
+      }
+
+      // Load this snapshot into the active lesson buffers
+      if (!buffers[currentLessonId]) {
+        buffers[currentLessonId] = { html: "", css: "", js: "" };
+      }
+      buffers[currentLessonId].html = data.html || "";
+      buffers[currentLessonId].css = data.css || "";
+      buffers[currentLessonId].js = data.js || "";
+
+      // Switch to active tab and reload it
+      loadTab(activeTab || "html");
+      runCode({ trackProgress: false });
+
+      // Enter read-only mode
+      enterReadOnlyMode();
     } catch (err) {
       console.error("Failed to decode snapshot:", err);
       showToast("Failed to load snapshot link", "error", "❌");
