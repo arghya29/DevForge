@@ -12,3 +12,5 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 RUN npm install -g npm@latest
 
 WORKDIR /workspace
+
+USER node

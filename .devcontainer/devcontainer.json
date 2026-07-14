@@ -3,6 +3,7 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
+  "forwardPorts": [],
   "customizations": {
     "vscode": {
       "extensions": [
@@ -18,12 +19,12 @@
         "editor.codeActionsOnSave": {
           "source.fixAll.eslint": "explicit"
         },
+        "html.validate.enable": true,
         "files.eol": "\n",
         "prettier.requireConfig": true
       }
     }
   },
   "postCreateCommand": "npm ci",
-  "forwardPorts": [],
   "remoteUser": "node"
 }

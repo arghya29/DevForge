@@ -30,7 +30,7 @@
   - .github/security.md
 
 "devcontainer 🐳":
-  - .devcontainer/*
+  - .devcontainer/**/*
 
 "config ⚙️":
   - .github/labeler-config.yml

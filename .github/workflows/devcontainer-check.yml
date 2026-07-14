@@ -1,4 +1,9 @@
-name: DevContainer Check
+# ═══════════════════════════════════════════════════════════════
+#  DevForge — Dev Container Build Validation
+#  Ensures the .devcontainer configuration builds successfully.
+# ═══════════════════════════════════════════════════════════════
+
+name: Dev Container Check
 
 on:
   pull_request:
@@ -13,24 +18,26 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: devcontainer-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  validate:
-    name: Validate DevContainer Config
+  validate-devcontainer:
+    name: Validate Dev Container Build
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
 
-      - name: Validate devcontainer.json
-        run: |
-          if [ -f .devcontainer/devcontainer.json ]; then
-            echo "devcontainer.json exists"
-            python3 -c "import json; json.load(open('.devcontainer/devcontainer.json'))"
-            echo "devcontainer.json is valid JSON"
-          else
-            echo "No devcontainer.json found"
-            exit 1
-          fi
+      - name: Validate devcontainer.json schema
+        uses: devcontainers/action@v1.2.0
+        with:
+          validate-only: true
+          config-file: .devcontainer/devcontainer.json
 
       - name: Validate Dockerfile
         run: |

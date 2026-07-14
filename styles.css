@@ -2278,6 +2278,24 @@ header {
   border: 0;
 }
 
+/* Skip-to-content link — hidden until focused */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  z-index: 10000;
+  padding: 8px 16px;
+  background: var(--cyan);
+  color: var(--button-text);
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0 0 4px 0;
+  transition: top 0.1s;
+}
+.skip-link:focus {
+  top: 0;
+}
+
 .toast {
   position: fixed;
   bottom: 22px;

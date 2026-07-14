@@ -77,6 +77,10 @@ function init() {
   document.getElementById("streakLabel").textContent = `🔥 ${streak} streak`;
   updateProgress();
   initResizer();
+
+  // Initialize a11y module
+  if (typeof initA11y === "function") initA11y();
+
   const commandPaletteInput = document.getElementById("commandPaletteInput");
   if (commandPaletteInput) {
     commandPaletteInput.addEventListener("input", e => {
@@ -128,6 +132,40 @@ function init() {
   
   PerformanceMonitor.mark("initComplete");
   PerformanceMonitor.measure("full-init", "bootstrapStart", "initComplete");
+
+  // Register a11y handlers for tab switches
+  const origSwitchTab = window.switchTab;
+  if (typeof A11y !== "undefined" && origSwitchTab) {
+    window.switchTab = function a11ySwitchTab(tab) {
+      origSwitchTab(tab);
+      A11y.announceTabChange(tab);
+    };
+  }
+
+  // Register a11y handlers for lesson navigation
+  const origNavLesson = window.navLesson;
+  if (typeof A11y !== "undefined" && origNavLesson) {
+    window.navLesson = function a11yNavLesson(dir) {
+      origNavLesson(dir);
+      const lesson = getLesson(currentLessonId);
+      if (lesson) A11y.announceLessonChange(lesson.title || lesson.id);
+    };
+  }
+
+  // Initialise achievements from stored data and check for newly met milestones
+  initAchievements();
+  checkAchievements();
+
+  // Wrap loadLesson to auto-check achievements after each lesson transition
+  const origLoadLesson = window.loadLesson;
+  if (origLoadLesson) {
+    window.loadLesson = function achievementsLoadLesson(id, opts) {
+      origLoadLesson(id, opts);
+      if (typeof checkAchievements === "function") {
+        setTimeout(checkAchievements, 100);
+      }
+    };
+  }
 
   console.info("DevForge initialised — " + getAllLessons().length + " lessons ready.");
 }
@@ -425,6 +463,8 @@ window.renderLessonHints = renderLessonHints;
 window.CommandPalette = CommandPalette;
 
 // Achievements & Badges System
+window.initAchievements = initAchievements;
+window.checkAchievements = checkAchievements;
 window.openAchievementsModal = openAchievementsModal;
 window.closeAchievementsModal = closeAchievementsModal;
 

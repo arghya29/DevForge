@@ -2,7 +2,8 @@
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=for-the-badge)](./LICENSE)&nbsp;&nbsp;
 [![GitHub Pages](https://img.shields.io/badge/Deployed-GitHub%20Pages-brightgreen?style=for-the-badge)](https://arghya29.github.io/DevForge/)&nbsp;&nbsp;
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](./CONTRIBUTING.md)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](./CONTRIBUTING.md)&nbsp;&nbsp;
+[![Dev Containers](https://img.shields.io/badge/Dev%20Containers-Ready-blue?style=for-the-badge&logo=visualstudiocode)](https://code.visualstudio.com/docs/devcontainers/containers)
 
 ![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red.svg?style=for-the-badge)
 
@@ -38,7 +39,20 @@ A fully client-side, **zero-dependency** interactive coding environment for lear
 
 Visit **[arghya29.github.io/DevForge](https://arghya29.github.io/DevForge/)** — nothing to install.
 
-### Option 2 — Run locally
+### Option 2 — Dev Container (recommended for contributors)
+
+Open the project in VS Code with the **Dev Containers** extension. The container comes with Node.js 20, ESLint, Prettier, and HTML Validate pre-configured.
+
+```bash
+git clone https://github.com/arghya29/DevForge.git
+cd DevForge
+# VS Code will prompt: "Reopen in Container"
+# Or: Ctrl+Shift+P → Dev Containers: Reopen in Container
+```
+
+Once inside the container, run `npm install` (or let the `postCreateCommand` run it automatically).
+
+### Option 3 — Run locally
 
 1. **Clone the repository:**
    ```bash

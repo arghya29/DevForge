@@ -42,10 +42,13 @@
     ></script>
   </head>
   <body>
+    <!-- Skip to content link for keyboard/screen reader users -->
+    <a href="#workspace" id="skipToContent" class="skip-link">Skip to content</a>
+
     <!-- ══════════════════════════════════════
        HEADER
   ══════════════════════════════════════ -->
-    <header id="appHeader">
+    <header id="appHeader" role="banner">
       <div class="logo">
         <span class="logo-icon" aria-hidden="true">⚡</span>
         DevForge
@@ -241,9 +244,9 @@
     <!-- ══════════════════════════════════════
        WORKSPACE  (3-column grid)
   ══════════════════════════════════════ -->
-    <div class="workspace" id="workspace">
+    <div class="workspace" id="workspace" role="main" aria-label="Main workspace">
       <!-- ── SIDEBAR ── -->
-      <aside class="sidebar" id="appSidebar">
+      <aside class="sidebar" id="appSidebar" aria-label="Curriculum sidebar">
         <div class="sidebar-head">
           <div class="sidebar-title">
             <span>Curriculum</span>
@@ -259,7 +262,7 @@
               ☰
             </button>
           </div>
-          <div class="search-wrap">
+          <div class="search-wrap" role="search" aria-label="Search lessons">
             <span class="search-icon">🔍</span>
             <label
               for="searchInput"
@@ -1009,6 +1012,12 @@
     <!-- Screen reader announcer (visually hidden, always reads updates) -->
     <div id="srAnnouncer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
+    <!-- Secondary live region for lesson status updates -->
+    <div id="srLessonStatus" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Live region for goals and progress updates -->
+    <div id="srGoalStatus" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
     <!-- Reset confirmation modal -->
     <div
       class="modal-overlay"
@@ -1097,6 +1106,7 @@
     <script src="lesson.js"></script>
     <script src="preview.js"></script>
     <script src="commands.js"></script>
+    <script src="a11y.js"></script>
     <script src="perf.js"></script>
     <script src="snippet.js"></script>
     <script src="export.js"></script>

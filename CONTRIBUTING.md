@@ -22,6 +22,43 @@ Thank you for your interest in contributing! DevForge is a beginner-friendly pro
 
 ---
 
+## Getting Started with Dev Containers
+
+DevForge provides a **Development Container** (dev container) configuration for VS Code to ensure every contributor has a consistent, ready-to-code environment.
+
+### Prerequisites
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
+- [VS Code](https://code.visualstudio.com/) with the **Dev Containers** extension (`ms-vscode-remote.remote-containers`)
+
+### Setup Steps
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/arghya29/DevForge.git
+   cd DevForge
+   ```
+
+2. **Open in dev container:**
+   - VS Code will prompt you to "Reopen in Container" when you open the project folder
+   - Alternatively, run **Ctrl+Shift+P** → **Dev Containers: Reopen in Container**
+   - The container builds from `node:20-bookworm` with `git`, `curl`, and Node.js 20 pre-installed
+
+3. **Install dependencies** (runs automatically via `postCreateCommand`):
+   ```bash
+   npm install
+   ```
+
+4. **Start developing:**
+   - Open `index.html` directly in your browser, or use the VS Code Live Server extension
+   - Run `npm run check` to verify your changes pass all CI checks
+
+### Customizing the environment
+
+Copy `.devcontainer/devcontainer.env.example` to `.devcontainer/devcontainer.env` and set any environment variables you need. The `.devcontainer/*.env` file is gitignored (but the example is not).
+
+---
+
 ## Code of Conduct
 
 This project follows the [Contributor Covenant Code of Conduct](./CODE_OF_CONDUCT.md).
