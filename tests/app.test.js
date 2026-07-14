@@ -58,11 +58,17 @@ describe("DevForge Core App Tests", () => {
       "curriculum.js",
       "storage.js",
       "analytics.js",
+      "achievements.js",
       "ui.js",
       "editor.js",
       "lesson.js",
       "preview.js",
       "commands.js",
+      "a11y.js",
+      "perf.js",
+      "snippet.js",
+      "export.js",
+      "layout.js",
       "app.js",
     ];
 

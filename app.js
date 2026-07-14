@@ -152,21 +152,6 @@ function init() {
     };
   }
 
-  // Initialise achievements from stored data and check for newly met milestones
-  initAchievements();
-  checkAchievements();
-
-  // Wrap loadLesson to auto-check achievements after each lesson transition
-  const origLoadLesson = window.loadLesson;
-  if (origLoadLesson) {
-    window.loadLesson = function achievementsLoadLesson(id, opts) {
-      origLoadLesson(id, opts);
-      if (typeof checkAchievements === "function") {
-        setTimeout(checkAchievements, 100);
-      }
-    };
-  }
-
   console.info("DevForge initialised — " + getAllLessons().length + " lessons ready.");
 }
 
