@@ -932,6 +932,8 @@ header {
   pointer-events: none;
   /* white-space: pre keeps newlines and spaces exactly like the textarea */
   white-space: pre;
+  tab-size: 2;
+  -moz-tab-size: 2;
   /* overflow must be hidden — scrolling is driven by the textarea via JS */
   overflow: hidden;
   /* NO word-break here — any wrapping difference breaks cursor alignment */

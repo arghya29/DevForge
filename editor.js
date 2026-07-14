@@ -38,6 +38,8 @@ const pendingUndoValues = {}; // { [lessonId_tab]: string }
 const UNDO_MAX = 50;
 
 let lastLineCount = 0;
+let justInsertedAutoPair = false;
+let justInsertedAutoPairPosition = 0;
 
 // Base editor font size is 13px with 1.65 line-height, yielding a default line height of 21.45px.
 const DEFAULT_LINE_HEIGHT_PX = 21.45;
@@ -251,6 +253,8 @@ function handleEditorKey(e) {
     // before the closer.
     const caret = s + e.key.length + selected.length;
     el.setSelectionRange(caret, caret);
+    justInsertedAutoPair = true;
+    justInsertedAutoPairPosition = caret;
     onEditorInput();
     return;
   }
@@ -261,12 +265,21 @@ function handleEditorKey(e) {
   if (e.key === "Backspace" && s === end && s > 0) {
     const prevChar = el.value.charAt(s - 1);
     if (Object.prototype.hasOwnProperty.call(PAIRS, prevChar) && PAIRS[prevChar] === nextChar) {
-      e.preventDefault();
-      el.setSelectionRange(s - 1, s + 1);
-      document.execCommand("delete");
-      onEditorInput();
-      return;
+      if (justInsertedAutoPair && justInsertedAutoPairPosition === s) {
+        e.preventDefault();
+        el.setSelectionRange(s - 1, s + 1);
+        document.execCommand("delete");
+        justInsertedAutoPair = false;
+        onEditorInput();
+        return;
+      }
     }
+  }
+
+  // Reset the auto-pair guard whenever the user moves the cursor or types
+  // anything besides the exact pair sequence.
+  if (s !== justInsertedAutoPairPosition || e.key !== "Backspace") {
+    justInsertedAutoPair = false;
   }
 }
 
