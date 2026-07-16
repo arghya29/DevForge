@@ -1,100 +1,95 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from 'vitest';
+import { createApp } from './helpers/loadApp.js';
 
-describe("Editor Functions", () => {
-  it("escHtml escapes HTML special characters", () => {
-    const { escHtml } = (function () {
-      function escHtml(s) {
-        if (typeof s !== "string") return "";
-        return s
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;")
-          .replace(/'/g, "&#039;")
-          .replace(/`/g, "&#96;");
-      }
-      return { escHtml };
-    })();
-    expect(escHtml('<script>alert("xss")</script>')).toBe(
-      "&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;"
-    );
-    expect(escHtml("")).toBe("");
-    expect(escHtml(123)).toBe("");
-    expect(escHtml("hello & world")).toBe("hello &amp; world");
+describe('highlighter.js — syntax highlighting', () => {
+  it('wraps JS comments, strings, and keywords in token spans', () => {
+    const { get } = createApp();
+    const out = get(`highlight('const x = "hi"; // note', 'js')`);
+    expect(out).toContain('tok-keyword');
+    expect(out).toContain('tok-string');
+    expect(out).toContain('tok-comment');
   });
 
-  it("escapeHtml provides safe escape for innerHTML", () => {
-    const { escapeHtml } = (function () {
-      function escapeHtml(s) {
-        if (typeof s !== "string") return "";
-        return s
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;")
-          .replace(/'/g, "&#039;");
-      }
-      return { escapeHtml };
-    })();
-    expect(escapeHtml("safe text")).toBe("safe text");
-    expect(escapeHtml("<b>bold</b>")).toBe("&lt;b&gt;bold&lt;/b&gt;");
-    expect(escapeHtml(null)).toBe("");
+  it('wraps CSS selectors and properties in token spans', () => {
+    const { get } = createApp();
+    const out = get(`highlight('.box{ color: red; }', 'css')`);
+    expect(out).toContain('tok-selector');
+    expect(out).toContain('tok-prop');
   });
 
-  it("highlightHTML wraps comments and tags correctly", () => {
-    const { highlightHTML } = (function () {
-      function highlightHTML(code) {
-        return code
-          .replace(/(&lt;!--[\s\S]*?--&gt;)/g, '<span class="tok-cmt">$1</span>')
-          .replace(/(&lt;\/?)([\w-]+)/g, (_, p1, p2) => `${p1}<span class="tok-tag">${p2}</span>`)
-          .replace(/ ([\w-]+)=/g, (_, p1) => ` <span class="tok-attr">${p1}</span>=`);
-      }
-      return { highlightHTML };
-    })();
-    const result = highlightHTML('&lt;div class="main"&gt;');
-    expect(result).toContain("tok-tag");
-    expect(result).toContain("tok-attr");
+  it('wraps HTML tags and attributes in token spans', () => {
+    const { get } = createApp();
+    const out = get(`highlight('<div class="a">hi</div>', 'html')`);
+    expect(out).toContain('tok-tag');
+    expect(out).toContain('tok-attr');
   });
 
-  it("highlightCSS detects selectors, properties, and values", () => {
-    const { highlightCSS } = (function () {
-      function highlightCSS(code) {
-        return code
-          .replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="tok-cmt">$1</span>')
-          .replace(/(#[0-9a-fA-F]{3,8})\b/g, (_, hex) => {
-            return `<span class="tok-val" style="border-bottom:2px solid ${hex}">${hex}</span>`;
-          })
-          .replace(
-            /([.#]?[\w-]+(?:\s*,\s*[.#]?[\w-]+)*)\s*\{/g,
-            (m, sel) => `<span class="tok-sel">${sel}</span> {`
-          )
-          .replace(/([\w-]+)\s*:/g, (_, p) => `<span class="tok-prop">${p}</span>:`);
-      }
-      return { highlightCSS };
-    })();
-    const result = highlightCSS(".my-class { color: red; }");
-    expect(result).toContain("tok-sel");
-    expect(result).toContain("tok-prop");
+  it('escapes HTML-significant characters so highlighted output never breaks the page', () => {
+    const { get } = createApp();
+    const out = get(`highlight('<script>alert(1)</script>', 'html')`);
+    expect(out).not.toContain('<script>alert(1)</script>');
   });
 
-  it("highlightJS handles keywords, strings, and functions", () => {
-    const { highlightJS } = (function () {
-      const KW =
-        /\b(const|let|var|function|return|if|else|for|while|of|in|new|this|class|extends|super|async|await|try|catch|finally|throw|import|export|default|typeof|instanceof|void|delete|switch|case|break|continue)\b/g;
-      function highlightJS(code) {
-        return code
-          .replace(/(\/\/[^\n]*)/g, '<span class="tok-cmt">$1</span>')
-          .replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="tok-cmt">$1</span>')
-          .replace(/(&#96;[\s\S]*?&#96;)/g, '<span class="tok-str">$1</span>')
-          .replace(/(&quot;[^&\n]*&quot;)/g, '<span class="tok-str">$1</span>')
-          .replace(KW, '<span class="tok-kw">$1</span>')
-          .replace(/\b(\d+\.?\d*)\b/g, '<span class="tok-num">$1</span>');
-      }
-      return { highlightJS };
-    })();
-    const result = highlightJS("const x = 42; // answer");
-    expect(result).toContain("tok-kw");
-    expect(result).toContain("tok-num");
-    expect(result).toContain("tok-cmt");
+  it('never throws on empty or malformed input', () => {
+    const { get } = createApp();
+    expect(() => get(`highlight('', 'js')`)).not.toThrow();
+    expect(() => get(`highlight('{{{ unclosed', 'css')`)).not.toThrow();
+    expect(() => get(`highlight('<<< unclosed', 'html')`)).not.toThrow();
+  });
+});
+
+describe('editor.js — editor behavior', () => {
+  it("loads a lesson's HTML into the editor by default", () => {
+    const { get, document } = createApp();
+    get('loadLesson(FLAT_LESSONS[0].id)');
+    const textarea = document.getElementById('codeInput');
+    expect(textarea.value).toBe(get('FLAT_LESSONS[0].html'));
+  });
+
+  it('switchTab() swaps the editor content and marks the right tab active', () => {
+    const { get, document } = createApp();
+    get('loadLesson(FLAT_LESSONS[0].id)');
+    get("switchTab('css')");
+    const textarea = document.getElementById('codeInput');
+    expect(textarea.value).toBe(get('FLAT_LESSONS[0].css'));
+    expect(get('state.currentLang')).toBe('css');
+    const cssTab = document.querySelector('.lang-tab[data-lang="css"]');
+    expect(cssTab.classList.contains('active')).toBe(true);
+  });
+
+  it('typing in the editor updates in-memory state for the active language', () => {
+    const { get, document, window } = createApp();
+    get("loadLesson('__playground__')");
+    const textarea = document.getElementById('codeInput');
+    textarea.value = '<h1>changed</h1>';
+    textarea.dispatchEvent(new window.Event('input', { bubbles: true }));
+    expect(get('state.files.html')).toBe('<h1>changed</h1>');
+  });
+
+  it('Tab key inserts two spaces at the cursor instead of moving focus', () => {
+    const { get, document, window } = createApp();
+    get("loadLesson('__playground__')");
+    const textarea = document.getElementById('codeInput');
+    textarea.value = 'ab';
+    textarea.selectionStart = textarea.selectionEnd = 1; // cursor between a|b
+    const evt = new window.KeyboardEvent('keydown', {
+      key: 'Tab',
+      bubbles: true,
+      cancelable: true
+    });
+    textarea.dispatchEvent(evt);
+    expect(textarea.value).toBe('a  b');
+  });
+
+  it("persistCurrentCode() saves the current lesson's code, but not the Playground's", () => {
+    const { get } = createApp();
+    const lessonId = get('FLAT_LESSONS[0].id');
+    get(`loadLesson('${lessonId}')`);
+    get("state.files.html = '<h1>edited</h1>', persistCurrentCode()");
+    expect(get('store.code')[lessonId].html).toBe('<h1>edited</h1>');
+
+    get("loadLesson('__playground__')");
+    get("state.files.html = '<h1>playground edit</h1>', persistCurrentCode()");
+    expect(get('store.code')['__playground__']).toBeUndefined();
   });
 });

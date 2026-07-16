@@ -1,111 +1,75 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect } from 'vitest';
+import { createApp } from './helpers/loadApp.js';
 
-describe("Analytics Module", () => {
-  beforeEach(() => {
-    localStorage.clear();
+describe('modals.js — learner analytics', () => {
+  it('renders one row per curriculum lesson in the stats table, defaulting to 00:00 / 0 retries', () => {
+    const { get, document, window } = createApp();
+    get('init()');
+    document
+      .getElementById('btnAnalytics')
+      .dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+    const rows = document.querySelectorAll('#statsBody tr');
+    expect(rows.length).toBe(get('FLAT_LESSONS.length'));
+    expect(rows[0].textContent).toContain('00:00');
   });
 
-  it("formatTimeSpent returns correct MM:SS format", () => {
-    const { formatTimeSpent } = (function () {
-      function formatTimeSpent(totalSeconds) {
-        if (!totalSeconds || isNaN(totalSeconds)) return "00:00";
-        const mins = Math.floor(totalSeconds / 60);
-        const secs = totalSeconds % 60;
-        return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  it('reflects accumulated lesson time in the stats table', () => {
+    const { get, document, window } = createApp({
+      seedStore: { lessonTime: { 'html-first-element': 125 } }
+    });
+    get('init()');
+    document
+      .getElementById('btnAnalytics')
+      .dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+    const firstRow = document.querySelectorAll('#statsBody tr')[0];
+    expect(firstRow.textContent).toContain('02:05'); // 125s = 2:05
+  });
+
+  it('a lesson error during a run increments its retry count', () => {
+    const { get, document, window } = createApp();
+    get('init()');
+    const lesson = get('FLAT_LESSONS[0]');
+    get(`loadLesson('${lesson.id}')`);
+    // simulate the sandboxed preview iframe reporting a runtime error
+    window.dispatchEvent(
+      new window.MessageEvent('message', {
+        data: { source: 'devforge-console', type: 'error', args: ['boom'] },
+        source: document.getElementById('previewFrame').contentWindow
+      })
+    );
+    expect(get('store.lessonRetries')[lesson.id]).toBe(1);
+  });
+
+  it('the consistency caption reflects how many of the last 7 days had a completed lesson', () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const { get, document, window } = createApp({ seedStore: { completionDates: [today] } });
+    get('init()');
+    document
+      .getElementById('btnAnalytics')
+      .dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+    expect(document.getElementById('consistencyCaption').textContent).toContain(
+      '1 of the last 7 days'
+    );
+  });
+
+  it('Reset Analytics clears time/retries/consistency but leaves XP and completed lessons intact', () => {
+    const lessonId = 'html-first-element';
+    const { get, document, window } = createApp({
+      seedStore: {
+        completed: [lessonId],
+        lessonTime: { [lessonId]: 500 },
+        lessonRetries: { [lessonId]: 3 },
+        completionDates: ['2026-01-01']
       }
-      return { formatTimeSpent };
-    })();
-    expect(formatTimeSpent(0)).toBe("00:00");
-    expect(formatTimeSpent(65)).toBe("01:05");
-    expect(formatTimeSpent(3661)).toBe("61:01");
-    expect(formatTimeSpent(null)).toBe("00:00");
-  });
-
-  it("session start and end accumulates time", () => {
-    const Analytics = (function () {
-      const times = {};
-      let activeLessonId = null;
-      let sessionStartTime = null;
-
-      return {
-        _getTimes() {
-          return times;
-        },
-        _saveTimes(t) {
-          Object.assign(times, t);
-        },
-        startSession(lessonId) {
-          if (!lessonId) return;
-          activeLessonId = lessonId;
-          sessionStartTime = Date.now() - 5000;
-        },
-        endSession() {
-          if (!activeLessonId || !sessionStartTime) return;
-          const diffMs = Date.now() - sessionStartTime;
-          const diffSec = Math.round(diffMs / 1000);
-          if (diffSec > 0) {
-            times[activeLessonId] = (times[activeLessonId] || 0) + diffSec;
-          }
-          activeLessonId = null;
-          sessionStartTime = null;
-        },
-        getStats() {
-          return { times };
-        },
-      };
-    })();
-
-    Analytics.startSession("html-01");
-    Analytics.endSession();
-    const stats = Analytics.getStats();
-    expect(stats.times["html-01"]).toBeGreaterThanOrEqual(4);
-  });
-
-  it("recordRetry increments retry counter", () => {
-    const Analytics = (function () {
-      const retries = {};
-      return {
-        _getRetries() {
-          return retries;
-        },
-        _saveRetries(r) {
-          Object.assign(retries, r);
-        },
-        recordRetry(lessonId) {
-          if (!lessonId) return;
-          retries[lessonId] = (retries[lessonId] || 0) + 1;
-        },
-        getStats() {
-          return { retries };
-        },
-      };
-    })();
-
-    Analytics.recordRetry("js-01");
-    Analytics.recordRetry("js-01");
-    Analytics.recordRetry("html-02");
-
-    const stats = Analytics.getStats();
-    expect(stats.retries["js-01"]).toBe(2);
-    expect(stats.retries["html-02"]).toBe(1);
-  });
-
-  it("session does not start without lesson id", () => {
-    const Analytics = (function () {
-      let active = false;
-      return {
-        startSession(id) {
-          if (!id) return;
-          active = true;
-        },
-        isActive() {
-          return active;
-        },
-      };
-    })();
-    Analytics.startSession(null);
-    expect(Analytics.isActive()).toBe(false);
-    Analytics.startSession("html-01");
-    expect(Analytics.isActive()).toBe(true);
+    });
+    get('init()');
+    window.confirm = () => true;
+    document
+      .getElementById('resetAnalyticsBtn')
+      .dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+    expect(get('store.lessonTime')).toEqual({});
+    expect(get('store.lessonRetries')).toEqual({});
+    expect(get('store.completionDates')).toEqual([]);
+    expect(get('store.completed')).toEqual([lessonId]);
   });
 });

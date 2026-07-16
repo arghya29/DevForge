@@ -1,37 +1,4 @@
-# Dependencies — install with: npm install
-# Commit package-lock.json so CI installs are reproducible
 node_modules/
-
-# OS files
+coverage/
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-
-# Editor directories
-.vscode/
-.idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# Logs
 *.log
-npm-debug.log*
-
-# Env files
-.env
-.env.local
-.devcontainer/*.env
-!.devcontainer/devcontainer.env.example
-
-# Dev container env files (but not the example)
-.devcontainer/*.env
-!.devcontainer/devcontainer.env.example
-

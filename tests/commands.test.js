@@ -1,89 +1,123 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect } from 'vitest';
+import { createApp } from './helpers/loadApp.js';
 
-describe("CommandPalette", () => {
-  let CommandPalette;
-  let filteredCommands;
-  let commandPaletteSelectedIdx;
+describe('commands.js — command palette', () => {
+  it('registers a command for every lesson plus a set of built-in actions', () => {
+    const { get } = createApp();
+    const commandCount = get('COMMANDS.length');
+    const lessonCount = get('FLAT_LESSONS.length');
+    expect(commandCount).toBeGreaterThan(lessonCount); // lessons + built-ins
+  });
 
-  beforeEach(() => {
-    filteredCommands = [];
-    commandPaletteSelectedIdx = 0;
+  it('Ctrl+K opens the palette and focuses the search input', () => {
+    const { get, document, window } = createApp();
+    get('init()');
+    document.dispatchEvent(
+      new window.KeyboardEvent('keydown', {
+        key: 'k',
+        ctrlKey: true,
+        bubbles: true,
+        cancelable: true
+      })
+    );
+    expect(document.getElementById('commandPalette').className).toContain('open');
+  });
 
-    CommandPalette = {
-      commands: [],
+  it('Ctrl+K again closes the palette', () => {
+    const { get, document, window } = createApp();
+    get('init()');
+    const fire = () =>
+      document.dispatchEvent(
+        new window.KeyboardEvent('keydown', {
+          key: 'k',
+          ctrlKey: true,
+          bubbles: true,
+          cancelable: true
+        })
+      );
+    fire();
+    expect(document.getElementById('commandPalette').className).toContain('open');
+    fire();
+    expect(document.getElementById('commandPalette').className).not.toContain('open');
+  });
 
-      register(command) {
-        if (!command || !command.id || !command.label || typeof command.action !== "function")
-          return;
-        this.commands.push(command);
-      },
+  it('Escape closes the palette', () => {
+    const { get, document } = createApp();
+    get('openCommandPalette()');
+    expect(document.getElementById('commandPalette').className).toContain('open');
+    get('closeCommandPalette()');
+    expect(document.getElementById('commandPalette').className).not.toContain('open');
+  });
 
-      search(query) {
-        const q = query.toLowerCase().trim();
-        filteredCommands = this.commands.filter(cmd => cmd.label.toLowerCase().includes(q));
-        commandPaletteSelectedIdx = 0;
-      },
+  it('typing a lesson name filters the list down to matching commands', () => {
+    const { get, document, window } = createApp();
+    get('openCommandPalette()');
+    const input = document.getElementById('paletteInput');
+    input.value = 'flexbox';
+    input.dispatchEvent(new window.Event('input', { bubbles: true }));
+    const items = Array.from(document.querySelectorAll('.palette-item')).map(li => li.textContent);
+    expect(items.some(t => /flexbox/i.test(t))).toBe(true);
+    expect(items.length).toBeLessThan(get('COMMANDS.length'));
+  });
 
-      executeCommand(cmd) {
-        if (cmd && typeof cmd.action === "function") {
-          try {
-            cmd.action();
-          } catch (err) {
-            console.error(err);
-          }
-        }
-      },
+  it('an unmatched query shows the empty state, not a stale list', () => {
+    const { get, document, window } = createApp();
+    get('openCommandPalette()');
+    const input = document.getElementById('paletteInput');
+    input.value = 'zzzzzznomatch';
+    input.dispatchEvent(new window.Event('input', { bubbles: true }));
+    expect(document.getElementById('paletteEmpty').style.display).not.toBe('none');
+    expect(document.querySelectorAll('.palette-item').length).toBe(0);
+  });
+
+  it('Enter executes the active command and closes the palette', () => {
+    const { get, document, window } = createApp();
+    get('init()');
+    get('openCommandPalette()');
+    const input = document.getElementById('paletteInput');
+    input.value = 'open playground';
+    input.dispatchEvent(new window.Event('input', { bubbles: true }));
+    input.dispatchEvent(
+      new window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true })
+    );
+    expect(document.getElementById('commandPalette').className).not.toContain('open');
+    expect(get('state.currentLessonId')).toBe('__playground__');
+  });
+
+  it('ArrowDown moves the active selection to the next item', () => {
+    const { get, document, window } = createApp();
+    get('openCommandPalette()');
+    const input = document.getElementById('paletteInput');
+    input.dispatchEvent(
+      new window.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true })
+    );
+    const items = document.querySelectorAll('.palette-item');
+    expect(items[1].classList.contains('active')).toBe(true);
+    expect(items[0].classList.contains('active')).toBe(false);
+  });
+
+  it('registerCommand() makes a new command immediately searchable', () => {
+    const { get } = createApp();
+    get(
+      `registerCommand({ id: 'custom-test-cmd', label: 'My Custom Test Command', group: 'Test', action: () => {} })`
+    );
+    const matches = get(`filteredCommands('Custom Test')`);
+    expect(matches.some(c => c.id === 'custom-test-cmd')).toBe(true);
+  });
+
+  it('copyAllCode() writes a labeled bundle of HTML, CSS, and JS to the clipboard', async () => {
+    const { get, window } = createApp();
+    get('loadLesson(FLAT_LESSONS[0].id)');
+    let written = '';
+    window.navigator.clipboard.writeText = text => {
+      written = text;
+      return Promise.resolve();
     };
-  });
-
-  it("register adds a valid command", () => {
-    CommandPalette.register({
-      id: "test-cmd",
-      label: "Test Command",
-      action: () => {},
-    });
-    expect(CommandPalette.commands).toHaveLength(1);
-    expect(CommandPalette.commands[0].id).toBe("test-cmd");
-  });
-
-  it("register rejects commands without required fields", () => {
-    CommandPalette.register({ id: "no-action" });
-    CommandPalette.register({ label: "no-id" });
-    CommandPalette.register({});
-    expect(CommandPalette.commands).toHaveLength(0);
-  });
-
-  it("search filters commands by label", () => {
-    CommandPalette.register({ id: "run", label: "Run Code", action: () => {} });
-    CommandPalette.register({ id: "reset", label: "Reset Code", action: () => {} });
-    CommandPalette.register({ id: "theme", label: "Toggle Theme", action: () => {} });
-
-    CommandPalette.search("code");
-    expect(filteredCommands).toHaveLength(2);
-
-    CommandPalette.search("theme");
-    expect(filteredCommands).toHaveLength(1);
-    expect(filteredCommands[0].id).toBe("theme");
-  });
-
-  it("search returns empty array for no match", () => {
-    CommandPalette.register({ id: "run", label: "Run Code", action: () => {} });
-    CommandPalette.search("zzzzz");
-    expect(filteredCommands).toHaveLength(0);
-  });
-
-  it("executeCommand calls the action function", () => {
-    const action = vi.fn();
-    CommandPalette.register({ id: "test", label: "Test", action });
-    CommandPalette.executeCommand(CommandPalette.commands[0]);
-    expect(action).toHaveBeenCalledOnce();
-  });
-
-  it("executeCommand handles errors gracefully", () => {
-    const action = vi.fn(() => {
-      throw new Error("fail");
-    });
-    CommandPalette.register({ id: "fail", label: "Fail", action });
-    expect(() => CommandPalette.executeCommand(CommandPalette.commands[0])).not.toThrow();
+    get('copyAllCode()');
+    await new Promise(r => setTimeout(r, 0));
+    expect(written).toContain('/* index.html */');
+    expect(written).toContain('/* style.css */');
+    expect(written).toContain('/* script.js */');
+    expect(written).toContain(get('FLAT_LESSONS[0].html'));
   });
 });

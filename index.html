@@ -1,1162 +1,358 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script>
-      // Apply the saved theme before first paint to prevent a flash of the
-      // default (dark) theme for users who have selected light mode. Mirrors
-      // applySavedTheme() in ui.js: dark is the default (no attribute), light is
-      // data-theme="light". Wrapped in try/catch in case localStorage is
-      // unavailable (e.g. privacy mode), falling back to the dark default.
-      try {
-        if (localStorage.getItem("devforge_theme") === "light") {
-          document.documentElement.setAttribute("data-theme", "light");
-        }
-      } catch (e) {
-        /* no-op: keep the dark default */
-      }
-    </script>
-    <title>DevForge — Learn by Building</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="manifest" href="manifest.json" />
-    <link rel="apple-touch-icon" href="icon-192.png" />
-    <meta name="theme-color" content="#161b22" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-title" content="DevForge" />
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https: data:; connect-src 'self' https:; frame-src 'self' https:; object-src 'none'; base-uri 'self';"
-    />
-    <!-- LZString for compression/decompression of snapshots (#82) -->
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"
-      integrity="sha512-qtX0GLM3qX8rxJN1gyDfcnMFFrKvixfoEOwbBib9VafR5vbChV5LeE5wSI/x+IlCkTY5ZFddFDCCfaVJJNnuKQ=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    ></script>
-  </head>
-  <body>
-    <!-- Skip to content link for keyboard/screen reader users -->
-    <a href="#workspace" id="skipToContent" class="skip-link">Skip to content</a>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevForge — Learn HTML, CSS &amp; JS</title>
 
-    <!-- ══════════════════════════════════════
-       HEADER
-  ══════════════════════════════════════ -->
-    <header id="appHeader">
-      <div class="logo">
-        <span class="logo-icon" aria-hidden="true">⚡</span>
-        DevForge
-        <a
-          class="contribute-btn"
-          href="https://github.com/arghya29/DevForge/discussions"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Contribute to the project (opens in a new tab)"
-        >
-          <svg
-            class="contribute-icon"
-            width="13"
-            height="13"
-            viewBox="0 0 16 16"
-            fill="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              d="M8 2a.75.75 0 0 1 .75.75v4.5h4.5a.75.75 0 0 1 0 1.5h-4.5v4.5a.75.75 0 0 1-1.5 0v-4.5h-4.5a.75.75 0 0 1 0-1.5h4.5v-4.5A.75.75 0 0 1 8 2Z"
-            />
-          </svg>
-          <span class="contribute-text">Contribute to the project</span>
-        </a>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/editor.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/modals.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ===================== TOP BAR ===================== -->
+  <header class="topbar">
+    <button class="icon-btn" id="sidebarToggle" title="Toggle curriculum">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 3 14h7l-1 8 11-13h-8l1-7z"/></svg>
+      <span class="brand-name">DevForge</span>
+    </div>
+
+    <div class="lang-tabs">
+      <button class="lang-tab active" data-lang="html"><span class="dot"></span>HTML</button>
+      <button class="lang-tab" data-lang="css"><span class="dot"></span>CSS</button>
+      <button class="lang-tab" data-lang="js"><span class="dot"></span>JS</button>
+    </div>
+
+    <div class="topbar-right">
+      <div class="auto-group">
+        <label class="switch"><input type="checkbox" id="autoToggle"><span class="track"></span></label>
+        <span class="auto-label">Auto</span>
+        <span class="lesson-counter" id="lessonCounter">0/0</span>
+        <input type="range" class="font-slider" id="fontSlider" min="11" max="20" value="13" title="Editor font size">
       </div>
-
-      <div class="header-center" role="tablist" aria-label="Language selection">
-        <div id="challengeIndicator" class="challenge-indicator" aria-live="polite">
-          ⚔ CHALLENGE MODE
+      <div class="layout-dropdown-wrap">
+        <button class="icon-btn" id="btnLayout" title="Workspace layout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="14" width="8" height="7" rx="1.5"/></svg>
+        </button>
+        <div class="layout-menu" id="layoutMenu">
+          <div class="layout-menu-title">Layout Presets</div>
+          <div class="layout-option" data-layout="default">Default</div>
+          <div class="layout-option" data-layout="wide-editor">Wide Editor</div>
+          <div class="layout-option" data-layout="wide-preview">Wide Preview</div>
+          <div class="layout-option" data-layout="minimal">Minimal</div>
         </div>
-
-        <button
-          type="button"
-          class="tab-btn active"
-          id="tabHTML"
-          onclick="switchTab('html')"
-          role="tab"
-          aria-selected="true"
-          aria-controls="codeEditor"
-        >
-          <span class="tab-dot" style="background: #f0641e" aria-hidden="true"></span>
-          HTML
-        </button>
-        <button
-          type="button"
-          class="tab-btn"
-          id="tabCSS"
-          onclick="switchTab('css')"
-          role="tab"
-          aria-selected="false"
-          aria-controls="codeEditor"
-        >
-          <span class="tab-dot" style="background: #58a6ff" aria-hidden="true"></span>
-          CSS
-        </button>
-        <button
-          type="button"
-          class="tab-btn"
-          id="tabJS"
-          onclick="switchTab('js')"
-          role="tab"
-          aria-selected="false"
-          aria-controls="codeEditor"
-        >
-          <span class="tab-dot" style="background: #d29922" aria-hidden="true"></span>
-          JS
-        </button>
       </div>
+      <button class="icon-btn" id="btnTheme" title="Toggle light/dark theme">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+      </button>
+      <button class="icon-btn" id="btnHelp" title="Keyboard shortcuts">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2-3 4"/><line x1="12" y1="17" x2="12" y2="17.01"/></svg>
+      </button>
+      <button class="icon-btn" id="btnAnalytics" title="Learner analytics">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="20"/><rect x="6" y="12" width="3" height="8"/><rect x="13" y="8" width="3" height="12"/><rect x="18" y="14" width="3" height="6"/></svg>
+      </button>
+      <button class="icon-btn" id="btnSnippets" title="Code snippets">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14l-1.5-2.5A3 3 0 0 1 17 12.7V7a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v5.7a3 3 0 0 1-.5 1.8z"/></svg>
+      </button>
+      <button class="icon-btn" id="btnAchievements" title="Achievements & badges">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M9 13.5 7 22l5-3 5 3-2-8.5"/></svg>
+      </button>
+      <button class="run-btn" id="runBtn">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        Run
+      </button>
+    </div>
+  </header>
 
-      <div class="header-right">
-        <div
-          class="autorun-wrap"
-          onclick="toggleAutorun()"
-          title="Auto-run on edit"
-          role="switch"
-          aria-checked="false"
-          tabindex="0"
-          onkeydown="
-            if (event.key === 'Enter' || event.key === ' ')
-              (event.preventDefault(), toggleAutorun());
-          "
-        >
-          <div class="toggle" id="autorunToggle"></div>
-          <span id="autorunLabel">Auto</span>
+  <!-- ===================== MAIN ===================== -->
+  <div class="main">
+
+    <!-- ---------- SIDEBAR ---------- -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-inner">
+        <div class="sidebar-header">
+          <span class="sidebar-title">Curriculum</span>
         </div>
-
-        <div class="progress-wrap">
-          <span id="progressText" aria-live="polite">0/19</span>
-          <!-- [html-validate-disable-next prefer-native-element -- custom styled/animated progress uses a valid role="progressbar" ARIA pattern; native <progress> cannot host the animated fill element] -->
-          <div
-            class="progress-bar"
-            id="progressBar"
-            role="progressbar"
-            aria-valuenow="0"
-            aria-valuemin="0"
-            aria-valuemax="19"
-            aria-label="Progress"
-          >
-            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        <div class="sidebar-search">
+          <div class="sidebar-search-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="lessonSearch" placeholder="Search lessons...">
           </div>
         </div>
-
-        <button
-          type="button"
-          class="icon-btn"
-          id="fsSizeBtn"
-          title="Font size"
-          aria-label="Toggle font size panel"
-          onclick="toggleFsPanel()"
-        >
-          Aa
-        </button>
-        <button
-          type="button"
-          class="icon-btn"
-          id="layoutBtn"
-          title="Workspace layout"
-          aria-label="Change workspace layout"
-          aria-haspopup="true"
-          aria-expanded="false"
-          onclick="toggleLayoutPanel()"
-        >
-          🎨
-        </button>
-        <button
-          type="button"
-          class="icon-btn"
-          id="themeToggleBtn"
-          title="Toggle theme"
-          aria-label="Toggle dark/light theme"
-          aria-pressed="false"
-          onclick="toggleTheme()"
-        >
-          🌙
-        </button>
-        <button
-          type="button"
-          class="icon-btn help-btn"
-          id="helpBtn"
-          title="Help &amp; shortcuts (?)"
-          aria-label="Open keyboard shortcuts help modal"
-          onclick="openShortcutsModal()"
-        >
-          ?
-        </button>
-        <button
-          type="button"
-          class="icon-btn"
-          id="shareBtn"
-          title="Share snapshot"
-          aria-label="Generate shareable snapshot link"
-          onclick="generateSnapshot()"
-        >
-          🔗
-        </button>
-        <button
-          type="button"
-          class="icon-btn"
-          id="analyticsBtn"
-          title="Learner Analytics"
-          aria-label="Open learner analytics modal"
-          onclick="openAnalyticsModal()"
-        >
-          📊
-        </button>
-        <button
-          type="button"
-          class="icon-btn"
-          id="snippetBtn"
-          title="Code Snippets"
-          aria-label="Open code snippet manager"
-          onclick="openSnippetModal()"
-        >
-          📌
-        </button>
-
-        <button
-          type="button"
-          class="icon-btn"
-          id="achievementsBtn"
-          title="Achievements &amp; Badges"
-          aria-label="Open achievements modal"
-          onclick="openAchievementsModal()"
-        >
-          🏅
-        </button>
-        <button type="button" class="run-btn" id="runBtn" onclick="runCode()" aria-label="Run code">
-          ▶ Run
-        </button>
-      </div>
-    </header>
-
-    <!-- ══════════════════════════════════════
-       WORKSPACE  (3-column grid)
-  ══════════════════════════════════════ -->
-    <main class="workspace" id="workspace" aria-label="Main workspace">
-      <!-- ── SIDEBAR ── -->
-      <aside class="sidebar" id="appSidebar" aria-label="Curriculum sidebar">
-        <div class="sidebar-head">
-          <div class="sidebar-title">
-            <span>Curriculum</span>
-            <button
-              type="button"
-              class="sidebar-toggle-btn"
-              id="sidebarToggleBtn"
-              onclick="toggleSidebar()"
-              aria-label="Toggle sidebar"
-              aria-expanded="true"
-              aria-controls="appSidebar"
-            >
-              ☰
-            </button>
-          </div>
-          <div class="search-wrap" role="search" aria-label="Search lessons">
-            <span class="search-icon">🔍</span>
-            <label
-              for="searchInput"
-              style="
-                position: absolute;
-                width: 1px;
-                height: 1px;
-                overflow: hidden;
-                clip-path: inset(50%);
-              "
-            >
-              Search lessons
-            </label>
-
-            <input
-              type="search"
-              class="search-input"
-              id="searchInput"
-              placeholder="Search lessons…"
-              oninput="filterLessons(this.value)"
-            />
-            <button
-              type="button"
-              class="search-clear"
-              id="searchClear"
-              onclick="clearSearch()"
-              aria-label="Clear search"
-            >
-              &times;
-            </button>
-          </div>
-        </div>
-
-        <div class="lesson-list" id="lessonList"></div>
-
+        <div class="curriculum" id="curriculum"></div>
         <div class="sidebar-footer">
           <div class="footer-stats">
-            <span class="xp-label">
-              XP:
-              <span class="xp-val" id="xpVal">0</span>
-            </span>
-            <span class="xp-label" id="streakLabel">🔥 0 streak</span>
+            <span class="stat">⚡ XP: <b id="xpTotal">0</b></span>
+            <span class="stat">🔥 <b id="streakCount">1</b> streak</span>
           </div>
           <div class="footer-actions">
-            <button
-              type="button"
-              class="footer-action-btn"
-              id="exportBtn"
-              title="Export progress backup"
-              aria-label="Export progress backup"
-              onclick="exportProgress()"
-            >
-              📤 Export
+            <button class="footer-btn" id="exportBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+              Export
             </button>
-            <button
-              type="button"
-              class="footer-action-btn"
-              id="importBtn"
-              title="Import progress backup"
-              aria-label="Import progress backup"
-              onclick="triggerImport()"
-            >
-              📥 Import
+            <button class="footer-btn" id="importBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15V3m0 0L8 7m4-4 4 4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+              Import
             </button>
-            <input
-              type="file"
-              id="importFileInput"
-              accept=".json"
-              aria-label="Choose a progress backup JSON file"
-              style="display: none"
-              onchange="importProgress(event)"
-            />
+            <input type="file" id="importFile" accept="application/json" style="display:none;">
           </div>
         </div>
-      </aside>
+      </div>
+    </aside>
 
-      <!-- ── EDITOR PANEL ── -->
-      <div class="editor-panel" id="editorPanel">
-        <!-- File tabs (HTML / CSS / JS) -->
-        <div class="panel-tabs" id="fileTabs" role="tablist" aria-label="Open files"></div>
+    <!-- ---------- WORKSPACE ---------- -->
+    <div class="workspace">
 
-        <!-- Code editor with highlight layer + line numbers -->
-        <div class="editor-wrap" id="editorWrap">
-          <div class="line-nums" id="lineNums"></div>
-          <div class="editor-inner">
-            <div class="code-highlight" id="codeHighlight" aria-hidden="true"></div>
-            <textarea
-              class="code-editor"
-              id="codeEditor"
-              aria-label="HTML code editor"
-              spellcheck="false"
-              autocomplete="off"
-              autocorrect="off"
-              onkeydown="handleEditorKey(event)"
-              oninput="onEditorInput()"
-              onscroll="syncScroll(this)"
-            ></textarea>
-          </div>
-          <!-- Go to Line Popover (`#81`) -->
-          <div
-            class="go-to-line-popover"
-            id="goToLinePopover"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Go to line"
-            style="display: none"
-          >
-            <input
-              type="number"
-              id="goToLineInput"
-              placeholder="Go to line..."
-              min="1"
-              aria-label="Line number"
-            />
-            <span
-              class="go-to-line-error"
-              id="goToLineError"
-              aria-live="assertive"
-              style="display: none"
-            >
-              Line out of range
-            </span>
+      <!-- editor column -->
+      <div class="editor-col" id="editorCol">
+        <div class="editor-body">
+          <div class="line-numbers" id="lineNumbers">1</div>
+          <div class="code-area">
+            <pre id="codeHighlight"><code></code></pre>
+            <textarea id="codeInput" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>
           </div>
         </div>
 
-        <!-- Lesson instruction pane (collapsible) -->
-        <div class="lesson-pane" id="lessonPane">
-          <div class="lesson-pane-head" onclick="toggleLessonPane()">
-            <span class="lesson-pane-title" id="lessonPaneTitle">📖 LESSON</span>
-            <button
-              type="button"
-              class="collapse-btn"
-              id="collapseBtn"
-              aria-label="Collapse lesson panel"
-              aria-expanded="true"
-            >
-              ▼
+        <div class="lesson-panel" id="lessonPanel">
+          <div class="lesson-panel-header" id="lessonPanelHeader" role="button" tabindex="0" aria-expanded="true" aria-controls="lessonBody">
+            <span class="lesson-panel-title" id="lessonPanelTitle">Playground</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="lesson-body" id="lessonBody">
+            <p>This is your free playground. Write any HTML, CSS or JavaScript and hit <b>Run</b> — nothing here is graded. Pick a lesson from the curriculum on the left to start learning.</p>
+          </div>
+          <div class="hints-section" id="hintsSection" style="display:none;">
+            <ul class="hints-list" id="hintsList"></ul>
+            <button class="hint-btn" id="hintBtn" type="button">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2z"/></svg>
+              <span id="hintBtnLabel">Show a hint</span>
             </button>
           </div>
-          <div class="lesson-content" id="lessonContent"></div>
-        </div>
-
-        <!-- 🎯 Goals Checklist Panel (#75) -->
-        <section
-          class="goals-panel"
-          id="goalsPanel"
-          aria-labelledby="goalsPanelTitle"
-          style="display: none"
-        >
-          <div class="goals-header" id="goalsPanelHeader" onclick="toggleGoalsPanel()">
-            <div class="goals-title-wrap">
-              <span class="goals-icon">🎯</span>
-              <span class="goals-title" id="goalsPanelTitle">GOALS</span>
-              <span class="goals-badge" id="goalsBadge" aria-live="polite" aria-atomic="true">
-                0 / 0
-              </span>
-            </div>
-            <button
-              type="button"
-              class="collapse-btn"
-              id="goalsCollapseBtn"
-              aria-label="Collapse goals panel"
-              aria-expanded="true"
-            >
-              ▼
-            </button>
+          <div class="goals-bar" id="goalsBar" role="button" tabindex="0" aria-expanded="false" aria-controls="goalsList" style="display:none;">
+            <span class="goals-bar-left">GOALS <span class="goals-count" id="goalsCount">0 / 0</span></span>
+            <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
           </div>
           <ul class="goals-list" id="goalsList"></ul>
-        </section>
-
-        <!-- Prev / Next navigation -->
-        <div class="lesson-nav">
-          <button type="button" class="nav-btn" id="prevBtn" onclick="navLesson(-1)">← Prev</button>
-          <span class="lesson-pos" id="lessonPos">1 / 19</span>
-          <button type="button" class="nav-btn primary" id="nextBtn" onclick="navLesson(1)">
-            Next →
-          </button>
-        </div>
-      </div>
-
-      <!-- ── DRAG RESIZER ── -->
-      <div class="resizer" id="resizer"></div>
-
-      <!-- ── PREVIEW PANEL ── -->
-      <div class="preview-panel" id="previewPanel">
-        <div class="preview-head">
-          <div class="preview-label">
-            <span class="live-dot"></span>
-            LIVE PREVIEW
-          </div>
-          <div class="preview-actions">
-            <div class="preview-size-btns">
-              <button
-                type="button"
-                class="size-btn active"
-                id="sizeDesktop"
-                onclick="setPreviewSize('desktop')"
-                title="Desktop"
-                aria-label="Desktop preview"
-                aria-pressed="true"
-              >
-                🖥
-              </button>
-              <button
-                type="button"
-                class="size-btn"
-                id="sizeTablet"
-                onclick="setPreviewSize('tablet')"
-                title="Tablet"
-                aria-label="Tablet preview"
-                aria-pressed="false"
-              >
-                📱
-              </button>
-              <button
-                type="button"
-                class="size-btn"
-                id="sizeMobile"
-                onclick="setPreviewSize('mobile')"
-                title="Mobile"
-                aria-label="Mobile preview"
-                aria-pressed="false"
-              >
-                📲
-              </button>
-            </div>
-            <button
-              type="button"
-              class="icon-btn"
-              title="Refresh"
-              aria-label="Refresh preview"
-              onclick="runCode()"
-            >
-              ↻
+          <div class="lesson-footer">
+            <button class="nav-btn" id="prevBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+              Prev
             </button>
-            <button
-              type="button"
-              class="icon-btn"
-              title="Reset code"
-              aria-label="Reset code to starter"
-              onclick="showResetModal()"
-            >
-              ⟳
+            <span class="bottom-counter" id="bottomCounter">0 / 0</span>
+            <button class="nav-btn" id="nextBtn">
+              Next
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
-            <button
-              type="button"
-              class="icon-btn"
-              title="Copy all code"
-              aria-label="Copy all code"
-              onclick="copyAllCode()"
-            >
-              ⎘
+          </div>
+        </div>
+      </div>
+
+      <div class="divider-v" id="dividerV"></div>
+
+      <!-- preview column -->
+      <div class="preview-col">
+        <div class="pane-header">
+          <div class="pane-header-left"><span class="status-live"></span> LIVE PREVIEW</div>
+          <div class="pane-header-right">
+            <div class="device-group">
+              <button class="device-btn active" data-view="desktop" title="Desktop view">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="13" rx="1.5"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              </button>
+              <button class="device-btn" data-view="tablet" title="Tablet view">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+              </button>
+              <button class="device-btn" data-view="mobile" title="Mobile view">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+              </button>
+            </div>
+            <button class="icon-btn" id="btnResetPreview" title="Reset code" style="width:26px;height:26px;">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7"/><polyline points="3 4 3 9 8 9"/></svg>
             </button>
-            <div class="export-btn-wrap">
-              <button
-                type="button"
-                class="icon-btn"
-                id="exportFormatBtn"
-                title="Export code"
-                aria-label="Export code in multiple formats"
-                onclick="toggleExportMenu()"
-              >
-                ⬇
-              </button>
-              <div class="export-menu" id="exportMenu" role="menu" aria-label="Export format menu">
-                <button
-                  type="button"
-                  class="export-menu-item"
-                  role="menuitem"
-                  onclick="
-                    CodeExporter.exportAsStandaloneHtml();
-                    closeExportMenu();
-                  "
-                >
-                  Standalone HTML
-                </button>
-                <button
-                  type="button"
-                  class="export-menu-item"
-                  role="menuitem"
-                  onclick="
-                    CodeExporter.exportAsCodePen();
-                    closeExportMenu();
-                  "
-                >
-                  Open in CodePen
-                </button>
-                <button
-                  type="button"
-                  class="export-menu-item"
-                  role="menuitem"
-                  onclick="
-                    CodeExporter.exportAsJSFiddle();
-                    closeExportMenu();
-                  "
-                >
-                  Open in JSFiddle
-                </button>
-                <button
-                  type="button"
-                  class="export-menu-item"
-                  role="menuitem"
-                  onclick="
-                    CodeExporter.exportCurrentTab();
-                    closeExportMenu();
-                  "
-                >
-                  Export Current Tab
-                </button>
-              </div>
-            </div>
+            <button class="icon-btn" id="btnPreviewRefresh" title="Refresh preview" style="width:26px;height:26px;">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            </button>
+            <button class="icon-btn" id="btnEmptyCode" title="Empty code" style="width:26px;height:26px;">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6l1 3H8l1-3z"/><path d="M4 6h16"/><path d="M6 6v13a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V6"/></svg>
+            </button>
+            <button class="icon-btn" id="btnExportCode" title="Export code" style="width:26px;height:26px;">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+            </button>
           </div>
         </div>
-
-        <div class="preview-iframe-wrap" id="iframeWrap">
-          <iframe
-            class="preview-iframe"
-            id="previewFrame"
-            sandbox="allow-scripts"
-            title="Live preview"
-          ></iframe>
-          <div class="preview-overlay" id="previewOverlay">
-            <div class="spinner"></div>
-            Running…
-          </div>
+        <div class="preview-frame-wrap" id="previewWrap">
+          <iframe id="previewFrame" sandbox="allow-scripts allow-forms allow-modals allow-popups"></iframe>
         </div>
 
-        <!-- Console -->
-        <div class="console-pane" id="consolePane">
-          <div class="console-head" onclick="toggleConsole()">
-            <div class="console-label">
-              <span>CONSOLE</span>
-              <span class="console-badge" id="consoleBadge">0</span>
+        <div class="divider-h" id="dividerH"></div>
+
+        <div class="console-panel" id="consolePanel">
+          <div class="console-toolbar">
+            <div class="console-toolbar-left">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+              CONSOLE
             </div>
-            <div class="console-actions">
-              <input
-                type="text"
-                class="console-filter"
-                id="consoleFilter"
-                placeholder="Filter…"
-                oninput="filterConsole(this.value)"
-                onclick="event.stopPropagation()"
-                aria-label="Filter console output"
-              />
-              <button
-                type="button"
-                class="tiny-btn"
-                onclick="
-                  event.stopPropagation();
-                  clearConsoleFilter();
-                "
-                title="Clear filter"
-                aria-label="Clear console filter"
-              >
-                ✕
-              </button>
-              <button
-                type="button"
-                class="tiny-btn"
-                onclick="
-                  event.stopPropagation();
-                  clearConsoleUI();
-                "
-              >
-                Clear
-              </button>
-              <button
-                type="button"
-                class="collapse-btn"
-                id="consolCollapseBtn"
-                style="
-                  background: none;
-                  border: none;
-                  cursor: pointer;
-                  color: var(--muted);
-                  font-size: 0.9rem;
-                "
-                onclick="
-                  event.stopPropagation();
-                  toggleConsole();
-                "
-              >
-                ▼
-              </button>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <input type="text" class="console-filter" id="consoleFilter" placeholder="Filter...">
+              <button class="console-clear-btn" id="consoleClear">Clear</button>
             </div>
           </div>
-          <div class="console-body" id="consoleBody">
-            <div class="log-line info">
-              <span class="log-prefix">ℹ</span>
-              <span>DevForge ready. Press Ctrl+Enter to run.</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- /preview-panel -->
-    </main>
-    <!-- /workspace -->
-
-    <!-- ══════════════════════════════════════
-       FLOATING PANELS
-  ══════════════════════════════════════ -->
-
-    <!-- Snippet Manager Modal -->
-    <div
-      class="modal-overlay"
-      id="snippetModal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="snippetModalTitle"
-      tabindex="-1"
-    >
-      <div class="modal snippet-modal-inner">
-        <div class="shortcuts-modal-header">
-          <h2 id="snippetModalTitle" class="shortcuts-modal-title">
-            <span class="shortcuts-modal-icon">📌</span>
-            Code Snippets
-          </h2>
-          <button
-            type="button"
-            class="shortcuts-close-btn"
-            aria-label="Close snippet manager"
-            onclick="closeSnippetModal()"
-          >
-            ✕
-          </button>
-        </div>
-
-        <div class="snippet-modal-body">
-          <div class="snippet-save-area">
-            <label for="snippetNameInput" class="snippet-label">
-              Save current code as snippet:
-            </label>
-            <div class="snippet-save-row">
-              <input
-                type="text"
-                id="snippetNameInput"
-                class="snippet-name-input"
-                placeholder="My snippet name..."
-                maxlength="100"
-                onkeydown="if (event.key === 'Enter') saveSnippetFromModal();"
-              />
-              <button
-                type="button"
-                class="btn-confirm snippet-save-btn"
-                onclick="saveSnippetFromModal()"
-              >
-                Save
-              </button>
-            </div>
-          </div>
-
-          <div class="snippet-divider"></div>
-
-          <label class="snippet-label">Saved snippets:</label>
-          <ul class="snippet-list" id="snippetList"></ul>
-        </div>
-
-        <div class="shortcuts-modal-footer">
-          <button type="button" class="btn-cancel" onclick="closeSnippetModal()">Close</button>
+          <div class="console-output" id="consoleOutput"></div>
         </div>
       </div>
     </div>
+  </div>
+</div>
 
-    <!-- Learner Analytics Modal (#79) -->
-    <div
-      class="modal-overlay"
-      id="analyticsModal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="analyticsModalTitle"
-      tabindex="-1"
-    >
-      <div class="modal analytics-modal-inner">
-        <div class="shortcuts-modal-header">
-          <h2 id="analyticsModalTitle" class="shortcuts-modal-title">
-            <span class="shortcuts-modal-icon">📊</span>
-            Learner Analytics
-          </h2>
-          <button
-            type="button"
-            class="shortcuts-close-btn"
-            id="analyticsCloseBtn"
-            aria-label="Close learner analytics"
-            onclick="closeAnalyticsModal()"
-          >
-            ✕
-          </button>
-        </div>
+<div class="toast-wrap" id="toastWrap"></div>
 
-        <div class="shortcuts-modal-body analytics-modal-body">
-          <div class="analytics-section">
-            <h3 class="analytics-section-title">Consistency (Last 7 Days)</h3>
-            <div id="streakDotsRow" class="streak-dots-row">
-              <!-- 7 circles, green/grey -->
-            </div>
-            <p id="streakStatsText" class="streak-stats-text"></p>
-          </div>
-
-          <div class="analytics-section">
-            <h3 class="analytics-section-title">Lesson Stats</h3>
-            <div class="analytics-table-wrap">
-              <table class="analytics-table">
-                <thead>
-                  <tr>
-                    <th>Lesson</th>
-                    <th>Time</th>
-                    <th>Retries</th>
-                  </tr>
-                </thead>
-                <tbody id="analyticsTableBody">
-                  <!-- Table rows with lesson stats -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <div class="analytics-modal-footer">
-          <button
-            type="button"
-            class="btn-cancel btn-reset-analytics"
-            onclick="resetAnalyticsConfirm()"
-          >
-            Reset Analytics
-          </button>
-          <button type="button" class="btn-cancel" onclick="closeAnalyticsModal()">Close</button>
-        </div>
+<div class="modal-backdrop" id="helpModal">
+  <div class="modal wide">
+    <div class="modal-header">
+      <span class="modal-header-title">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="8" x2="6" y2="8"/><line x1="10" y1="8" x2="10" y2="8"/><line x1="14" y1="8" x2="14" y2="8"/><line x1="18" y1="8" x2="18" y2="8"/><line x1="6" y1="12" x2="6" y2="12"/><line x1="10" y1="12" x2="10" y2="12"/><line x1="14" y1="12" x2="14" y2="12"/><line x1="18" y1="12" x2="18" y2="12"/><line x1="7" y1="16" x2="17" y2="16"/></svg>
+        Keyboard Shortcuts
+      </span>
+      <button class="modal-x" id="closeHelp">✕</button>
+    </div>
+    <div class="shortcuts-grid">
+      <div class="shortcuts-col">
+        <h4>Code</h4>
+        <div class="shortcut-row"><span>Run code</span><span class="keys"><kbd>Ctrl</kbd><kbd>Enter</kbd></span></div>
+        <div class="shortcut-row"><span>Reset all code</span><span class="keys"><kbd>Ctrl</kbd><kbd>⇧</kbd><kbd>R</kbd></span></div>
+        <div class="shortcut-row"><span>Copy current tab</span><span class="keys"><kbd>Ctrl</kbd><kbd>⇧</kbd><kbd>C</kbd></span></div>
+        <div class="shortcut-row"><span>Copy all code</span><span class="keys"><kbd>Ctrl</kbd><kbd>⇧</kbd><kbd>A</kbd></span></div>
+      </div>
+      <div class="shortcuts-col">
+        <h4>Navigation</h4>
+        <div class="shortcut-row"><span>Command palette</span><span class="keys"><kbd>Ctrl</kbd><kbd>K</kbd></span></div>
+        <div class="shortcut-row"><span>Next lesson</span><span class="keys"><kbd>Ctrl</kbd><kbd>]</kbd></span></div>
+        <div class="shortcut-row"><span>Previous lesson</span><span class="keys"><kbd>Ctrl</kbd><kbd>[</kbd></span></div>
       </div>
     </div>
-
-    <!-- Command Palette Modal (`#80`) -->
-    <div
-      class="modal-overlay"
-      id="commandPaletteModal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="commandPaletteTitle"
-      tabindex="-1"
-    >
-      <div class="modal command-palette-inner">
-        <h2 id="commandPaletteTitle" class="sr-only">Command Palette</h2>
-        <div class="command-palette-search-wrap">
-          <span class="command-palette-search-icon" aria-hidden="true">🔍</span>
-          <input
-            type="text"
-            id="commandPaletteInput"
-            placeholder="Type a command..."
-            autocomplete="off"
-            spellcheck="false"
-            aria-autocomplete="list"
-            aria-controls="commandPaletteList"
-            aria-label="Command palette search"
-            role="combobox"
-            aria-expanded="true"
-          />
-        </div>
-        <!-- [html-validate-disable-next prefer-native-element -- command palette search list uses role="listbox" for key navigation ARIA pattern] -->
-        <ul
-          id="commandPaletteList"
-          class="command-palette-list"
-          role="listbox"
-          aria-label="Commands"
-        >
-          <!-- Command list items will be injected dynamically -->
-        </ul>
+    <div class="shortcuts-grid">
+      <div class="shortcuts-col">
+        <h4>Editor Tabs</h4>
+        <div class="shortcut-row"><span>Switch to HTML tab</span><span class="keys"><kbd>Ctrl</kbd><kbd>1</kbd></span></div>
+        <div class="shortcut-row"><span>Switch to CSS tab</span><span class="keys"><kbd>Ctrl</kbd><kbd>2</kbd></span></div>
+        <div class="shortcut-row"><span>Switch to JS tab</span><span class="keys"><kbd>Ctrl</kbd><kbd>3</kbd></span></div>
+      </div>
+      <div class="shortcuts-col">
+        <h4>Editor</h4>
+        <div class="shortcut-row"><span>Undo</span><span class="keys"><kbd>Ctrl</kbd><kbd>Z</kbd></span></div>
+        <div class="shortcut-row"><span>Redo</span><span class="keys"><kbd>Ctrl</kbd><kbd>Y</kbd></span></div>
+        <div class="shortcut-row"><span>Indent (Tab)</span><span class="keys"><kbd>Tab</kbd></span></div>
+        <div class="shortcut-row"><span>Outdent</span><span class="keys"><kbd>⇧</kbd><kbd>Tab</kbd></span></div>
       </div>
     </div>
-    <!-- Achievements & Badges Modal -->
-    <div
-      class="modal-overlay"
-      id="achievementsModal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="achievementsModalTitle"
-      tabindex="-1"
-    >
-      <div class="modal achievements-modal-inner">
-        <div class="shortcuts-modal-header">
-          <h2 id="achievementsModalTitle" class="shortcuts-modal-title">
-            <span class="shortcuts-modal-icon">🏅</span>
-            Achievements &amp; Badges
-          </h2>
-          <button
-            type="button"
-            class="shortcuts-close-btn"
-            id="achievementsCloseBtn"
-            aria-label="Close achievements modal"
-            onclick="closeAchievementsModal()"
-          >
-            ✕
-          </button>
-        </div>
-
-        <div class="achievements-modal-body">
-          <div class="achievements-stats-bar">
-            <span class="achievements-stats-label">Progress</span>
-            <span class="achievements-stats-count" id="achievementStats">0 / 0</span>
-          </div>
-          <ul class="achievement-grid" id="achievementGrid">
-            <!-- Cards injected dynamically by achievements.js -->
-          </ul>
-        </div>
-
-        <div class="shortcuts-modal-footer">
-          <button type="button" class="btn-cancel" onclick="closeAchievementsModal()">Close</button>
-        </div>
-      </div>
+    <div class="shortcuts-col" style="margin-bottom:16px;">
+      <h4>UI</h4>
+      <div class="shortcut-row"><span>Open this help modal</span><span class="keys"><kbd>?</kbd></span></div>
+      <div class="shortcut-row"><span>Close modal / panel</span><span class="keys"><kbd>Esc</kbd></span></div>
     </div>
+    <button class="modal-close" id="closeHelp2">Close</button>
+  </div>
+</div>
 
-    <!-- Keyboard Shortcuts Modal (#76) -->
-    <div
-      class="modal-overlay"
-      id="shortcutsModal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="shortcutsModalTitle"
-      tabindex="-1"
-    >
-      <div class="modal shortcuts-modal-inner">
-        <div class="shortcuts-modal-header">
-          <h2 id="shortcutsModalTitle" class="shortcuts-modal-title">
-            <span class="shortcuts-modal-icon">⌨</span>
-            Keyboard Shortcuts
-          </h2>
-          <button
-            type="button"
-            class="shortcuts-close-btn"
-            id="shortcutsCloseBtn"
-            aria-label="Close keyboard shortcuts"
-            onclick="closeShortcutsModal()"
-          >
-            ✕
-          </button>
-        </div>
-
-        <div class="shortcuts-modal-body">
-          <!-- Group: Code -->
-          <div class="shortcut-group">
-            <div class="shortcut-group-label">Code</div>
-            <div class="shortcut-row">
-              <span class="shortcut-desc">Run code</span>
-              <div class="shortcut-keys">
-                <span class="kbd">Ctrl</span>
-                <span class="kbd">Enter</span>
-              </div>
-            </div>
-            <div class="shortcut-row">
-              <span class="shortcut-desc">Reset all code</span>
-              <div class="shortcut-keys">
-                <span class="kbd">Ctrl</span>
-                <span class="kbd">⇧</span>
-                <span class="kbd">R</span>
-              </div>
-            </div>
-            <div class="shortcut-row">
-              <span class="shortcut-desc">Copy code</span>
-              <div class="shortcut-keys">
-                <span class="kbd">Ctrl</span>
-                <span class="kbd">⇧</span>
-                <span class="kbd">C</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Group: Navigation -->
-          <div class="shortcut-group">
-            <div class="shortcut-group-label">Navigation</div>
-            <div class="shortcut-row">
-              <span class="shortcut-desc">Next lesson</span>
-              <div class="shortcut-keys">
-                <span class="kbd">Ctrl</span>
-                <span class="kbd">]</span>
-              </div>
-            </div>
-            <div class="shortcut-row">
-              <span class="shortcut-desc">Previous lesson</span>
-              <div class="shortcut-keys">
-                <span class="kbd">Ctrl</span>
-                <span class="kbd">[</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Group: Tabs -->
-          <div class="shortcut-group">
-            <div class="shortcut-group-label">Editor Tabs</div>
-            <div class="shortcut-row">
-              <span class="shortcut-desc">Switch to HTML tab</span>
-              <div class="shortcut-keys">
-                <span class="kbd">Ctrl</span>
-                <span class="kbd">1</span>
-              </div>
-            </div>
-            <div class="shortcut-row">
-              <span class="shortcut-desc">Switch to CSS tab</span>
-              <div class="shortcut-keys">
-                <span class="kbd">Ctrl</span>
-                <span class="kbd">2</span>
-              </div>
-            </div>
-            <div class="shortcut-row">
-              <span class="shortcut-desc">Switch to JS tab</span>
-              <div class="shortcut-keys">
-                <span class="kbd">Ctrl</span>
-                <span class="kbd">3</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Group: Editor -->
-          <div class="shortcut-group">
-            <div class="shortcut-group-label">Editor</div>
-            <div class="shortcut-row">
-              <span class="shortcut-desc">Undo</span>
-              <div class="shortcut-keys">
-                <span class="kbd">Ctrl</span>
-                <span class="kbd">Z</span>
-              </div>
-            </div>
-            <div class="shortcut-row">
-              <span class="shortcut-desc">Redo</span>
-              <div class="shortcut-keys">
-                <span class="kbd">Ctrl</span>
-                <span class="kbd">Y</span>
-              </div>
-            </div>
-            <div class="shortcut-row">
-              <span class="shortcut-desc">Indent (Tab)</span>
-              <div class="shortcut-keys"><span class="kbd">Tab</span></div>
-            </div>
-            <div class="shortcut-row">
-              <span class="shortcut-desc">Outdent</span>
-              <div class="shortcut-keys">
-                <span class="kbd">⇧</span>
-                <span class="kbd">Tab</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Group: UI -->
-          <div class="shortcut-group">
-            <div class="shortcut-group-label">UI</div>
-            <div class="shortcut-row">
-              <span class="shortcut-desc">Open this help modal</span>
-              <div class="shortcut-keys"><span class="kbd">?</span></div>
-            </div>
-            <div class="shortcut-row">
-              <span class="shortcut-desc">Close modal / panel</span>
-              <div class="shortcut-keys"><span class="kbd">Esc</span></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="shortcuts-modal-footer">
-          <button type="button" class="btn-cancel" onclick="closeShortcutsModal()">Close</button>
-        </div>
-      </div>
+<div class="modal-backdrop" id="analyticsModal">
+  <div class="modal wide">
+    <div class="modal-header">
+      <span class="modal-header-title">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="20"/><rect x="6" y="12" width="3" height="8"/><rect x="13" y="8" width="3" height="12"/><rect x="17" y="14" width="3" height="6"/></svg>
+        Learner Analytics
+      </span>
+      <button class="modal-x" id="closeAnalytics">✕</button>
     </div>
-
-    <!-- Layout Preset Panel -->
-    <div class="layout-panel" id="layoutPanel">
-      <div class="layout-panel-header">
-        <span class="layout-panel-title">Layout Presets</span>
-      </div>
-      <div class="layout-preset-list" id="layoutPresetList">
-        <!-- Injected by LayoutManager -->
-      </div>
+    <div class="section-label">Consistency (last 7 days)</div>
+    <div class="consistency-row" id="consistencyRow"></div>
+    <div class="consistency-caption" id="consistencyCaption">Completed lessons on 0 of the last 7 days.</div>
+    <div class="section-label">Lesson stats</div>
+    <div class="stats-scroll">
+      <table class="stats-table">
+        <thead><tr><th>Lesson</th><th>Time</th><th>Retries</th></tr></thead>
+        <tbody id="statsBody"></tbody>
+      </table>
     </div>
-
-    <!-- Font Size Panel -->
-    <div class="fs-panel" id="fsPanel">
-      <label for="fsSlider">
-        Editor font size:
-        <span class="fs-val" id="fsValLabel">13px</span>
-      </label>
-      <input
-        type="range"
-        class="fs-slider"
-        id="fsSlider"
-        min="11"
-        max="20"
-        value="13"
-        oninput="changeFontSize(this.value)"
-      />
+    <div class="modal-footer-row">
+      <button class="danger-btn" id="resetAnalyticsBtn">Reset Analytics</button>
+      <button class="modal-close" id="closeAnalytics2" style="width:auto;padding:8px 18px;">Close</button>
     </div>
+  </div>
+</div>
 
-    <!-- Toast notification -->
-    <div class="toast" id="toast" role="alert" aria-live="assertive">
-      <span class="toast-icon" id="toastIcon"></span>
-      <span id="toastMsg"></span>
+<div class="modal-backdrop" id="snippetsModal">
+  <div class="modal wide">
+    <div class="modal-header">
+      <span class="modal-header-title">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14l-1.5-2.5A3 3 0 0 1 17 12.7V7a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v5.7a3 3 0 0 1-.5 1.8z"/></svg>
+        Code Snippets
+      </span>
+      <button class="modal-x" id="closeSnippets">✕</button>
     </div>
-
-    <!-- Screen reader announcer (visually hidden, always reads updates) -->
-    <div id="srAnnouncer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
-
-    <!-- Secondary live region for lesson status updates -->
-    <div id="srLessonStatus" class="sr-only" aria-live="polite" aria-atomic="true"></div>
-
-    <!-- Live region for goals and progress updates -->
-    <div id="srGoalStatus" class="sr-only" aria-live="polite" aria-atomic="true"></div>
-
-    <!-- Reset confirmation modal -->
-    <div
-      class="modal-overlay"
-      id="resetModal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="resetModalTitle"
-      tabindex="-1"
-    >
-      <div class="modal">
-        <h3 id="resetModalTitle">Reset to starter code?</h3>
-        <p>
-          This will discard your current edits for this lesson and restore the original starter
-          code.
-        </p>
-        <div class="modal-btns">
-          <button type="button" class="btn-cancel" onclick="hideResetModal()">Cancel</button>
-          <button type="button" class="btn-confirm" onclick="confirmReset()">Reset</button>
-        </div>
-      </div>
+    <div class="section-label">Save current code as snippet:</div>
+    <div class="snippet-input-row">
+      <input type="text" id="snippetNameInput" placeholder="My snippet name...">
+      <button class="snippet-save-btn" id="snippetSaveBtn">Save</button>
     </div>
+    <div class="section-label">Saved snippets:</div>
+    <div class="snippet-list" id="snippetList"></div>
+    <button class="modal-close" id="closeSnippets2" style="margin-top:16px;">Close</button>
+  </div>
+</div>
 
-    <!-- Import overwrite confirmation modal -->
-    <div
-      class="modal-overlay"
-      id="importConfirmModal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="importConfirmModalTitle"
-      tabindex="-1"
-    >
-      <div class="modal">
-        <h3 id="importConfirmModalTitle">⚠️ Overwrite progress?</h3>
-        <p>
-          Importing this backup will overwrite your current progress, completed lessons, and code
-          edits. This action cannot be undone.
-        </p>
-        <div class="modal-btns">
-          <button type="button" class="btn-cancel" onclick="hideImportModal()">Cancel</button>
-          <button
-            type="button"
-            class="btn-confirm"
-            id="confirmImportBtn"
-            onclick="confirmImportProgress()"
-          >
-            Import
-          </button>
-        </div>
-      </div>
+<div class="modal-backdrop" id="achievementsModal">
+  <div class="modal wide">
+    <div class="modal-header">
+      <span class="modal-header-title">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M9 13.5 7 22l5-3 5 3-2-8.5"/></svg>
+        Achievements &amp; Badges
+      </span>
+      <button class="modal-x" id="closeAchievements">✕</button>
     </div>
-
-    <!-- Completion banner -->
-    <div
-      class="completion-banner"
-      id="completionBanner"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="completionTitle"
-      tabindex="-1"
-    >
-      <div class="completion-card">
-        <span class="completion-emoji">🏆</span>
-        <h2 id="completionTitle">All Lessons Complete!</h2>
-        <p>
-          You've finished every lesson in the DevForge curriculum.
-          <br />
-          Total XP earned:
-          <strong id="finalXp" style="color: var(--purple)">0</strong>
-        </p>
-        <div class="completion-btns">
-          <button type="button" class="btn-green" onclick="hideCompletion()">Keep Exploring</button>
-          <button type="button" class="btn-outline" onclick="restartAll()">Restart</button>
-        </div>
-      </div>
+    <div class="progress-row">
+      <span class="section-label" style="margin:0;">Progress</span>
+      <span class="progress-count" id="achievementsCount">Unlocked 0 / 12</span>
     </div>
+    <div class="badges-scroll">
+      <div class="badges-grid" id="badgesGrid"></div>
+    </div>
+    <button class="modal-close" id="closeAchievements2" style="margin-top:16px;">Close</button>
+  </div>
+</div>
 
-    <!-- ══════════════════════════════════════
-       SCRIPTS  (order matters)
-  ══════════════════════════════════════ -->
-    <script src="curriculum.js"></script>
-    <script src="storage.js"></script>
-    <script src="analytics.js"></script>
-    <script src="ui.js"></script>
-    <script src="achievements.js"></script>
-    <script src="editor.js"></script>
-    <script src="lesson.js"></script>
-    <script src="preview.js"></script>
-    <script src="commands.js"></script>
-    <script src="a11y.js"></script>
-    <script src="perf.js"></script>
-    <script src="snippet.js"></script>
-    <script src="export.js"></script>
-    <script src="layout.js"></script>
-    <script src="app.js"></script>
-  </body>
+<div class="modal-backdrop palette-backdrop" id="commandPalette" role="dialog" aria-modal="true" aria-label="Command palette">
+  <div class="palette">
+    <div class="palette-input-row">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="paletteInput" placeholder="Type a command or search lessons…" autocomplete="off" aria-label="Command search">
+      <kbd>Esc</kbd>
+    </div>
+    <ul class="palette-list" id="paletteList" role="listbox"></ul>
+    <div class="palette-empty" id="paletteEmpty" style="display:none;">No matching commands</div>
+  </div>
+</div>
+
+<div id="ariaLiveRegion" aria-live="polite" class="sr-only"></div>
+
+<script src="js/dom-utils.js"></script>
+<script src="js/curriculum.js"></script>
+<script src="js/state.js"></script>
+<script src="js/store.js"></script>
+<script src="js/highlighter.js"></script>
+<script src="js/editor.js"></script>
+<script src="js/preview.js"></script>
+<script src="js/lessons.js"></script>
+<script src="js/modals.js"></script>
+<script src="js/commands.js"></script>
+<script src="js/import-export.js"></script>
+<script src="js/resizers.js"></script>
+<script src="js/main.js"></script>
+</body>
 </html>
