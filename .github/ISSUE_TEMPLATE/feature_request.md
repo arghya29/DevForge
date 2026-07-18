@@ -1,33 +1,22 @@
 ---
-name: Feature Request
-about: Suggest a new lesson, feature, or improvement
-title: "[FEATURE] "
+name: Feature request
+about: Suggest an idea for DevForge
+title: '[Feature] '
 labels: enhancement
-assignees: ""
 ---
 
-## What problem does this solve?
+**What problem would this solve?**
+A clear description of the problem — not the solution yet.
 
-A clear description of the problem or gap this feature addresses.
+**What's your proposed solution?**
 
-## Describe the solution you'd like
+**Which part of the app does this affect?**
 
-What you want to happen. Be as specific as possible.
+- [ ] Editor
+- [ ] Preview / console
+- [ ] Curriculum / lessons
+- [ ] Progress, XP, achievements
+- [ ] Something else (describe)
 
-## Type of contribution
-
-- [ ] New lesson
-- [ ] New chapter
-- [ ] UI / UX improvement
-- [ ] Performance improvement
-- [ ] Accessibility improvement
-- [ ] Documentation
-- [ ] Other
-
-## Alternatives considered
-
-Any other approaches you considered and why you ruled them out.
-
-## Additional context
-
-Any mockups, references, or examples.
+**Have you checked `ROADMAP.md`?**
+Let us know if this is already planned, or if it's a new direction.

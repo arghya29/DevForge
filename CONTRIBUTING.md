@@ -1,433 +1,131 @@
 # Contributing to DevForge
 
-Thank you for your interest in contributing! DevForge is a beginner-friendly project and we welcome all kinds of contributions — new lessons, bug fixes, design improvements, and documentation.
+Thanks for considering contributing! This project is still early, so please
+open an issue before starting large changes — it's much easier to align on
+direction before code is written than after.
 
----
+> **New to this codebase?** This document covers the contribution
+> _workflow_. For a full, beginner-friendly explanation of what every file
+> does, how they fit together, and what to watch out for, read
+> [`CODEBASE_GUIDE.md`](./CODEBASE_GUIDE.md) first — especially before
+> touching anything in `js/`.
 
-## 📋 Table of Contents
+## Ground rules
 
-- [Code of Conduct](#code-of-conduct)
-- [Branching Strategy](#branching-strategy)
-- [How to Contribute](#how-to-contribute)
-- [Project Structure](#project-structure)
-- [Architecture & API Docs](#architecture--api-docs)
-- [Adding a Lesson](#adding-a-lesson)
-- [Running CI Checks Locally](#running-ci-checks-locally)
-- [CI/CD and Deployment](#cicd-and-deployment)
-- [Automated Dependency Management](#automated-dependency-management)
-- [Issue Templates](#issue-templates)
-- [Reporting Bugs](#reporting-bugs)
-- [Pull Request Guidelines](#pull-request-guidelines)
-- [Style Guide](#style-guide)
+- No build step, no bundler, no ES modules, no external runtime
+  dependencies for the app itself. DevForge must keep working by opening
+  `index.html` directly. Dev-only tooling (tests, linting) is fine as a
+  `devDependency`.
+- Keep files scoped to one concern. If a file is growing unrelated
+  responsibilities, that's a sign it should be split, not a sign to keep
+  adding to it.
+- Every new file-level module gets a short header comment explaining what
+  it's responsible for (see any existing `js/*.js` file for the pattern).
 
----
-
-## Getting Started with Dev Containers
-
-DevForge provides a **Development Container** (dev container) configuration for VS Code to ensure every contributor has a consistent, ready-to-code environment.
-
-### Prerequisites
-
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
-- [VS Code](https://code.visualstudio.com/) with the **Dev Containers** extension (`ms-vscode-remote.remote-containers`)
-
-### Setup Steps
-
-1. **Clone the repository:**
-
-   ```bash
-   git clone https://github.com/arghya29/DevForge.git
-   cd DevForge
-   ```
-
-2. **Open in dev container:**
-   - VS Code will prompt you to "Reopen in Container" when you open the project folder
-   - Alternatively, run **Ctrl+Shift+P** → **Dev Containers: Reopen in Container**
-   - The container builds from `node:20-bookworm` with `git`, `curl`, and Node.js 20 pre-installed
-
-3. **Install dependencies** (runs automatically via `postCreateCommand`):
-
-   ```bash
-   npm install
-   ```
-
-4. **Start developing:**
-   - Open `index.html` directly in your browser, or use the VS Code Live Server extension
-   - Run `npm run check` to verify your changes pass all CI checks
-
-### Customizing the environment
-
-Copy `.devcontainer/devcontainer.env.example` to `.devcontainer/devcontainer.env` and set any environment variables you need. The `.devcontainer/*.env` file is gitignored (but the example is not).
-
----
-
-## Code of Conduct
-
-This project follows the [Contributor Covenant Code of Conduct](./CODE_OF_CONDUCT.md).
-By participating, you agree to uphold it.
-
----
-
-## Branching Strategy
-
-```
-your fork / feature branch
-          │
-          ▼  Pull Request  ←── always target dev, never main
-         dev
-          │
-          ▼  Maintainer pushes dev → main
-         main ──► GitHub Pages auto-deploys
-```
-
-- **All PRs must target `dev`** — PRs targeting `main` will be closed
-- `main` is the clean, live, deployed branch — only the maintainer pushes to it
-- CI checks run on every PR to `dev` and every push to both `dev` and `main`
-
----
-
-## Getting Started with Dev Containers
-
-DevForge provides a [Development Container](https://containers.dev/) configuration for VS Code and GitHub Codespaces, giving you a consistent, pre-configured environment with all tools installed.
-
-### Using GitHub Codespaces
-
-1. Click the **"Code"** button on the repository
-2. Select the **"Codespaces"** tab
-3. Click **"Create codespace on main"**
-4. Wait for the environment to build — all npm dependencies install automatically
-
-### Using VS Code Dev Containers locally
-
-1. Install [Docker](https://docker.com) and the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
-2. Clone the repository:
-   ```bash
-   git clone https://github.com/arghya29/DevForge.git
-   cd DevForge
-   ```
-3. Open the folder in VS Code — you'll be prompted to **"Reopen in Container"**
-4. Click the prompt or run **Ctrl+Shift+P → Dev Containers: Reopen in Container**
-5. The container builds automatically with Node.js, ESLint, Prettier, and html-validate pre-installed
-
-### Optional environment variables
-
-Copy `.devcontainer/devcontainer.env.example` to `.devcontainer/devcontainer.env` and modify as needed.
-
----
-
-## How to Contribute
-
-### 1. Fork & Clone
+## Setup
 
 ```bash
-# Fork on GitHub, then clone your fork
-git clone https://github.com/YOUR_USERNAME/DevForge.git
-cd DevForge
+git clone https://github.com/<org>/devforge.git
+cd devforge
+npm install        # only needed for tests/lint, not to run the app
+npm test
+npm run lint
 ```
 
-### 2. Switch to dev and create your branch
+To work on the app itself, just open `index.html` in a browser — reload
+after each change, no build step.
 
-```bash
-git checkout dev
-git pull origin dev                        # make sure you're up to date
-git checkout -b feature/your-feature-name  # create your branch off dev
-```
+## Adding a lesson (the fastest way to contribute)
 
-Branch naming examples:
+All lesson content lives in **`js/curriculum.js`**. Nothing else needs to
+change to add a lesson — the sidebar, XP, goal-checking, and navigation all
+read from this one file.
 
-- `feature/add-css-variables-lesson`
-- `fix/editor-cursor-alignment`
-- `docs/improve-readme`
-
-### 3. Open in Browser
-
-No build step — just open `index.html` in your browser:
-
-```bash
-open index.html        # macOS
-xdg-open index.html    # Linux
-start index.html       # Windows
-```
-
-Or use the VS Code **Live Server** extension for auto-reload on save.
-
-### 4. Make Your Changes
-
-Edit the relevant file:
-
-- New lesson content → `curriculum.js`
-- Visual / layout changes → `styles.css`
-- App logic / features → `app.js`
-- Page structure → `index.html`
-
-### 5. Run CI Checks Locally
-
-```bash
-npm install       # one time only
-npm run check     # runs ESLint + HTML Validate + Prettier
-```
-
-Fix any errors before pushing. See [Running CI Checks Locally](#running-ci-checks-locally) for details.
-
-### 6. Push and Open a Pull Request
-
-```bash
-git add .
-git commit -m "feat: add CSS variables lesson"
-git push origin feature/your-feature-name
-```
-
-Then open a PR on GitHub — **make sure the base branch is `dev`**, not `main`. Fill in the PR template.
-
----
-
-## Project Structure
-
-```
-DevForge/
-├── index.html        # Pure HTML structure — zero inline styles or scripts
-├── styles.css        # All CSS — variables, layout, components, animations
-├── curriculum.js     # All lesson data (CURRICULUM array)
-├── app.js            # All application logic
-├── package.json      # Dev tools (ESLint, Prettier, html-validate)
-├── eslint.config.js  # ESLint rules
-├── .prettierrc       # Prettier config
-├── .html-validate.json  # HTML validator config
-├── README.md
-├── LICENSE
-├── CONTRIBUTING.md   ← you are here
-├── CODE_OF_CONDUCT.md
-├── CHANGELOG.md
-├── .gitignore
-└── .github/
-    ├── workflows/
-    │   ├── ci.yml          # CI: runs on PRs to dev + pushes to dev & main
-    │   └── deploy.yml      # Deploy: runs on push to main only
-    ├── PULL_REQUEST_TEMPLATE.md
-    └── ISSUE_TEMPLATE/
-        ├── bug_report.md
-        └── feature_request.md
-```
-
----
-
-## Architecture & API Docs
-
-For a deeper understanding of how DevForge works internally:
-
-- **[ARCHITECTURE.md](./ARCHITECTURE.md)** — data flow, component boundaries, state management, design decisions
-- **[API.md](./API.md)** — complete reference of every global function, its signature, and behaviour
-
----
-
-## Adding a Lesson
-
-The easiest contribution is a new lesson. All lesson content lives in `curriculum.js`.
-
-### Lesson object structure
+A lesson looks like this:
 
 ```js
 {
-  id:          "html-06",            // unique, kebab-case, never reuse
-  tag:         "HTML",               // "HTML" | "CSS" | "JS"
-  title:       "Semantic Elements",  // short, shown in sidebar
-  xp:          25,                   // 20–50 depending on difficulty
-  paneTitle:   "06 · Semantic Elements",
-  instruction: `
-    <h2>Your lesson heading</h2>
-    <p>Explain the concept. Use <code>inline code</code> for tags/properties.</p>
-    <div class="hint-box">💡 A hint to guide the learner.</div>
-    <div class="challenge-box">⚔ An optional stretch challenge.</div>
-  `,
-  html: `<!-- starter HTML -->`,
-  css:  `/* starter CSS */`,
-  js:   `// starter JS`
+  id: 'css-transitions',        // unique, kebab-case, never reused or reassigned
+  title: 'Transitions & Animations',
+  tag: 'CSS',                   // 'HTML' | 'CSS' | 'JS' — must match its category
+  xp: 35,
+  html: '<!DOCTYPE html>\n...', // starter HTML (a full document, not a fragment)
+  css: '.btn{ ... }\n',         // starter CSS
+  js: '',                       // starter JS (can be empty)
+  description: '<h3>Smooth changes</h3><p>...</p>',  // shown in the lesson panel
+  tip: 'One-sentence tip shown in a callout box.',
+  goals: [
+    {
+      text: 'Sets a transition property',   // shown to the learner
+      check: f => /transition\s*:/.test(f.css)   // f = { html, css, js }, return boolean
+    },
+    // 2–3 goals is the sweet spot — enough to guide, not so many it feels graded
+  ]
 }
 ```
 
-### Rules for lesson content
+Push it into the `items` array of the right category in `CURRICULUM`, or
+start a new category object if it doesn't fit an existing one. That's the
+entire integration — sidebar rendering, progress tracking, and navigation
+are all automatic.
 
-- **Starter code must work immediately** — clicking Run right away should show something visible, not a blank page or an error
-- **One concept per lesson** — don't introduce multiple unrelated things at once
-- **Always include a `hint-box`** — tell learners what to try changing
-- **`challenge-box` is optional** — add one if there's a natural stretch goal
-- **XP guide**: 20 = introductory HTML, 25 = basic CSS/JS, 30 = intermediate, 35–40 = advanced, 50 = capstone
-- **Keep instruction prose short** — the pane is small, aim for 2–3 sentences max per paragraph
+**Guidelines for `check()` functions:**
 
-### Adding to an existing chapter
+- Test against `f.html` / `f.css` / `f.js` (whichever is relevant) using a
+  regex or simple string check. Keep it forgiving — check for the _presence_
+  of the right idea, not exact formatting.
+- Each goal should be checkable independently of the others.
+- Run `npm test` before opening a PR — `tests/curriculum.test.js` checks
+  every lesson has a unique `id` and that every `check()` function runs
+  without throwing on empty input.
 
-Find the right chapter in `curriculum.js` and append your lesson to its `lessons` array. The sidebar, progress bar, and nav buttons update automatically — no other file needs to change.
+**Guidelines for lesson IDs:** once a lesson ships, its `id` is permanent —
+it's used as the key for saved progress, completion, and time-tracking. If a
+lesson's content changes substantially enough that old saved code no longer
+makes sense, bump its `version` field (see "Lesson versioning" below)
+instead of changing the `id`.
 
-### Adding a new chapter
+### Lesson versioning
 
-Add a new object to the top-level `CURRICULUM` array:
+Lessons can optionally include a `version` number (defaults to `1` if
+omitted). Bump it when you change a lesson's starter code or goals in a way
+that would make a learner's previously-saved progress on it stale or
+confusing. The app compares the saved version against the current one and
+lets the learner know their saved code is from an older version of the
+lesson, rather than silently mixing old code with new goals.
 
-```js
-{
-  chapter: "Advanced JavaScript",
-  lessons: [ /* your lessons */ ]
-}
-```
+## Where things live
 
----
+| Concern                                                              | File                  |
+| -------------------------------------------------------------------- | --------------------- |
+| Lesson content                                                       | `js/curriculum.js`    |
+| In-memory UI state                                                   | `js/state.js`         |
+| Saved progress (XP, streak, completed lessons)                       | `js/store.js`         |
+| Syntax highlighting                                                  | `js/highlighter.js`   |
+| The code editor itself                                               | `js/editor.js`        |
+| Preview / console capture                                            | `js/preview.js`       |
+| Lesson panel, goals, sidebar                                         | `js/lessons.js`       |
+| Modals (shortcuts, analytics, snippets, achievements), theme, layout | `js/modals.js`        |
+| Command palette                                                      | `js/commands.js`      |
+| Export/import progress                                               | `js/import-export.js` |
+| Draggable dividers                                                   | `js/resizers.js`      |
+| App bootstrap (loaded last)                                          | `js/main.js`          |
 
-## Running CI Checks Locally
+## Tests
 
-Before pushing, run the same checks that GitHub Actions runs so you're not surprised by failures on your PR.
+We use [Vitest](https://vitest.dev/) with jsdom. Please add or update a test
+for any behavioral change — see `tests/` for examples. `tests/curriculum.test.js`
+in particular should stay green for every PR that touches lesson content.
 
-### Install tools (one time only)
+## Accessibility
 
-```bash
-npm install
-```
+DevForge is a learning tool; it needs to work for keyboard-only and
+screen-reader users. If you add an interactive element (a button, modal,
+etc.), it needs to be reachable and operable by keyboard, and modals need to
+trap focus while open. Please test with the keyboard alone before opening a
+PR that adds UI.
 
-### Run all checks at once
+## Code style
 
-```bash
-npm run check
-```
-
-### Run individual checks
-
-```bash
-npm run lint:js       # ESLint on app.js and curriculum.js
-npm run lint:html     # HTML validate on index.html
-npm run format:check  # Prettier format check on all files
-```
-
-### Auto-fix formatting
-
-```bash
-npm run format:fix    # Prettier rewrites files in place
-```
-
-### What each check does
-
-| Check         | Tool          | What it catches                                                        |
-| ------------- | ------------- | ---------------------------------------------------------------------- |
-| JS Lint       | ESLint        | Undefined variables, `==` instead of `===`, unused vars, syntax errors |
-| HTML Validate | html-validate | Broken tags, missing doctype, invalid nesting, missing alt attributes  |
-| Format Check  | Prettier      | Inconsistent indentation, quote style, trailing commas                 |
-
-> **Note:** `node_modules/` is in `.gitignore` — never commit it.
-
----
-
-## Issue Templates
-
-DevForge provides several issue templates to help you report problems effectively:
-
-| Template                  | File                                              | When to use                                   |
-| ------------------------- | ------------------------------------------------- | --------------------------------------------- |
-| **Bug Report**            | `.github/ISSUE_TEMPLATE/bug_report.md`            | Something is broken or behaving incorrectly   |
-| **Feature Request**       | `.github/ISSUE_TEMPLATE/feature_request.md`       | Suggest a new feature, lesson, or improvement |
-| **Documentation Request** | `.github/ISSUE_TEMPLATE/documentation_request.md` | Missing or unclear documentation              |
-
-If your issue doesn't fit these templates, feel free to open a blank issue.
-
-## CI/CD and Deployment
-
-DevForge uses two GitHub Actions workflows:
-
-| Workflow      | File                           | Trigger                                | Purpose                         |
-| ------------- | ------------------------------ | -------------------------------------- | ------------------------------- |
-| **CI Checks** | `.github/workflows/ci.yml`     | PRs to `dev`, pushes to `dev` & `main` | ESLint, Prettier, html-validate |
-| **Deploy**    | `.github/workflows/deploy.yml` | Push to `main`, manual dispatch        | Publishes to GitHub Pages       |
-
-### How deployment works
-
-1. A maintainer merges `dev` into `main` (or pushes directly to `main`)
-2. The `deploy.yml` workflow triggers automatically
-3. GitHub Pages receives the static files and serves them at the repo's Pages URL
-4. Deployment typically completes in under 60 seconds
-
-To deploy manually, go to **Actions → Deploy to GitHub Pages → Run workflow**.
-
-### GitHub Pages setup (one-time)
-
-1. Go to your repo → **Settings → Pages**
-2. Under **Source**, select **GitHub Actions**
-3. Push any commit to `main` — the workflow handles the rest
-
----
-
-## Automated Dependency Management
-
-DevForge uses [Dependabot](.github/dependabot.yml) to keep dev tooling up-to-date:
-
-- **npm dependencies** (`eslint`, `prettier`, `html-validate`) are checked weekly
-- **GitHub Actions** are checked weekly
-- Updates are grouped by ecosystem and limited to minor/patch versions to reduce noise
-- All Dependabot PRs are tagged with `dependencies` and `automerge` labels
-
-No action is needed on your part — Dependabot runs automatically every Monday.
-
----
-
-## Reporting Bugs
-
-Use the [Bug Report template](.github/ISSUE_TEMPLATE/bug_report.md).
-
-Include:
-
-- Browser name and version
-- Steps to reproduce
-- What you expected vs what happened
-- A screenshot if relevant
-
----
-
-## Pull Request Guidelines
-
-- **All PRs must target `dev`** — not `main`
-- **One concern per PR** — don't mix a new lesson with a CSS refactor
-- **Descriptive title** — `fix: cursor misalignment in Firefox` not `fix bug`
-- **Fill in the PR template** and link to the issue it closes
-- **No external dependencies** — DevForge deliberately has zero runtime libraries. Keep it that way
-- **All 3 CI checks must pass** before a PR can be merged
-
----
-
-## Style Guide
-
-### JavaScript (`app.js`)
-
-- `"use strict"` at the top
-- `const` by default, `let` only when reassignment is needed
-- Descriptive variable names — no single-letter names outside loop counters
-- Comment every major section with the `/* ══ SECTION ══ */` style already in the file
-
-### CSS (`styles.css`)
-
-- All colors via CSS custom properties from `:root` — no raw hex in rules
-- Group related rules under the labelled section comments
-- No `!important`
-
-### HTML (`index.html`)
-
-- No inline `style=""` attributes
-- Semantic elements where appropriate (`<aside>`, `<header>`, `<button>`)
-- Include ARIA attributes (`role`, `aria-label`, `aria-live`) for accessibility
-- All form controls need an associated `<label>` or `aria-label`
-
-### Lesson content (`curriculum.js`)
-
-- Indent starter code with 2 spaces
-- Keep starter code short — learners need to understand it at a glance
-- Escape backticks inside template literal starter code with `\``
-
-### Security
-
-- **All user-provided text must be HTML-escaped** before being inserted via `innerHTML`
-- Use the provided `escapeHtml()` or `escHtml()` helper functions — never directly concatenate user strings
-- The lesson `instruction` field may contain HTML (it is authored by maintainers), but lesson starter code is rendered in a sandboxed iframe
-- If adding any new `postMessage` channel, validate the `origin` and `data.type` before acting on the message
-- Never introduce external runtime dependencies — every new dependency is a potential supply-chain risk
-- Avoid inline event handlers in new HTML additions — prefer `addEventListener` in app.js
-
-### Accessibility
-
-- All interactive elements must have visible focus styles (`:focus-visible`)
-- Use semantic HTML elements over generic `<div>` or `<span>` where possible
-- Add `aria-label` to icon-only buttons and `aria-live` to dynamic content regions
-- Ensure keyboard navigation works without a mouse — test with Tab, Enter, Escape, and arrow keys
+Run `npm run format` before committing. CI will fail on formatting or lint
+errors — this keeps diffs small and reviews focused on substance.

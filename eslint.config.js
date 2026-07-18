@@ -1,387 +1,133 @@
-// ═══════════════════════════════════════════════════════════
-//  DevForge — eslint.config.js
-//  Flat config format (ESLint v9+)
-// ═══════════════════════════════════════════════════════════
+// ESLint 9 flat config.
+//
+// The app is a set of classic (non-module) <script> files that intentionally
+// share one global scope (see js/main.js for load order and README.md for
+// why). That means most "cross-file" references are, from ESLint's point of
+// view, undeclared globals — so we declare them explicitly below instead of
+// disabling no-undef wholesale, which keeps the check meaningful for actual
+// typos.
 
-import js from "@eslint/js";
+const browserGlobals = {
+  window: 'readonly',
+  document: 'readonly',
+  navigator: 'readonly',
+  localStorage: 'readonly',
+  console: 'readonly',
+  fetch: 'readonly',
+  setTimeout: 'readonly',
+  clearTimeout: 'readonly',
+  setInterval: 'readonly',
+  clearInterval: 'readonly',
+  requestAnimationFrame: 'readonly',
+  URL: 'readonly',
+  Blob: 'readonly',
+  FileReader: 'readonly',
+  MouseEvent: 'readonly',
+  Event: 'readonly',
+  confirm: 'readonly'
+};
 
-const devforgeGlobals = {
+// Symbols defined in one js/*.js file and used in another. Grouped by the
+// file that defines them so this list is easy to keep honest as the app
+// grows — if you add a new cross-file symbol, add it here in the same PR.
+const appGlobals = {
+  // dom-utils.js
+  $: 'readonly',
+  $$: 'readonly',
+  el: 'readonly',
+  escapeHtml: 'readonly',
+  toast: 'readonly',
+  localDateString: 'readonly',
   // curriculum.js
-  CURRICULUM: "readonly",
-
-  // storage.js
-  saveProgress: "readonly",
-  scheduleSave: "readonly",
-  loadProgress: "readonly",
-  clearProgress: "readonly",
-
-  // analytics.js
-  Analytics: "readonly",
-  openAnalyticsModal: "readonly",
-  closeAnalyticsModal: "readonly",
-  resetAnalyticsConfirm: "readonly",
-  renderAnalyticsData: "readonly",
-  failedCheckLessons: "writable",
-
-  // ui.js
-  activeModalEl: "writable",
-  modalReturnFocus: "writable",
-  getModalFocusable: "readonly",
-  openModal: "readonly",
-  closeModal: "readonly",
-  showResetModal: "readonly",
-  hideResetModal: "readonly",
-  showImportModal: "readonly",
-  hideImportModal: "readonly",
-  exportProgress: "readonly",
-  triggerImport: "readonly",
-  importProgress: "readonly",
-  confirmImportProgress: "readonly",
-  confirmReset: "readonly",
-  copyAllCode: "readonly",
-  changeFontSize: "readonly",
-  toggleFsPanel: "readonly",
-  openShortcutsModal: "readonly",
-  closeShortcutsModal: "readonly",
-  toggleShortcuts: "readonly",
-  updateThemeButton: "readonly",
-  applyTheme: "readonly",
-  toggleTheme: "readonly",
-  applySavedTheme: "readonly",
-  showCompletion: "readonly",
-  hideCompletion: "readonly",
-  restartAll: "readonly",
-  spawnConfetti: "readonly",
-  showToast: "readonly",
-  announce: "readonly",
-  initResizer: "readonly",
-  toggleSidebar: "readonly",
-  toggleLessonPane: "readonly",
-  updateProgress: "readonly",
-  toggleAutorun: "readonly",
-  setPreviewSize: "readonly",
-
+  PLAYGROUND: 'readonly',
+  CURRICULUM: 'readonly',
+  FLAT_LESSONS: 'readonly',
+  // state.js
+  state: 'writable',
+  // store.js
+  store: 'writable',
+  defaultStore: 'readonly',
+  isValidStoreShape: 'readonly',
+  loadStore: 'readonly',
+  saveStore: 'readonly',
+  updateStreak: 'readonly',
+  totalXP: 'readonly',
+  refreshXP: 'readonly',
+  flushTimer: 'readonly',
+  startTimer: 'readonly',
+  // highlighter.js
+  highlight: 'readonly',
   // editor.js
-  editorUndo: "readonly",
-  editorRedo: "readonly",
-  applyEditorState: "readonly",
-  onEditorInput: "readonly",
-  pushUndoState: "readonly",
-  flushUndoState: "readonly",
-  seedUndoState: "readonly",
-  commitUndoState: "readonly",
-  updateLineNums: "readonly",
-  syncScroll: "readonly",
-  handleEditorKey: "readonly",
-  highlight: "readonly",
-  highlightHTML: "readonly",
-  highlightCSS: "readonly",
-  highlightJS: "readonly",
-  escHtml: "readonly",
-  escapeHtml: "readonly",
-  toggleGoToLine: "readonly",
-  showGoToLine: "readonly",
-  hideGoToLine: "readonly",
-  executeGoToLine: "readonly",
-
-  // lesson.js
-  getLesson: "readonly",
-  getAllLessons: "readonly",
-  getLessonIndex: "readonly",
-  generateSnapshot: "readonly",
-  checkSnapshotOnLoad: "readonly",
-  enterReadOnlyMode: "readonly",
-  forkSnapshot: "readonly",
-  buildSidebar: "readonly",
-  filterLessons: "readonly",
-  clearSearch: "readonly",
-  loadLesson: "readonly",
-  saveCurrentBuffer: "readonly",
-  renderLessonHints: "readonly",
-  revealNextHint: "readonly",
-  buildFileTabs: "readonly",
-  switchTab: "readonly",
-  loadTab: "readonly",
-  updateNav: "readonly",
-  navLesson: "readonly",
-  escapeRegExp: "readonly",
-  checkGoalRule: "readonly",
-  checkAllGoalsMet: "readonly",
-  validateGoals: "readonly",
-  toggleGoalsPanel: "readonly",
-
+  renderEditor: 'readonly',
+  syncScroll: 'readonly',
+  persistCurrentCode: 'readonly',
+  markStarted: 'readonly',
+  switchTab: 'readonly',
   // preview.js
-  runCode: "readonly",
-  extractBody: "readonly",
-  buildPreviewDoc: "readonly",
-  clearConsoleUI: "readonly",
-  addConsoleLog: "readonly",
-  copyConsoleText: "readonly",
-  toggleConsole: "readonly",
-  filterConsole: "readonly",
-  applyConsoleFilter: "readonly",
-  clearConsoleFilter: "readonly",
-
+  buildDoc: 'readonly',
+  runCode: 'readonly',
+  resetCode: 'readonly',
+  emptyCode: 'readonly',
+  exportCode: 'readonly',
+  addConsoleLine: 'readonly',
+  scheduleAutoRun: 'readonly',
+  // lessons.js
+  currentLessonDef: 'readonly',
+  renderLessonPanel: 'readonly',
+  checkGoals: 'readonly',
+  loadLesson: 'readonly',
+  renderSidebar: 'readonly',
+  prevLesson: 'readonly',
+  nextLesson: 'readonly',
+  copyCurrentCode: 'readonly',
+  // modals.js
+  applyLayout: 'readonly',
+  openModal: 'readonly',
+  closeModal: 'readonly',
+  closeAllModals: 'readonly',
   // commands.js
-  CommandPalette: "readonly",
-  commandPaletteSelectedIdx: "writable",
-  filteredCommands: "writable",
-
-  // a11y.js
-  A11y: "readonly",
-  initA11y: "readonly",
-
-  // app.js
-  currentLessonId: "writable",
-  activeTab: "writable",
-  lessonPaneOpen: "writable",
-  consolePaneOpen: "writable",
-  goalsPanelOpen: "writable",
-  autorun: "writable",
-  autorunTimer: "writable",
-  fsPanelVisible: "writable",
-  sidebarOpen: "writable",
-  xp: "writable",
-  streak: "writable",
-  lastRunLesson: "writable",
-  errorCount: "writable",
-  revealedHints: "writable",
-  consoleScrolledUp: "writable",
-  CONSOLE_MAX_LINES: "readonly",
-  consoleLineCount: "writable",
-  isReadOnlyMode: "writable",
-  doneSet: "writable",
-  buffers: "writable",
-  scrollPositions: "writable",
+  registerCommand: 'readonly',
+  openCommandPalette: 'readonly',
+  closeCommandPalette: 'readonly'
 };
-
-const definitions = {
-  "curriculum.js": ["CURRICULUM"],
-  "storage.js": ["saveProgress", "scheduleSave", "loadProgress", "clearProgress"],
-  "analytics.js": [
-    "Analytics",
-    "openAnalyticsModal",
-    "closeAnalyticsModal",
-    "resetAnalyticsConfirm",
-    "renderAnalyticsData",
-    "failedCheckLessons",
-  ],
-  "ui.js": [
-    "activeModalEl",
-    "modalReturnFocus",
-    "getModalFocusable",
-    "openModal",
-    "closeModal",
-    "showResetModal",
-    "hideResetModal",
-    "showImportModal",
-    "hideImportModal",
-    "exportProgress",
-    "triggerImport",
-    "importProgress",
-    "confirmImportProgress",
-    "confirmReset",
-    "copyAllCode",
-    "changeFontSize",
-    "toggleFsPanel",
-    "openShortcutsModal",
-    "closeShortcutsModal",
-    "toggleShortcuts",
-    "updateThemeButton",
-    "applyTheme",
-    "toggleTheme",
-    "applySavedTheme",
-    "showCompletion",
-    "hideCompletion",
-    "restartAll",
-    "spawnConfetti",
-    "showToast",
-    "announce",
-    "initResizer",
-    "toggleSidebar",
-    "toggleLessonPane",
-    "updateProgress",
-    "toggleAutorun",
-    "setPreviewSize",
-  ],
-  "editor.js": [
-    "editorUndo",
-    "editorRedo",
-    "applyEditorState",
-    "onEditorInput",
-    "pushUndoState",
-    "flushUndoState",
-    "seedUndoState",
-    "commitUndoState",
-    "updateLineNums",
-    "syncScroll",
-    "handleEditorKey",
-    "highlight",
-    "highlightHTML",
-    "highlightCSS",
-    "highlightJS",
-    "escHtml",
-    "escapeHtml",
-    "toggleGoToLine",
-    "showGoToLine",
-    "hideGoToLine",
-    "executeGoToLine",
-  ],
-  "lesson.js": [
-    "getLesson",
-    "getAllLessons",
-    "getLessonIndex",
-    "generateSnapshot",
-    "checkSnapshotOnLoad",
-    "enterReadOnlyMode",
-    "forkSnapshot",
-    "buildSidebar",
-    "filterLessons",
-    "clearSearch",
-    "loadLesson",
-    "saveCurrentBuffer",
-    "renderLessonHints",
-    "revealNextHint",
-    "buildFileTabs",
-    "switchTab",
-    "loadTab",
-    "updateNav",
-    "navLesson",
-    "escapeRegExp",
-    "checkGoalRule",
-    "checkAllGoalsMet",
-    "validateGoals",
-    "toggleGoalsPanel",
-  ],
-  "preview.js": [
-    "runCode",
-    "extractBody",
-    "buildPreviewDoc",
-    "clearConsoleUI",
-    "addConsoleLog",
-    "copyConsoleText",
-    "toggleConsole",
-    "filterConsole",
-    "applyConsoleFilter",
-    "clearConsoleFilter",
-  ],
-  "commands.js": ["CommandPalette", "commandPaletteSelectedIdx", "filteredCommands"],
-  "a11y.js": ["A11y", "initA11y"],
-  "app.js": [
-    "currentLessonId",
-    "activeTab",
-    "lessonPaneOpen",
-    "consolePaneOpen",
-    "goalsPanelOpen",
-    "autorun",
-    "autorunTimer",
-    "fsPanelVisible",
-    "sidebarOpen",
-    "xp",
-    "streak",
-    "lastRunLesson",
-    "errorCount",
-    "revealedHints",
-    "consoleScrolledUp",
-    "CONSOLE_MAX_LINES",
-    "consoleLineCount",
-    "isReadOnlyMode",
-    "doneSet",
-    "buffers",
-    "scrollPositions",
-  ],
-};
-
-const fileConfigs = Object.keys(definitions).map(fileName => {
-  const fileGlobals = { ...devforgeGlobals };
-  // Remove the globals defined by this file to prevent redeclaration errors
-  definitions[fileName].forEach(g => {
-    delete fileGlobals[g];
-  });
-
-  return {
-    files: [fileName],
-    languageOptions: {
-      globals: fileGlobals,
-    },
-  };
-});
 
 export default [
   {
-    ignores: ["eslint.config.js", "debug_eslint.js"],
-  },
-  js.configs.recommended,
-  {
-    // Files to lint (all modular script files)
-    files: ["*.js"],
-
+    files: ['js/**/*.js'],
     languageOptions: {
       ecmaVersion: 2022,
-      sourceType: "script", // plain scripts, not ES modules
-      globals: {
-        // Browser globals
-        window: "readonly",
-        document: "readonly",
-        navigator: "readonly",
-        localStorage: "readonly",
-        getComputedStyle: "readonly",
-        console: "readonly",
-        setTimeout: "readonly",
-        clearTimeout: "readonly",
-        requestAnimationFrame: "readonly",
-        fetch: "readonly",
-        URL: "readonly",
-        Date: "readonly",
-        JSON: "readonly",
-        Math: "readonly",
-        Array: "readonly",
-        Object: "readonly",
-        String: "readonly",
-        Number: "readonly",
-        Boolean: "readonly",
-        Promise: "readonly",
-        Set: "readonly",
-        Map: "readonly",
-        Blob: "readonly",
-        FileReader: "readonly",
-
-        // External CDN libraries
-        LZString: "readonly",
-      },
+      sourceType: 'script',
+      globals: { ...browserGlobals, ...appGlobals }
     },
-
     rules: {
-      // ── Errors ──────────────────────────────────────────
-      "no-undef": "error", // catch undefined variables
-      "no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
-      "no-console": "off", // console.log is fine in this project
-      "no-debugger": "error",
-
-      // ── Best practices ───────────────────────────────────
-      eqeqeq: ["error", "always"], // always use === not ==
-      "no-var": "error", // use const/let only
-      "prefer-const": "warn",
-      "no-duplicate-case": "error",
-      "no-dupe-else-if": "error",
-      "no-empty": "error",
-      "no-extra-semi": "error",
-      "no-unreachable": "error",
-      "no-lonely-if": "warn",
-
-      // ── Style (warnings only, Prettier handles formatting) ─
-      semi: ["warn", "always"],
-      "no-trailing-spaces": "warn",
-    },
+      'no-unused-vars': ['warn', { args: 'none' }],
+      'no-undef': 'error',
+      'no-redeclare': ['error', { builtinGlobals: false }],
+      eqeqeq: ['warn', 'smart'],
+      'no-var': 'warn'
+    }
   },
   {
-    files: ["sw.js"],
+    files: ['tests/**/*.js'],
     languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
       globals: {
-        self: "readonly",
-        caches: "readonly",
-      },
+        describe: 'readonly',
+        it: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly'
+      }
     },
-  },
-  ...fileConfigs,
+    rules: {
+      'no-unused-vars': ['warn', { args: 'none' }],
+      'no-undef': 'error',
+      'no-redeclare': 'error',
+      eqeqeq: ['warn', 'smart'],
+      'no-var': 'warn'
+    }
+  }
 ];

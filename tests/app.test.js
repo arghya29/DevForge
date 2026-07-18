@@ -1,188 +1,111 @@
-import { describe, it, expect, beforeEach, beforeAll, vi } from "vitest";
-import fs from "fs";
-import path from "path";
+import { describe, it, expect } from 'vitest';
+import { createApp } from './helpers/loadApp.js';
 
-// Mock LZString to avoid remote dependency
-global.LZString = {
-  compressToEncodedURIComponent: str => btoa(unescape(encodeURIComponent(str))),
-  decompressFromEncodedURIComponent: str => decodeURIComponent(escape(atob(str))),
-};
-
-// Mock serviceWorker on read-only navigator object
-Object.defineProperty(window.navigator, "serviceWorker", {
-  value: {
-    register: () => Promise.resolve({}),
-  },
-  configurable: true,
-});
-
-// Mock Clipboard
-global.navigator.clipboard = {
-  writeText: vi.fn().mockImplementation(() => Promise.resolve()),
-};
-
-// Mock alert/confirm if used
-global.alert = vi.fn();
-global.confirm = vi.fn().mockReturnValue(true);
-
-describe("DevForge Core App Tests", () => {
-  let htmlContent;
-
-  beforeAll(() => {
-    htmlContent = fs.readFileSync(path.resolve(__dirname, "../index.html"), "utf-8");
+describe('app.js — integration behavior', () => {
+  it('boots with the Playground active and no lesson selected', () => {
+    const { document, get } = createApp();
+    get('init()');
+    expect(document.getElementById('lessonPanelTitle').textContent).toBe('Playground');
+    expect(document.getElementById('lessonCounter').textContent).toBe('0/0');
   });
 
-  beforeEach(() => {
-    // Strip script tags so JSDOM doesn't execute them automatically on innerHTML write
-    const cleanHtml = htmlContent.replace(
-      /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
-      ""
+  it('renders one sidebar entry per curriculum category plus the Playground', () => {
+    const { get, document } = createApp();
+    get('init()');
+    const categories = get('CURRICULUM').length;
+    // Playground item + one wrapper per category
+    expect(document.getElementById('curriculum').children.length).toBe(categories + 1);
+  });
+
+  it('clicking a lesson in the sidebar loads it into the editor', () => {
+    const { get, document, window } = createApp();
+    get('init()');
+    const items = document.querySelectorAll('.lesson-item');
+    // items[0] is the Playground; the first real lesson is items[1]
+    items[1].dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+    expect(document.getElementById('lessonPanelTitle').textContent).toBe(
+      get('FLAT_LESSONS[0].title')
     );
-
-    // Reset DOM
-    document.documentElement.innerHTML = cleanHtml;
-
-    // We need to define some standard CSS properties for computed style to avoid storage.js failing
-    vi.spyOn(window, "getComputedStyle").mockImplementation(() => ({
-      getPropertyValue: prop => {
-        if (prop === "--fs") return "16px";
-        return "";
-      },
-    }));
-
-    // Mock Element.prototype.scrollIntoView as JSDOM does not implement it
-    window.Element.prototype.scrollIntoView = vi.fn();
-
-    // Reset module/global variables by re-loading scripts as a single concatenated script wrapped in a Function
-    const files = [
-      "curriculum.js",
-      "storage.js",
-      "analytics.js",
-      "achievements.js",
-      "ui.js",
-      "editor.js",
-      "lesson.js",
-      "preview.js",
-      "commands.js",
-      "a11y.js",
-      "perf.js",
-      "snippet.js",
-      "export.js",
-      "layout.js",
-      "app.js",
-    ];
-
-    let combinedCode = files
-      .map(file => fs.readFileSync(path.resolve(__dirname, "../", file), "utf-8"))
-      .join("\n;\n");
-
-    // Append variable exposure to window at the end
-    combinedCode += `
-      Object.defineProperty(window, "xp", {
-        get: () => xp,
-        set: (val) => { xp = val; },
-        configurable: true
-      });
-      Object.defineProperty(window, "streak", {
-        get: () => streak,
-        set: (val) => { streak = val; },
-        configurable: true
-      });
-      window.doneSet = doneSet;
-      window.buffers = buffers;
-      window.revealedHints = revealedHints;
-      window.loadProgress = loadProgress;
-      window.saveProgress = saveProgress;
-      window.checkGoalRule = checkGoalRule;
-      window.generateSnapshot = generateSnapshot;
-    `;
-
-    // Run the code directly in the test's window context
-    const fn = new Function("window", combinedCode);
-    fn(window);
-
-    window.localStorage.clear();
+    expect(document.getElementById('lessonCounter').textContent).toBe(
+      `1/${get('FLAT_LESSONS').length}`
+    );
   });
 
-  it("should initialize default state correctly", () => {
-    expect(window.xp).toBe(0);
-    expect(window.streak).toBe(0);
-    expect(window.doneSet.size).toBe(0);
+  it('completing every goal marks the lesson complete and awards XP exactly once', () => {
+    const { get, document, window } = createApp();
+    get('init()');
+    const lesson = get('FLAT_LESSONS[0]'); // html-first-element
+    get(`loadLesson('${lesson.id}')`);
+
+    const textarea = document.getElementById('codeInput');
+    textarea.value = '<title>Hi</title><h1>Hello</h1><p>para one</p><p>para two</p>';
+    textarea.dispatchEvent(new window.Event('input', { bubbles: true }));
+
+    expect(get('store.completed')).toContain(lesson.id);
+    expect(document.getElementById('xpTotal').textContent).toBe(String(lesson.xp));
+
+    // editing further after completion must not award XP twice
+    textarea.value = '<title>Hi</title><h1>Hello again</h1><p>para one</p><p>para two</p>';
+    textarea.dispatchEvent(new window.Event('input', { bubbles: true }));
+    expect(document.getElementById('xpTotal').textContent).toBe(String(lesson.xp));
   });
 
-  describe("Storage Operations", () => {
-    it("should save and load progress successfully", () => {
-      window.xp = 100;
-      window.streak = 5;
-      window.doneSet.add("html-01");
-      window.buffers["html-01"] = { html: "<h1>Test</h1>", css: "", js: "" };
-
-      window.saveProgress();
-
-      // Clear in-memory state
-      window.xp = 0;
-      window.streak = 0;
-      window.doneSet.clear();
-
-      window.loadProgress();
-
-      expect(window.xp).toBe(100);
-      expect(window.streak).toBe(5);
-      expect(window.doneSet.has("html-01")).toBe(true);
-      expect(window.buffers["html-01"].html).toBe("<h1>Test</h1>");
-    });
-
-    it("should handle corrupted local storage gracefully", () => {
-      window.localStorage.setItem("devforge:progress:v1", "invalid json{");
-
-      // Should not throw and keep initial values
-      window.xp = 0;
-      window.loadProgress();
-      expect(window.xp).toBe(0);
-    });
+  it('achievements modal renders one card per achievement with an accurate unlocked count', () => {
+    const { get, document, window } = createApp();
+    get('init()');
+    document
+      .getElementById('btnAchievements')
+      .dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+    const total = get('ACHIEVEMENTS').length;
+    expect(document.querySelectorAll('.badge-card').length).toBe(total);
+    expect(document.getElementById('achievementsCount').textContent).toMatch(
+      new RegExp(`Unlocked \\d+ / ${total}`)
+    );
   });
 
-  describe("Lesson Goals Validation", () => {
-    it("should evaluate checkGoalRule correctly for HTML tags", () => {
-      const rule = { type: "html-tag", value: "h1" };
-      const matched = window.checkGoalRule(rule, { html: "<h1>Header</h1>", css: "", js: "" });
-      expect(matched).toBe(true);
+  it('reset code restores a lesson to its original starter code, discarding edits', () => {
+    const { get, document, window } = createApp();
+    get('init()');
+    const lesson = get('FLAT_LESSONS[0]');
+    get(`loadLesson('${lesson.id}')`);
+    const textarea = document.getElementById('codeInput');
+    textarea.value = '<p>ruined it</p>';
+    textarea.dispatchEvent(new window.Event('input', { bubbles: true }));
+    expect(get('state.files.html')).toBe('<p>ruined it</p>');
 
-      const unmatched = window.checkGoalRule(rule, { html: "<p>Paragraph</p>", css: "", js: "" });
-      expect(unmatched).toBe(false);
-    });
-
-    it("should evaluate checkGoalRule correctly for CSS selectors", () => {
-      const rule = { type: "css-selector", value: "body" };
-      const matched = window.checkGoalRule(rule, {
-        html: "",
-        css: "body { background: red; }",
-        js: "",
-      });
-      expect(matched).toBe(true);
-    });
-
-    it("should evaluate checkGoalRule correctly for JS contains", () => {
-      const rule = { type: "js-contains", value: "console.log" };
-      const matched = window.checkGoalRule(rule, {
-        html: "",
-        css: "",
-        js: "console.log('hello');",
-      });
-      expect(matched).toBe(true);
-    });
+    document
+      .getElementById('btnResetPreview')
+      .dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+    expect(get('state.files.html')).toBe(lesson.html);
   });
 
-  describe("Snapshots System", () => {
-    it("should generate a shareable snapshot link", () => {
-      window.currentLessonId = "html-01";
-      window.buffers["html-01"] = { html: "<h1>Snapshot</h1>", css: "", js: "" };
+  it('reset code empties the Playground instead of restoring sample content', () => {
+    const { get, document, window } = createApp();
+    get('init()');
+    get("loadLesson('__playground__')");
+    document
+      .getElementById('btnResetPreview')
+      .dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+    expect(get('state.files.html')).toBe('');
+    expect(get('state.files.css')).toBe('');
+    expect(get('state.files.js')).toBe('');
+  });
 
-      window.generateSnapshot();
+  it('the chosen theme persists across a full reload', () => {
+    const first = createApp();
+    first.document
+      .getElementById('btnTheme')
+      .dispatchEvent(new first.window.MouseEvent('click', { bubbles: true }));
+    expect(first.document.documentElement.getAttribute('data-theme')).toBe('light');
+    expect(first.window.localStorage.getItem('devforge:theme')).toBe('light');
 
-      expect(navigator.clipboard.writeText).toHaveBeenCalled();
-      const sharedUrl = vi.mocked(navigator.clipboard.writeText).mock.calls[0][0];
-      expect(sharedUrl).toContain("#snapshot=");
-    });
+    // A real reload boots an entirely fresh app instance — the only thing
+    // that carries over is localStorage. Seeding it here and letting the
+    // REAL dom-utils.js startup code run (not a re-implementation of it)
+    // is what actually proves persistence works end to end.
+    const second = createApp({ localStorageSeed: { 'devforge:theme': 'light' } });
+    expect(second.document.documentElement.getAttribute('data-theme')).toBe('light');
+    // modals.js syncs the button's active state at load time, before init() ever runs
+    expect(second.document.getElementById('btnTheme').classList.contains('active')).toBe(true);
   });
 });
