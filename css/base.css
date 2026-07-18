@@ -12,7 +12,7 @@
   --border-soft: #161d27;
   --text-primary: #e6e9ef;
   --text-secondary: #96a0b0;
-  --text-faint: #4b5768;
+  --text-faint: #74849b;
   --accent: #4d8dff;
   --accent-soft: rgba(77, 141, 255, 0.14);
   --accent-text: #8fb8ff;
@@ -43,8 +43,15 @@
   --border-soft: #e6e8ed;
   --text-primary: #1a1f2b;
   --text-secondary: #5b6472;
-  --text-faint: #a4acb9;
+  --text-faint: #626d7f;
   --accent-soft: rgba(77, 141, 255, 0.1);
+  --accent-text: #005dff;
+  --html-color: #cc2900;
+  --css-color: #0771a1;
+  --js-color: #876508;
+  --success: #297a35;
+  --danger: #d81208;
+  --warning: #8c6617;
 }
 *,
 *::before,

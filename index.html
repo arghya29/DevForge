@@ -5,6 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DevForge — Learn HTML, CSS &amp; JS</title>
 
+    <!--
+      Applies the saved theme before any CSS loads or the page paints.
+      This MUST be an inline, blocking script at the very top of <head> —
+      an external script (even the very first one loaded) runs too late to
+      prevent a flash of the wrong theme, since the browser can paint
+      before it ever reaches a <script> tag at the bottom of <body>.
+      Kept intentionally tiny and dependency-free (no $, no helpers) since
+      nothing else has loaded yet at this point.
+    -->
+    <script>
+      (function () {
+        try {
+          if (localStorage.getItem('devforge:theme') === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+          }
+        } catch (e) {
+          /* localStorage unavailable — fall back to the default theme */
+        }
+      })();
+    </script>
+
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/layout.css" />
     <link rel="stylesheet" href="css/editor.css" />

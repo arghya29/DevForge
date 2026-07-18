@@ -41,34 +41,43 @@ export const JS_LOAD_ORDER = [
  */
 export function createApp({ seedStore, localStorageSeed } = {}) {
   const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
-  const dom = new JSDOM(html, {
-    url: 'http://localhost/',
-    runScripts: 'dangerously',
-    pretendToBeVisual: true
-  });
-  const { window } = dom;
-  const document = window.document;
 
   // Minimal, in-memory localStorage — jsdom's file://-backed storage is
   // unreliable in a test/CI environment, and we don't need persistence
   // across process runs here anyway.
   let backing = Object.assign({}, localStorageSeed);
   if (seedStore) backing['devforge:v1'] = JSON.stringify(seedStore);
-  Object.defineProperty(window, 'localStorage', {
-    configurable: true,
-    value: {
-      getItem: k => (Object.prototype.hasOwnProperty.call(backing, k) ? backing[k] : null),
-      setItem: (k, v) => {
-        backing[k] = String(v);
-      },
-      removeItem: k => {
-        delete backing[k];
-      },
-      clear: () => {
-        backing = {};
-      }
+
+  const dom = new JSDOM(html, {
+    url: 'http://localhost/',
+    runScripts: 'dangerously',
+    pretendToBeVisual: true,
+    // index.html has one small blocking inline <script> (applies the saved
+    // theme before first paint) which jsdom executes as part of parsing —
+    // beforeParse runs before that, so our stub is what it actually sees,
+    // exactly like a real browser would already have real localStorage
+    // available before running any script.
+    beforeParse(win) {
+      Object.defineProperty(win, 'localStorage', {
+        configurable: true,
+        value: {
+          getItem: k => (Object.prototype.hasOwnProperty.call(backing, k) ? backing[k] : null),
+          setItem: (k, v) => {
+            backing[k] = String(v);
+          },
+          removeItem: k => {
+            delete backing[k];
+          },
+          clear: () => {
+            backing = {};
+          }
+        }
+      });
     }
   });
+  const { window } = dom;
+  const document = window.document;
+
   window.navigator.clipboard = { writeText: () => Promise.resolve() };
   window.confirm = () => true;
   window.scrollTo = () => {};

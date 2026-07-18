@@ -117,4 +117,21 @@ describe('resizers.js', () => {
     );
     expect(Number(handle.getAttribute('aria-valuenow'))).toBe(500);
   });
+
+  it('never reports aria-valuemax below aria-valuemin, even when the computed max would be smaller (e.g. a very narrow container)', () => {
+    const { get, document } = createApp();
+    get('init()');
+    // a container narrower than min would make a naive `containerWidth - X`
+    // calculation return something less than min
+    const handle = withFakeResizer(get, document, {
+      orientation: 'vertical',
+      min: 220,
+      max: 180, // deliberately less than min
+      start: 200
+    });
+    expect(Number(handle.getAttribute('aria-valuemax'))).toBeGreaterThanOrEqual(
+      Number(handle.getAttribute('aria-valuemin'))
+    );
+    expect(Number(handle.getAttribute('aria-valuemax'))).toBe(220); // normalized up to min
+  });
 });

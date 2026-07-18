@@ -113,6 +113,27 @@ for everything after it being safe to build quickly.
 - [x] CI hardening: explicit least-privilege `permissions:`, a
       `concurrency` group to cancel superseded runs, and
       `persist-credentials: false` on checkout
+- [x] Streak day-boundary math is DST-safe (`setDate()`, not a fixed
+      24-hour subtraction — the latter can land on the wrong calendar day
+      across a DST transition)
+- [x] Theme applied via a blocking inline `<script>` in `<head>`, not an
+      external script file, so there's genuinely zero flash of the wrong
+      theme — a documented, deliberate, narrow exception to "everything
+      lives in `js/*.js`" (see `CODEBASE_GUIDE.md`)
+- [x] Verified (not just eyeballed) WCAG AA text contrast — computed actual
+      contrast ratios for every text-color/background pairing in both
+      themes; the light theme in particular had several colors reused
+      unchanged from the dark theme and was failing badly (ratios as low
+      as 1.4:1). All 80 checked pairs now pass ≥4.5:1.
+- [x] The top bar scrolls horizontally on narrow viewports instead of
+      letting toolbar buttons (including Run) overflow off-screen
+- [x] A visible focus ring on the Auto-run switch (its real `<input>` is
+      `opacity:0`, which also hides an outline drawn directly on it — the
+      ring is drawn on the visible sibling instead, driven by the input's
+      focus state)
+- [x] Resizable dividers never report an invalid ARIA range
+      (`aria-valuemax` < `aria-valuemin`) when their container is narrower
+      than the minimum size
 
 ## Phase 2 — Sharpen the wedge
 

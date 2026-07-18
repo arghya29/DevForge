@@ -51,7 +51,7 @@ function renderPaletteList(query) {
   if (!matches.length) {
     empty.style.display = '';
     list.style.display = 'none';
-    $('#paletteInput').setAttribute('aria-activedescendant', '');
+    $('#paletteInput').removeAttribute('aria-activedescendant');
     return;
   }
   empty.style.display = 'none';

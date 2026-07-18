@@ -222,18 +222,24 @@ the codebase doesn't repeat itself, plus one small startup snippet.
   in UTC). Every place the app tracks "what day is it" — streaks,
   completion-date tracking, the analytics consistency calendar — goes
   through this one function so they can never disagree with each other.
-- **A small startup snippet at the very top of the file** applies a saved
-  theme preference (`localStorage['devforge:theme']`) before the page's
-  first paint, to avoid a flash of the wrong theme. It has to live in the
-  _first_ script that runs for that timing to matter — the rest of the
-  theme toggle UI lives in `js/modals.js`.
 
 **When you'd touch it:** almost never, unless you're adding a genuinely new
 low-level helper that many files would use. This file is intentionally
 small and boring — that's correct, not a gap.
 
 **Loads first**, because literally every other file calls `$(...)` at some
-point, and the early theme snippet needs to run before anything paints.
+point.
+
+> **One deliberate exception to "everything lives in `js/*.js`":**
+> `index.html` itself has one small, inline, blocking `<script>` at the very
+> top of `<head>` — before any CSS or the `js/*.js` files — that applies a
+> saved theme preference so there's no flash of the wrong theme on load.
+> This _has_ to be inline and in `<head>`: an external script (even the
+> first one loaded, at the bottom of `<body>`) runs too late — the browser
+> can already have painted the page by the time it's reached. Keep this
+> snippet as small and dependency-free as it already is (no `$`, no
+> helpers — nothing else has loaded yet at that point), and don't be
+> tempted to move other logic there "while you're in it."
 
 ---
 

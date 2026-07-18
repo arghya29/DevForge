@@ -1,6 +1,18 @@
 import { describe, it, expect } from 'vitest';
 import { createApp } from './helpers/loadApp.js';
 
+// Mirrors js/dom-utils.js's localDateString() exactly, so seeded test
+// fixtures always agree with what the app itself computes for "today" —
+// using UTC-based date math here (as the old tests did) would only agree
+// with the app by coincidence on a UTC machine, and disagree (flakily)
+// everywhere else.
+function localDay(daysAgo = 0) {
+  const d = new Date();
+  d.setDate(d.getDate() - daysAgo);
+  const offsetMs = d.getTimezoneOffset() * 60000;
+  return new Date(d.getTime() - offsetMs).toISOString().slice(0, 10);
+}
+
 describe('store.js — persistent progress', () => {
   it('defaultStore() has the expected shape', () => {
     const { get } = createApp();
@@ -26,7 +38,7 @@ describe('store.js — persistent progress', () => {
   });
 
   it('loadStore() merges saved data over the defaults (forward-compatible with new fields)', () => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = localDay(0);
     const { get } = createApp({
       seedStore: { completed: ['html-first-element'], streak: 4, lastActive: today }
     });
@@ -66,21 +78,21 @@ describe('store.js — persistent progress', () => {
   });
 
   it('updateStreak() does not double-count the same day', () => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = localDay(0);
     const { get } = createApp({ seedStore: { streak: 5, lastActive: today } });
     get('updateStreak()');
     expect(get('store.streak')).toBe(5);
   });
 
   it('updateStreak() increments on a consecutive day', () => {
-    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    const yesterday = localDay(1);
     const { get } = createApp({ seedStore: { streak: 5, lastActive: yesterday } });
     get('updateStreak()');
     expect(get('store.streak')).toBe(6);
   });
 
   it('updateStreak() resets to 1 after a gap of more than one day', () => {
-    const longAgo = new Date(Date.now() - 5 * 86400000).toISOString().slice(0, 10);
+    const longAgo = localDay(5);
     const { get } = createApp({ seedStore: { streak: 12, lastActive: longAgo } });
     get('updateStreak()');
     expect(get('store.streak')).toBe(1);
@@ -117,17 +129,17 @@ describe('store.js — isValidStoreShape() / import validation', () => {
     expect(get('isValidStoreShape([1, 2, 3])')).toBe(false);
   });
 
-  it('rejects wrong-typed fields', () => {
+  it('rejects wrong-typed fields (with the required baseline fields otherwise present and valid)', () => {
     const { get } = createApp();
-    expect(get("isValidStoreShape({ completed: 'not-an-array' })")).toBe(false);
-    expect(get('isValidStoreShape({ completed: [1, 2, 3] })')).toBe(false); // ids must be strings
-    expect(get("isValidStoreShape({ streak: 'five' })")).toBe(false);
-    expect(get('isValidStoreShape({ hasRun: "yes" })')).toBe(false);
-    expect(get('isValidStoreShape({ code: [1, 2] })')).toBe(false); // code must be an object, not array
+    expect(get("isValidStoreShape({ completed: 'not-an-array', streak: 0 })")).toBe(false);
+    expect(get('isValidStoreShape({ completed: [1, 2, 3], streak: 0 })')).toBe(false); // ids must be strings
+    expect(get("isValidStoreShape({ completed: [], streak: 'five' })")).toBe(false);
+    expect(get('isValidStoreShape({ completed: [], streak: 0, hasRun: "yes" })')).toBe(false);
+    expect(get('isValidStoreShape({ completed: [], streak: 0, code: [1, 2] })')).toBe(false); // code must be an object, not array
   });
 
   it('the import handler refuses a malformed file instead of corrupting the live store', async () => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = localDay(0);
     const { get, document, window } = createApp({ seedStore: { streak: 7, lastActive: today } });
     get('init()');
     const file = new window.File(['{"totally": "not a progress file"}'], 'bad.json', {

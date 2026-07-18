@@ -1,17 +1,10 @@
 /* DevForge — dom-utils.js
-   Tiny DOM helpers used across every other file: $ / $$ / el / escapeHtml / toast. */
+   Tiny DOM helpers used across every other file: $ / $$ / el / escapeHtml / toast.
+   (The early theme-application snippet that used to live here has moved to
+   a blocking inline <script> at the top of index.html's <head> — see the
+   comment there for why it has to be inline to actually prevent a flash of
+   the wrong theme.) */
 'use strict';
-
-// Applied here, in the very first script to run, so the saved theme takes
-// effect before the page's first paint rather than flashing dark-then-light
-// (or vice versa). The rest of the theme toggle UI lives in modals.js.
-try {
-  if (localStorage.getItem('devforge:theme') === 'light') {
-    document.documentElement.setAttribute('data-theme', 'light');
-  }
-} catch {
-  /* localStorage unavailable — fall back to the default theme */
-}
 
 const $ = (sel, root) => (root || document).querySelector(sel);
 const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));

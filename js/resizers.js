@@ -27,11 +27,19 @@ function makeResizer({ handle, orientation, min, getMax, getSize, setSize, step 
   handle.setAttribute('aria-orientation', orientation);
   handle.setAttribute('aria-valuemin', String(min));
 
+  // A narrow container (e.g. a small/mobile viewport) can make the raw
+  // computed max smaller than min. Normalizing here keeps the reported
+  // ARIA range sane (valuemax is never less than valuemin) instead of
+  // silently relying on clamp() to paper over it.
+  function normalizedMax(rect) {
+    return Math.max(min, getMax(rect));
+  }
+
   function reportValue(max) {
     handle.setAttribute('aria-valuenow', String(Math.round(getSize())));
     if (max !== undefined) handle.setAttribute('aria-valuemax', String(Math.round(max)));
   }
-  reportValue(getMax(handle.getBoundingClientRect()));
+  reportValue(normalizedMax(handle.getBoundingClientRect()));
 
   let dragging = false;
   let startPos = 0;
@@ -46,7 +54,7 @@ function makeResizer({ handle, orientation, min, getMax, getSize, setSize, step 
     dragging = true;
     startPos = isVertical ? e.clientX : e.clientY;
     startSize = getSize();
-    max = getMax(handle.getBoundingClientRect()); // measured once per drag, not on every mousemove
+    max = normalizedMax(handle.getBoundingClientRect()); // measured once per drag, not on every mousemove
     handle.classList.add('dragging');
     document.body.style.cursor = isVertical ? 'col-resize' : 'row-resize';
     document.body.style.userSelect = 'none';
@@ -76,7 +84,7 @@ function makeResizer({ handle, orientation, min, getMax, getSize, setSize, step 
   handle.addEventListener('keydown', e => {
     const growKey = isVertical ? 'ArrowRight' : 'ArrowUp';
     const shrinkKey = isVertical ? 'ArrowLeft' : 'ArrowDown';
-    const currentMax = getMax(handle.getBoundingClientRect());
+    const currentMax = normalizedMax(handle.getBoundingClientRect());
     max = currentMax;
     if (e.key === growKey) {
       e.preventDefault();

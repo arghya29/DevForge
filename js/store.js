@@ -83,7 +83,12 @@ function updateStreak() {
   if (store.lastActive === today) {
     /* already counted today */
   } else {
-    const y = localDateString(new Date(Date.now() - 86400000));
+    // A fixed 24-hour subtraction doesn't reliably land on "yesterday"
+    // across a DST transition (a day can be 23 or 25 hours long). Using
+    // the Date API's own day arithmetic is timezone/DST-safe.
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const y = localDateString(yesterday);
     if (store.lastActive === y) store.streak = (store.streak || 1) + 1;
     else store.streak = 1;
     store.lastActive = today;
