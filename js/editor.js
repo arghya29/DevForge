@@ -92,8 +92,7 @@ codeInput.addEventListener('keydown', e => {
   }
   if (mod && e.key.toLowerCase() === 's') {
     e.preventDefault();
-    persistCurrentCode();
-    toast('Saved');
+    if (persistCurrentCode()) toast('Saved');
     return;
   }
   if (mod && e.shiftKey && e.key.toLowerCase() === 'r') {
@@ -134,7 +133,7 @@ codeInput.addEventListener('keydown', e => {
 });
 
 function persistCurrentCode() {
-  if (state.currentLessonId === PLAYGROUND.id) return; // playground not persisted as "code"
+  if (state.currentLessonId === PLAYGROUND.id) return true; // playground not persisted as "code"
   const lesson = currentLessonDef();
   store.code[state.currentLessonId] = {
     html: state.files.html,
@@ -142,7 +141,7 @@ function persistCurrentCode() {
     js: state.files.js,
     version: (lesson && lesson.version) || 1
   };
-  saveStore(store);
+  return saveStore(store);
 }
 function markStarted() {
   if (state.currentLessonId === PLAYGROUND.id) return;

@@ -106,4 +106,53 @@ describe('accessibility', () => {
     expect(header.parentElement.classList.contains('collapsed')).toBe(true);
     expect(header.getAttribute('aria-expanded')).toBe('false');
   });
+
+  it('the lesson panel header and goals bar are real <button> elements, not ARIA-only reimplementations', () => {
+    // Native <button>s get keyboard (Enter/Space) activation for free, from
+    // the browser, guaranteed by the HTML spec — no JS re-implementation
+    // needed or to maintain. jsdom doesn't simulate that native
+    // keydown->click activation, so the only way to test it end-to-end
+    // would be a real browser; what we CAN verify here is the structural
+    // guarantee (it really is a <button>) plus that clicking it (which is
+    // exactly what Enter/Space produces in any real browser) has the
+    // correct effect.
+    const { document } = createApp();
+    expect(document.getElementById('lessonPanelHeader').tagName).toBe('BUTTON');
+    expect(document.getElementById('goalsBar').tagName).toBe('BUTTON');
+  });
+
+  it('clicking the lesson panel header toggles the lesson panel collapsed state', () => {
+    const { get, document, window } = createApp();
+    get('init()');
+    const panel = document.getElementById('lessonPanel');
+    const header = document.getElementById('lessonPanelHeader');
+    expect(panel.classList.contains('collapsed')).toBe(false);
+    header.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+    expect(panel.classList.contains('collapsed')).toBe(true);
+    expect(header.getAttribute('aria-expanded')).toBe('false');
+    header.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+    expect(panel.classList.contains('collapsed')).toBe(false);
+    expect(header.getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('clicking the goals bar toggles the goals list open/closed exactly once per click (no duplicate listeners)', () => {
+    const { get, document, window } = createApp();
+    get('init()');
+    const lesson = get('FLAT_LESSONS[0]');
+    get(`loadLesson('${lesson.id}')`);
+    const goalsBar = document.getElementById('goalsBar');
+    const goalsList = document.getElementById('goalsList');
+    expect(goalsList.classList.contains('open')).toBe(false);
+    goalsBar.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+    expect(goalsList.classList.contains('open')).toBe(true);
+    expect(goalsBar.getAttribute('aria-expanded')).toBe('true');
+    // a second click must close it again — if the old keydown handler had
+    // been left in place alongside the button's native click behavior,
+    // a single real keypress would toggle it twice (net no-op), which
+    // this two-click round trip would also have masked; this at least
+    // confirms one click == one toggle
+    goalsBar.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+    expect(goalsList.classList.contains('open')).toBe(false);
+    expect(goalsBar.getAttribute('aria-expanded')).toBe('false');
+  });
 });

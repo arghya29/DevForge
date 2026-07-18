@@ -153,6 +153,23 @@ describe('store.js — isValidStoreShape() / import validation', () => {
     await new Promise(resolve => setTimeout(resolve, 50));
     expect(get('store.streak')).toBe(7); // untouched — the bad file was rejected
   });
+
+  it('does not claim "Progress imported" if the underlying save fails', async () => {
+    const { get, document, window } = createApp();
+    get('init()');
+    window.localStorage.setItem = () => {
+      throw new Error('QuotaExceededError');
+    };
+    const validExport = JSON.stringify(get('defaultStore()'));
+    const file = new window.File([validExport], 'progress.json', { type: 'application/json' });
+    Object.defineProperty(document.getElementById('importFile'), 'files', { value: [file] });
+    document
+      .getElementById('importFile')
+      .dispatchEvent(new window.Event('change', { bubbles: true }));
+    await new Promise(resolve => setTimeout(resolve, 50));
+    const toasts = Array.from(document.querySelectorAll('.toast')).map(t => t.textContent);
+    expect(toasts).not.toContain('Progress imported');
+  });
 });
 
 describe('store.js — saveStore() failure handling', () => {

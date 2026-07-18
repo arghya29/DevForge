@@ -138,9 +138,7 @@ function activateOnEnterOrSpace(handler) {
   };
 }
 $('#goalsBar').addEventListener('click', toggleGoals);
-$('#goalsBar').addEventListener('keydown', activateOnEnterOrSpace(toggleGoals));
 $('#lessonPanelHeader').addEventListener('click', toggleLessonPanel);
-$('#lessonPanelHeader').addEventListener('keydown', activateOnEnterOrSpace(toggleLessonPanel));
 
 function updateCounters() {
   let idx = 0,

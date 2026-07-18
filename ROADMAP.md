@@ -134,6 +134,18 @@ for everything after it being safe to build quickly.
 - [x] Resizable dividers never report an invalid ARIA range
       (`aria-valuemax` < `aria-valuemin`) when their container is narrower
       than the minimum size
+- [x] `saveStore()` returns whether the write actually succeeded, and every
+      "success" toast (Ctrl+S, progress import, analytics reset, snippet
+      save) is gated on that result — previously the editor claimed
+      "Saved" (and similar) unconditionally even when the underlying
+      `localStorage` write had just failed, directly contradicting
+      `saveStore()`'s own failure warning shown moments earlier
+- [x] The lesson panel header and goals bar are real `<button>` elements
+      instead of `role="button"` + `tabindex="0"` divs with a hand-rolled
+      keydown handler — not a bug fix (the manual handler already worked
+      correctly, verified before changing it), but a legitimate
+      simplification: native buttons get Enter/Space activation from the
+      browser for free, guaranteed by spec, with no JS to maintain
 
 ## Phase 2 — Sharpen the wedge
 

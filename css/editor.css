@@ -113,9 +113,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
   padding: 9px 14px;
   cursor: pointer;
   flex-shrink: 0;
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  text-align: left;
 }
 .lesson-panel-title {
   font-size: 12.5px;
@@ -180,10 +185,17 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
   padding: 8px 14px;
   border-top: 1px solid var(--border-soft);
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
   cursor: pointer;
   flex-shrink: 0;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
 }
 .goals-bar-left {
   display: flex;

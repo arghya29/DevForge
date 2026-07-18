@@ -142,4 +142,44 @@ describe('editor.js — editor behavior', () => {
     expect(document.getElementById('codeHighlight').textContent).toBe(cssTextAtSwitch);
     expect(get('state.currentLang')).toBe('css');
   });
+
+  it('Ctrl+S shows "Saved" when the save actually succeeds', () => {
+    const { get, document, window } = createApp();
+    const lessonId = get('FLAT_LESSONS[0].id');
+    get(`loadLesson('${lessonId}')`);
+    const textarea = document.getElementById('codeInput');
+    textarea.dispatchEvent(
+      new window.KeyboardEvent('keydown', {
+        key: 's',
+        ctrlKey: true,
+        bubbles: true,
+        cancelable: true
+      })
+    );
+    const toasts = Array.from(document.querySelectorAll('.toast')).map(t => t.textContent);
+    expect(toasts).toContain('Saved');
+  });
+
+  it('Ctrl+S does NOT claim "Saved" when the underlying write actually fails', () => {
+    const { get, document, window } = createApp();
+    const lessonId = get('FLAT_LESSONS[0].id');
+    get(`loadLesson('${lessonId}')`);
+    window.localStorage.setItem = () => {
+      throw new Error('QuotaExceededError');
+    };
+    const textarea = document.getElementById('codeInput');
+    textarea.dispatchEvent(
+      new window.KeyboardEvent('keydown', {
+        key: 's',
+        ctrlKey: true,
+        bubbles: true,
+        cancelable: true
+      })
+    );
+    const toasts = Array.from(document.querySelectorAll('.toast')).map(t => t.textContent);
+    expect(toasts).not.toContain('Saved');
+    // the learner still gets told something is wrong — just not a
+    // contradictory "Saved" alongside it
+    expect(toasts.some(t => /save/i.test(t))).toBe(true);
+  });
 });

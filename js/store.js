@@ -30,6 +30,7 @@ function saveStore(store) {
   try {
     localStorage.setItem(LS_KEY, JSON.stringify(store));
     saveStore._warned = false;
+    return true;
   } catch {
     // Don't spam a toast on every keystroke if storage stays broken —
     // warn once per failure episode, and reset the flag the next time a
@@ -38,6 +39,7 @@ function saveStore(store) {
       saveStore._warned = true;
       toast("Couldn't save your progress — storage may be full or unavailable.");
     }
+    return false;
   }
 }
 let store = loadStore();

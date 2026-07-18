@@ -24,11 +24,11 @@ $('#importFile').addEventListener('change', e => {
         return;
       }
       store = Object.assign(defaultStore(), parsed);
-      saveStore(store);
+      const saved = saveStore(store);
       refreshXP();
       renderSidebar();
       loadLesson(state.currentLessonId);
-      toast('Progress imported');
+      if (saved) toast('Progress imported');
     } catch {
       toast('Invalid file');
     }

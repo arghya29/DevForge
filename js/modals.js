@@ -202,9 +202,9 @@ $('#resetAnalyticsBtn').addEventListener('click', () => {
   store.lessonTime = {};
   store.lessonRetries = {};
   store.completionDates = [];
-  saveStore(store);
+  const saved = saveStore(store);
   renderAnalytics();
-  toast('Analytics reset');
+  if (saved) toast('Analytics reset');
 });
 
 /* code snippets */
@@ -267,10 +267,10 @@ $('#snippetSaveBtn').addEventListener('click', () => {
     js: state.files.js,
     createdAt: Date.now()
   });
-  saveStore(store);
+  const saved = saveStore(store);
   $('#snippetNameInput').value = '';
   renderSnippets();
-  toast('Snippet saved');
+  if (saved) toast('Snippet saved');
 });
 
 /* achievements */
