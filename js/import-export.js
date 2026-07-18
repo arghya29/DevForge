@@ -19,6 +19,10 @@ $('#importFile').addEventListener('change', e => {
   reader.onload = () => {
     try {
       const parsed = JSON.parse(reader.result);
+      if (!isValidStoreShape(parsed)) {
+        toast('That file doesn\u2019t look like a DevForge progress export');
+        return;
+      }
       store = Object.assign(defaultStore(), parsed);
       saveStore(store);
       refreshXP();

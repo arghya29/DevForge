@@ -101,4 +101,17 @@ describe('curriculum data', () => {
       expect(lesson.id, lesson.id).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
     });
   });
+
+  it('no lesson ships with every goal already satisfied by its own starter code', () => {
+    // A lesson whose starter code already passes every goal requires zero
+    // action from the learner — it silently "completes itself." At least
+    // one goal must genuinely require the learner to write something.
+    FLAT_LESSONS.forEach(lesson => {
+      const files = { html: lesson.html, css: lesson.css, js: lesson.js };
+      const allSatisfied = lesson.goals.every(goal => goal.check(files));
+      expect(allSatisfied, lesson.id + ': every goal is already met by the starter code').toBe(
+        false
+      );
+    });
+  });
 });

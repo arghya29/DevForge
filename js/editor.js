@@ -37,6 +37,7 @@ function updateLineNumbers(text) {
 }
 function renderEditor() {
   const text = state.files[state.currentLang];
+  clearTimeout(highlightTimer); // a pending debounced highlight from the previous tab must not fire later and overwrite this one
   codeInput.value = text;
   updateHighlight(text); // full lesson load — always render immediately, not a hot path
   updateLineNumbers(text);

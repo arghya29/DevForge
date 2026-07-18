@@ -21,6 +21,7 @@ describe('commands.js — command palette', () => {
       })
     );
     expect(document.getElementById('commandPalette').className).toContain('open');
+    expect(document.activeElement).toBe(document.getElementById('paletteInput'));
   });
 
   it('Ctrl+K again closes the palette', () => {
@@ -42,10 +43,14 @@ describe('commands.js — command palette', () => {
   });
 
   it('Escape closes the palette', () => {
-    const { get, document } = createApp();
+    const { get, document, window } = createApp();
     get('openCommandPalette()');
     expect(document.getElementById('commandPalette').className).toContain('open');
-    get('closeCommandPalette()');
+    document
+      .getElementById('paletteInput')
+      .dispatchEvent(
+        new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+      );
     expect(document.getElementById('commandPalette').className).not.toContain('open');
   });
 

@@ -1,6 +1,37 @@
 import { describe, it, expect } from 'vitest';
 import { createApp } from './helpers/loadApp.js';
 
+describe('dom-utils.js', () => {
+  it('escapeHtml() escapes quote characters, not just angle brackets and ampersands', () => {
+    const { get } = createApp();
+    const out = get(`escapeHtml('<div class="a">it\\'s "quoted" & <b>bold</b></div>')`);
+    expect(out).not.toContain('"');
+    expect(out).not.toContain("'");
+    expect(out).toContain('&quot;');
+    expect(out).toContain('&#39;');
+    expect(out).toContain('&lt;div');
+    expect(out).toContain('&amp;');
+  });
+
+  it('el() reflects boolean attributes as real DOM properties, not string-ified attributes', () => {
+    const { get } = createApp();
+    // disabled:false must NOT render as disabled="false" (which HTML would
+    // still treat as disabled — only the attribute's PRESENCE matters)
+    const disabledFalse = get(`el('button', { disabled: false }).disabled`);
+    expect(disabledFalse).toBe(false);
+    const disabledTrue = get(`el('button', { disabled: true }).disabled`);
+    expect(disabledTrue).toBe(true);
+    const hasAttrWhenFalse = get(`el('button', { disabled: false }).hasAttribute('disabled')`);
+    expect(hasAttrWhenFalse).toBe(false);
+  });
+
+  it('el() still sets ordinary (non-boolean) attributes via setAttribute as before', () => {
+    const { get } = createApp();
+    const role = get(`el('div', { role: 'button', 'aria-expanded': 'true' }).getAttribute('role')`);
+    expect(role).toBe('button');
+  });
+});
+
 describe('highlighter.js — syntax highlighting', () => {
   it('wraps JS comments, strings, and keywords in token spans', () => {
     const { get } = createApp();
@@ -91,5 +122,24 @@ describe('editor.js — editor behavior', () => {
     get("loadLesson('__playground__')");
     get("state.files.html = '<h1>playground edit</h1>', persistCurrentCode()");
     expect(get('store.code')['__playground__']).toBeUndefined();
+  });
+
+  it('switching tabs cancels a pending debounced highlight instead of letting it paint stale content into the new tab', async () => {
+    const { get, document, window } = createApp();
+    get("loadLesson('__playground__')");
+    // force the large-buffer debounce path (>4000 chars) on the JS tab
+    get("switchTab('js')");
+    const textarea = document.getElementById('codeInput');
+    textarea.value = 'x'.repeat(4500);
+    textarea.dispatchEvent(new window.Event('input', { bubbles: true }));
+    // immediately switch to CSS before the debounced JS highlight has fired
+    get("switchTab('css')");
+    const cssTextAtSwitch = document.getElementById('codeHighlight').textContent;
+
+    await new Promise(resolve => setTimeout(resolve, 250)); // past the 150ms debounce window
+
+    // the overlay must still reflect the CSS tab, not stale JS content
+    expect(document.getElementById('codeHighlight').textContent).toBe(cssTextAtSwitch);
+    expect(get('state.currentLang')).toBe('css');
   });
 });

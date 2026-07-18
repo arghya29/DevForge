@@ -1,7 +1,7 @@
 ---
 name: Feature request
 about: Suggest an idea for DevForge
-title: "[Feature] "
+title: '[Feature] '
 labels: enhancement
 ---
 
@@ -11,6 +11,7 @@ A clear description of the problem — not the solution yet.
 **What's your proposed solution?**
 
 **Which part of the app does this affect?**
+
 - [ ] Editor
 - [ ] Preview / console
 - [ ] Curriculum / lessons

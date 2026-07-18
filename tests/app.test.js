@@ -38,14 +38,14 @@ describe('app.js — integration behavior', () => {
     get(`loadLesson('${lesson.id}')`);
 
     const textarea = document.getElementById('codeInput');
-    textarea.value = '<title>Hi</title><h1>Hello</h1><p>para</p>';
+    textarea.value = '<title>Hi</title><h1>Hello</h1><p>para one</p><p>para two</p>';
     textarea.dispatchEvent(new window.Event('input', { bubbles: true }));
 
     expect(get('store.completed')).toContain(lesson.id);
     expect(document.getElementById('xpTotal').textContent).toBe(String(lesson.xp));
 
     // editing further after completion must not award XP twice
-    textarea.value = '<title>Hi</title><h1>Hello again</h1><p>para</p>';
+    textarea.value = '<title>Hi</title><h1>Hello again</h1><p>para one</p><p>para two</p>';
     textarea.dispatchEvent(new window.Event('input', { bubbles: true }));
     expect(document.getElementById('xpTotal').textContent).toBe(String(lesson.xp));
   });
@@ -89,5 +89,23 @@ describe('app.js — integration behavior', () => {
     expect(get('state.files.html')).toBe('');
     expect(get('state.files.css')).toBe('');
     expect(get('state.files.js')).toBe('');
+  });
+
+  it('the chosen theme persists across a full reload', () => {
+    const first = createApp();
+    first.document
+      .getElementById('btnTheme')
+      .dispatchEvent(new first.window.MouseEvent('click', { bubbles: true }));
+    expect(first.document.documentElement.getAttribute('data-theme')).toBe('light');
+    expect(first.window.localStorage.getItem('devforge:theme')).toBe('light');
+
+    // A real reload boots an entirely fresh app instance — the only thing
+    // that carries over is localStorage. Seeding it here and letting the
+    // REAL dom-utils.js startup code run (not a re-implementation of it)
+    // is what actually proves persistence works end to end.
+    const second = createApp({ localStorageSeed: { 'devforge:theme': 'light' } });
+    expect(second.document.documentElement.getAttribute('data-theme')).toBe('light');
+    // modals.js syncs the button's active state at load time, before init() ever runs
+    expect(second.document.getElementById('btnTheme').classList.contains('active')).toBe(true);
   });
 });

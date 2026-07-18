@@ -1,358 +1,731 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DevForge — Learn HTML, CSS &amp; JS</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DevForge — Learn HTML, CSS &amp; JS</title>
 
-<link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/layout.css">
-<link rel="stylesheet" href="css/editor.css">
-<link rel="stylesheet" href="css/components.css">
-<link rel="stylesheet" href="css/modals.css">
-</head>
-<body>
-
-<div class="app">
-
-  <!-- ===================== TOP BAR ===================== -->
-  <header class="topbar">
-    <button class="icon-btn" id="sidebarToggle" title="Toggle curriculum">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </button>
-    <div class="brand">
-      <svg class="brand-mark" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 3 14h7l-1 8 11-13h-8l1-7z"/></svg>
-      <span class="brand-name">DevForge</span>
-    </div>
-
-    <div class="lang-tabs">
-      <button class="lang-tab active" data-lang="html"><span class="dot"></span>HTML</button>
-      <button class="lang-tab" data-lang="css"><span class="dot"></span>CSS</button>
-      <button class="lang-tab" data-lang="js"><span class="dot"></span>JS</button>
-    </div>
-
-    <div class="topbar-right">
-      <div class="auto-group">
-        <label class="switch"><input type="checkbox" id="autoToggle"><span class="track"></span></label>
-        <span class="auto-label">Auto</span>
-        <span class="lesson-counter" id="lessonCounter">0/0</span>
-        <input type="range" class="font-slider" id="fontSlider" min="11" max="20" value="13" title="Editor font size">
-      </div>
-      <div class="layout-dropdown-wrap">
-        <button class="icon-btn" id="btnLayout" title="Workspace layout">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="14" width="8" height="7" rx="1.5"/></svg>
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/editor.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/modals.css" />
+  </head>
+  <body>
+    <div class="app">
+      <!-- ===================== TOP BAR ===================== -->
+      <header class="topbar">
+        <button class="icon-btn" id="sidebarToggle" title="Toggle curriculum">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
         </button>
-        <div class="layout-menu" id="layoutMenu">
-          <div class="layout-menu-title">Layout Presets</div>
-          <div class="layout-option" data-layout="default">Default</div>
-          <div class="layout-option" data-layout="wide-editor">Wide Editor</div>
-          <div class="layout-option" data-layout="wide-preview">Wide Preview</div>
-          <div class="layout-option" data-layout="minimal">Minimal</div>
+        <div class="brand">
+          <svg class="brand-mark" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M13 2 3 14h7l-1 8 11-13h-8l1-7z" />
+          </svg>
+          <span class="brand-name">DevForge</span>
         </div>
-      </div>
-      <button class="icon-btn" id="btnTheme" title="Toggle light/dark theme">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
-      </button>
-      <button class="icon-btn" id="btnHelp" title="Keyboard shortcuts">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2-3 4"/><line x1="12" y1="17" x2="12" y2="17.01"/></svg>
-      </button>
-      <button class="icon-btn" id="btnAnalytics" title="Learner analytics">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="20"/><rect x="6" y="12" width="3" height="8"/><rect x="13" y="8" width="3" height="12"/><rect x="18" y="14" width="3" height="6"/></svg>
-      </button>
-      <button class="icon-btn" id="btnSnippets" title="Code snippets">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14l-1.5-2.5A3 3 0 0 1 17 12.7V7a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v5.7a3 3 0 0 1-.5 1.8z"/></svg>
-      </button>
-      <button class="icon-btn" id="btnAchievements" title="Achievements & badges">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M9 13.5 7 22l5-3 5 3-2-8.5"/></svg>
-      </button>
-      <button class="run-btn" id="runBtn">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-        Run
-      </button>
-    </div>
-  </header>
 
-  <!-- ===================== MAIN ===================== -->
-  <div class="main">
+        <div class="lang-tabs">
+          <button class="lang-tab active" data-lang="html"><span class="dot"></span>HTML</button>
+          <button class="lang-tab" data-lang="css"><span class="dot"></span>CSS</button>
+          <button class="lang-tab" data-lang="js"><span class="dot"></span>JS</button>
+        </div>
 
-    <!-- ---------- SIDEBAR ---------- -->
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-inner">
-        <div class="sidebar-header">
-          <span class="sidebar-title">Curriculum</span>
-        </div>
-        <div class="sidebar-search">
-          <div class="sidebar-search-wrap">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="lessonSearch" placeholder="Search lessons...">
+        <div class="topbar-right">
+          <div class="auto-group">
+            <label class="switch"
+              ><input
+                type="checkbox"
+                id="autoToggle"
+                aria-label="Auto-run code on every change" /><span class="track"></span
+            ></label>
+            <span class="auto-label">Auto</span>
+            <span class="lesson-counter" id="lessonCounter">0/0</span>
+            <input
+              type="range"
+              class="font-slider"
+              id="fontSlider"
+              min="11"
+              max="20"
+              value="13"
+              title="Editor font size"
+              aria-label="Editor font size"
+            />
           </div>
-        </div>
-        <div class="curriculum" id="curriculum"></div>
-        <div class="sidebar-footer">
-          <div class="footer-stats">
-            <span class="stat">⚡ XP: <b id="xpTotal">0</b></span>
-            <span class="stat">🔥 <b id="streakCount">1</b> streak</span>
-          </div>
-          <div class="footer-actions">
-            <button class="footer-btn" id="exportBtn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-              Export
+          <div class="layout-dropdown-wrap">
+            <button class="icon-btn" id="btnLayout" title="Workspace layout">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="18" rx="1.5" />
+                <rect x="13" y="3" width="8" height="8" rx="1.5" />
+                <rect x="13" y="14" width="8" height="7" rx="1.5" />
+              </svg>
             </button>
-            <button class="footer-btn" id="importBtn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15V3m0 0L8 7m4-4 4 4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-              Import
-            </button>
-            <input type="file" id="importFile" accept="application/json" style="display:none;">
-          </div>
-        </div>
-      </div>
-    </aside>
-
-    <!-- ---------- WORKSPACE ---------- -->
-    <div class="workspace">
-
-      <!-- editor column -->
-      <div class="editor-col" id="editorCol">
-        <div class="editor-body">
-          <div class="line-numbers" id="lineNumbers">1</div>
-          <div class="code-area">
-            <pre id="codeHighlight"><code></code></pre>
-            <textarea id="codeInput" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>
-          </div>
-        </div>
-
-        <div class="lesson-panel" id="lessonPanel">
-          <div class="lesson-panel-header" id="lessonPanelHeader" role="button" tabindex="0" aria-expanded="true" aria-controls="lessonBody">
-            <span class="lesson-panel-title" id="lessonPanelTitle">Playground</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-          </div>
-          <div class="lesson-body" id="lessonBody">
-            <p>This is your free playground. Write any HTML, CSS or JavaScript and hit <b>Run</b> — nothing here is graded. Pick a lesson from the curriculum on the left to start learning.</p>
-          </div>
-          <div class="hints-section" id="hintsSection" style="display:none;">
-            <ul class="hints-list" id="hintsList"></ul>
-            <button class="hint-btn" id="hintBtn" type="button">
-              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2z"/></svg>
-              <span id="hintBtnLabel">Show a hint</span>
-            </button>
-          </div>
-          <div class="goals-bar" id="goalsBar" role="button" tabindex="0" aria-expanded="false" aria-controls="goalsList" style="display:none;">
-            <span class="goals-bar-left">GOALS <span class="goals-count" id="goalsCount">0 / 0</span></span>
-            <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
-          </div>
-          <ul class="goals-list" id="goalsList"></ul>
-          <div class="lesson-footer">
-            <button class="nav-btn" id="prevBtn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-              Prev
-            </button>
-            <span class="bottom-counter" id="bottomCounter">0 / 0</span>
-            <button class="nav-btn" id="nextBtn">
-              Next
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="divider-v" id="dividerV"></div>
-
-      <!-- preview column -->
-      <div class="preview-col">
-        <div class="pane-header">
-          <div class="pane-header-left"><span class="status-live"></span> LIVE PREVIEW</div>
-          <div class="pane-header-right">
-            <div class="device-group">
-              <button class="device-btn active" data-view="desktop" title="Desktop view">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="13" rx="1.5"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            <div
+              class="layout-menu"
+              id="layoutMenu"
+              role="menu"
+              aria-label="Workspace layout presets"
+            >
+              <div class="layout-menu-title">Layout Presets</div>
+              <button type="button" class="layout-option" role="menuitem" data-layout="default">
+                Default
               </button>
-              <button class="device-btn" data-view="tablet" title="Tablet view">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+              <button type="button" class="layout-option" role="menuitem" data-layout="wide-editor">
+                Wide Editor
               </button>
-              <button class="device-btn" data-view="mobile" title="Mobile view">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+              <button
+                type="button"
+                class="layout-option"
+                role="menuitem"
+                data-layout="wide-preview"
+              >
+                Wide Preview
+              </button>
+              <button type="button" class="layout-option" role="menuitem" data-layout="minimal">
+                Minimal
               </button>
             </div>
-            <button class="icon-btn" id="btnResetPreview" title="Reset code" style="width:26px;height:26px;">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7"/><polyline points="3 4 3 9 8 9"/></svg>
-            </button>
-            <button class="icon-btn" id="btnPreviewRefresh" title="Refresh preview" style="width:26px;height:26px;">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-            </button>
-            <button class="icon-btn" id="btnEmptyCode" title="Empty code" style="width:26px;height:26px;">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6l1 3H8l1-3z"/><path d="M4 6h16"/><path d="M6 6v13a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V6"/></svg>
-            </button>
-            <button class="icon-btn" id="btnExportCode" title="Export code" style="width:26px;height:26px;">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-            </button>
+          </div>
+          <button class="icon-btn" id="btnTheme" title="Toggle light/dark theme">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z" />
+            </svg>
+          </button>
+          <button class="icon-btn" id="btnHelp" title="Keyboard shortcuts">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2-3 4" />
+              <line x1="12" y1="17" x2="12" y2="17.01" />
+            </svg>
+          </button>
+          <button class="icon-btn" id="btnAnalytics" title="Learner analytics">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="4" y1="20" x2="20" y2="20" />
+              <rect x="6" y="12" width="3" height="8" />
+              <rect x="13" y="8" width="3" height="12" />
+              <rect x="18" y="14" width="3" height="6" />
+            </svg>
+          </button>
+          <button class="icon-btn" id="btnSnippets" title="Code snippets">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="17" x2="12" y2="22" />
+              <path
+                d="M5 17h14l-1.5-2.5A3 3 0 0 1 17 12.7V7a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v5.7a3 3 0 0 1-.5 1.8z"
+              />
+            </svg>
+          </button>
+          <button class="icon-btn" id="btnAchievements" title="Achievements & badges">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="8" r="6" />
+              <path d="M9 13.5 7 22l5-3 5 3-2-8.5" />
+            </svg>
+          </button>
+          <button class="run-btn" id="runBtn">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+            Run
+          </button>
+        </div>
+      </header>
+
+      <!-- ===================== MAIN ===================== -->
+      <div class="main">
+        <!-- ---------- SIDEBAR ---------- -->
+        <aside class="sidebar" id="sidebar">
+          <div class="sidebar-inner">
+            <div class="sidebar-header">
+              <span class="sidebar-title">Curriculum</span>
+            </div>
+            <div class="sidebar-search">
+              <div class="sidebar-search-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="7" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <input
+                  type="text"
+                  id="lessonSearch"
+                  placeholder="Search lessons..."
+                  aria-label="Search lessons"
+                />
+              </div>
+            </div>
+            <div class="curriculum" id="curriculum"></div>
+            <div class="sidebar-footer">
+              <div class="footer-stats">
+                <span class="stat">⚡ XP: <b id="xpTotal">0</b></span>
+                <span class="stat">🔥 <b id="streakCount">1</b> streak</span>
+              </div>
+              <div class="footer-actions">
+                <button class="footer-btn" id="exportBtn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+                  </svg>
+                  Export
+                </button>
+                <button class="footer-btn" id="importBtn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 15V3m0 0L8 7m4-4 4 4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+                  </svg>
+                  Import
+                </button>
+                <input
+                  type="file"
+                  id="importFile"
+                  accept="application/json"
+                  style="display: none"
+                />
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- ---------- WORKSPACE ---------- -->
+        <div class="workspace">
+          <!-- editor column -->
+          <div class="editor-col" id="editorCol">
+            <div class="editor-body">
+              <div class="line-numbers" id="lineNumbers">1</div>
+              <div class="code-area">
+                <pre id="codeHighlight"><code></code></pre>
+                <textarea
+                  id="codeInput"
+                  spellcheck="false"
+                  autocapitalize="off"
+                  autocomplete="off"
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="lesson-panel" id="lessonPanel">
+              <div
+                class="lesson-panel-header"
+                id="lessonPanelHeader"
+                role="button"
+                tabindex="0"
+                aria-expanded="true"
+                aria-controls="lessonBody"
+              >
+                <span class="lesson-panel-title" id="lessonPanelTitle">Playground</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </div>
+              <div class="lesson-body" id="lessonBody">
+                <p>
+                  This is your free playground. Write any HTML, CSS or JavaScript and hit
+                  <b>Run</b> — nothing here is graded. Pick a lesson from the curriculum on the left
+                  to start learning.
+                </p>
+              </div>
+              <div class="hints-section" id="hintsSection" style="display: none">
+                <ul class="hints-list" id="hintsList"></ul>
+                <button class="hint-btn" id="hintBtn" type="button">
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="13"
+                    height="13"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2z"
+                    />
+                  </svg>
+                  <span id="hintBtnLabel">Show a hint</span>
+                </button>
+              </div>
+              <div
+                class="goals-bar"
+                id="goalsBar"
+                role="button"
+                tabindex="0"
+                aria-expanded="false"
+                aria-controls="goalsList"
+                style="display: none"
+              >
+                <span class="goals-bar-left"
+                  >GOALS <span class="goals-count" id="goalsCount">0 / 0</span></span
+                >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="11"
+                  height="11"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <polyline points="18 15 12 9 6 15" />
+                </svg>
+              </div>
+              <ul class="goals-list" id="goalsList"></ul>
+              <div class="lesson-footer">
+                <button class="nav-btn" id="prevBtn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="15 18 9 12 15 6" />
+                  </svg>
+                  Prev
+                </button>
+                <span class="bottom-counter" id="bottomCounter">0 / 0</span>
+                <button class="nav-btn" id="nextBtn">
+                  Next
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="divider-v" id="dividerV"></div>
+
+          <!-- preview column -->
+          <div class="preview-col">
+            <div class="pane-header">
+              <div class="pane-header-left"><span class="status-live"></span> LIVE PREVIEW</div>
+              <div class="pane-header-right">
+                <div class="device-group">
+                  <button class="device-btn active" data-view="desktop" title="Desktop view">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="2" y="4" width="20" height="13" rx="1.5" />
+                      <line x1="8" y1="21" x2="16" y2="21" />
+                      <line x1="12" y1="17" x2="12" y2="21" />
+                    </svg>
+                  </button>
+                  <button class="device-btn" data-view="tablet" title="Tablet view">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="5" y="2" width="14" height="20" rx="2" />
+                      <line x1="11" y1="18" x2="13" y2="18" />
+                    </svg>
+                  </button>
+                  <button class="device-btn" data-view="mobile" title="Mobile view">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="7" y="2" width="10" height="20" rx="2" />
+                      <line x1="11" y1="18" x2="13" y2="18" />
+                    </svg>
+                  </button>
+                </div>
+                <button
+                  class="icon-btn"
+                  id="btnResetPreview"
+                  title="Reset code"
+                  style="width: 26px; height: 26px"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="14"
+                    height="14"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M3 12a9 9 0 1 0 3-6.7" />
+                    <polyline points="3 4 3 9 8 9" />
+                  </svg>
+                </button>
+                <button
+                  class="icon-btn"
+                  id="btnPreviewRefresh"
+                  title="Refresh preview"
+                  style="width: 26px; height: 26px"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="14"
+                    height="14"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <polyline points="23 4 23 10 17 10" />
+                    <polyline points="1 20 1 14 7 14" />
+                    <path
+                      d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"
+                    />
+                  </svg>
+                </button>
+                <button
+                  class="icon-btn"
+                  id="btnEmptyCode"
+                  title="Empty code"
+                  style="width: 26px; height: 26px"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="14"
+                    height="14"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M9 3h6l1 3H8l1-3z" />
+                    <path d="M4 6h16" />
+                    <path d="M6 6v13a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V6" />
+                  </svg>
+                </button>
+                <button
+                  class="icon-btn"
+                  id="btnExportCode"
+                  title="Export code"
+                  style="width: 26px; height: 26px"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="14"
+                    height="14"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="preview-frame-wrap" id="previewWrap">
+              <iframe
+                id="previewFrame"
+                title="Live preview of your code"
+                sandbox="allow-scripts allow-forms allow-modals allow-popups"
+              ></iframe>
+            </div>
+
+            <div class="divider-h" id="dividerH"></div>
+
+            <div class="console-panel" id="consolePanel">
+              <div class="console-toolbar">
+                <div class="console-toolbar-left">
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="13"
+                    height="13"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <polyline points="4 17 10 11 4 5" />
+                    <line x1="12" y1="19" x2="20" y2="19" />
+                  </svg>
+                  CONSOLE
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px">
+                  <input
+                    type="text"
+                    class="console-filter"
+                    id="consoleFilter"
+                    placeholder="Filter..."
+                    aria-label="Filter console output"
+                  />
+                  <button class="console-clear-btn" id="consoleClear">Clear</button>
+                </div>
+              </div>
+              <div class="console-output" id="consoleOutput"></div>
+            </div>
           </div>
         </div>
-        <div class="preview-frame-wrap" id="previewWrap">
-          <iframe id="previewFrame" sandbox="allow-scripts allow-forms allow-modals allow-popups"></iframe>
+      </div>
+    </div>
+
+    <div class="toast-wrap" id="toastWrap"></div>
+
+    <div
+      class="modal-backdrop"
+      id="helpModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="helpModalTitle"
+    >
+      <div class="modal wide">
+        <div class="modal-header">
+          <span class="modal-header-title" id="helpModalTitle">
+            <svg
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect x="2" y="4" width="20" height="16" rx="2" />
+              <line x1="6" y1="8" x2="6" y2="8" />
+              <line x1="10" y1="8" x2="10" y2="8" />
+              <line x1="14" y1="8" x2="14" y2="8" />
+              <line x1="18" y1="8" x2="18" y2="8" />
+              <line x1="6" y1="12" x2="6" y2="12" />
+              <line x1="10" y1="12" x2="10" y2="12" />
+              <line x1="14" y1="12" x2="14" y2="12" />
+              <line x1="18" y1="12" x2="18" y2="12" />
+              <line x1="7" y1="16" x2="17" y2="16" />
+            </svg>
+            Keyboard Shortcuts
+          </span>
+          <button class="modal-x" id="closeHelp">✕</button>
         </div>
-
-        <div class="divider-h" id="dividerH"></div>
-
-        <div class="console-panel" id="consolePanel">
-          <div class="console-toolbar">
-            <div class="console-toolbar-left">
-              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
-              CONSOLE
+        <div class="shortcuts-grid">
+          <div class="shortcuts-col">
+            <h4>Code</h4>
+            <div class="shortcut-row">
+              <span>Run code</span><span class="keys"><kbd>Ctrl</kbd><kbd>Enter</kbd></span>
             </div>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <input type="text" class="console-filter" id="consoleFilter" placeholder="Filter...">
-              <button class="console-clear-btn" id="consoleClear">Clear</button>
+            <div class="shortcut-row">
+              <span>Reset all code</span
+              ><span class="keys"><kbd>Ctrl</kbd><kbd>⇧</kbd><kbd>R</kbd></span>
+            </div>
+            <div class="shortcut-row">
+              <span>Copy current tab</span
+              ><span class="keys"><kbd>Ctrl</kbd><kbd>⇧</kbd><kbd>C</kbd></span>
+            </div>
+            <div class="shortcut-row">
+              <span>Copy all code</span
+              ><span class="keys"><kbd>Ctrl</kbd><kbd>⇧</kbd><kbd>A</kbd></span>
             </div>
           </div>
-          <div class="console-output" id="consoleOutput"></div>
+          <div class="shortcuts-col">
+            <h4>Navigation</h4>
+            <div class="shortcut-row">
+              <span>Command palette</span><span class="keys"><kbd>Ctrl</kbd><kbd>K</kbd></span>
+            </div>
+            <div class="shortcut-row">
+              <span>Next lesson</span><span class="keys"><kbd>Ctrl</kbd><kbd>]</kbd></span>
+            </div>
+            <div class="shortcut-row">
+              <span>Previous lesson</span><span class="keys"><kbd>Ctrl</kbd><kbd>[</kbd></span>
+            </div>
+          </div>
+        </div>
+        <div class="shortcuts-grid">
+          <div class="shortcuts-col">
+            <h4>Editor Tabs</h4>
+            <div class="shortcut-row">
+              <span>Switch to HTML tab</span><span class="keys"><kbd>Ctrl</kbd><kbd>1</kbd></span>
+            </div>
+            <div class="shortcut-row">
+              <span>Switch to CSS tab</span><span class="keys"><kbd>Ctrl</kbd><kbd>2</kbd></span>
+            </div>
+            <div class="shortcut-row">
+              <span>Switch to JS tab</span><span class="keys"><kbd>Ctrl</kbd><kbd>3</kbd></span>
+            </div>
+          </div>
+          <div class="shortcuts-col">
+            <h4>Editor</h4>
+            <div class="shortcut-row">
+              <span>Undo</span><span class="keys"><kbd>Ctrl</kbd><kbd>Z</kbd></span>
+            </div>
+            <div class="shortcut-row">
+              <span>Redo</span><span class="keys"><kbd>Ctrl</kbd><kbd>Y</kbd></span>
+            </div>
+            <div class="shortcut-row">
+              <span>Indent (Tab)</span><span class="keys"><kbd>Tab</kbd></span>
+            </div>
+            <div class="shortcut-row">
+              <span>Outdent</span><span class="keys"><kbd>⇧</kbd><kbd>Tab</kbd></span>
+            </div>
+          </div>
+        </div>
+        <div class="shortcuts-col" style="margin-bottom: 16px">
+          <h4>UI</h4>
+          <div class="shortcut-row">
+            <span>Open this help modal</span><span class="keys"><kbd>?</kbd></span>
+          </div>
+          <div class="shortcut-row">
+            <span>Close modal / panel</span><span class="keys"><kbd>Esc</kbd></span>
+          </div>
+        </div>
+        <button class="modal-close" id="closeHelp2">Close</button>
+      </div>
+    </div>
+
+    <div
+      class="modal-backdrop"
+      id="analyticsModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="analyticsModalTitle"
+    >
+      <div class="modal wide">
+        <div class="modal-header">
+          <span class="modal-header-title" id="analyticsModalTitle">
+            <svg
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="4" y1="20" x2="20" y2="20" />
+              <rect x="6" y="12" width="3" height="8" />
+              <rect x="13" y="8" width="3" height="12" />
+              <rect x="17" y="14" width="3" height="6" />
+            </svg>
+            Learner Analytics
+          </span>
+          <button class="modal-x" id="closeAnalytics">✕</button>
+        </div>
+        <div class="section-label">Consistency (last 7 days)</div>
+        <div class="consistency-row" id="consistencyRow"></div>
+        <div class="consistency-caption" id="consistencyCaption">
+          Completed lessons on 0 of the last 7 days.
+        </div>
+        <div class="section-label">Lesson stats</div>
+        <div class="stats-scroll">
+          <table class="stats-table">
+            <thead>
+              <tr>
+                <th>Lesson</th>
+                <th>Time</th>
+                <th>Retries</th>
+              </tr>
+            </thead>
+            <tbody id="statsBody"></tbody>
+          </table>
+        </div>
+        <div class="modal-footer-row">
+          <button class="danger-btn" id="resetAnalyticsBtn">Reset Analytics</button>
+          <button class="modal-close" id="closeAnalytics2" style="width: auto; padding: 8px 18px">
+            Close
+          </button>
         </div>
       </div>
     </div>
-  </div>
-</div>
 
-<div class="toast-wrap" id="toastWrap"></div>
-
-<div class="modal-backdrop" id="helpModal">
-  <div class="modal wide">
-    <div class="modal-header">
-      <span class="modal-header-title">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="8" x2="6" y2="8"/><line x1="10" y1="8" x2="10" y2="8"/><line x1="14" y1="8" x2="14" y2="8"/><line x1="18" y1="8" x2="18" y2="8"/><line x1="6" y1="12" x2="6" y2="12"/><line x1="10" y1="12" x2="10" y2="12"/><line x1="14" y1="12" x2="14" y2="12"/><line x1="18" y1="12" x2="18" y2="12"/><line x1="7" y1="16" x2="17" y2="16"/></svg>
-        Keyboard Shortcuts
-      </span>
-      <button class="modal-x" id="closeHelp">✕</button>
-    </div>
-    <div class="shortcuts-grid">
-      <div class="shortcuts-col">
-        <h4>Code</h4>
-        <div class="shortcut-row"><span>Run code</span><span class="keys"><kbd>Ctrl</kbd><kbd>Enter</kbd></span></div>
-        <div class="shortcut-row"><span>Reset all code</span><span class="keys"><kbd>Ctrl</kbd><kbd>⇧</kbd><kbd>R</kbd></span></div>
-        <div class="shortcut-row"><span>Copy current tab</span><span class="keys"><kbd>Ctrl</kbd><kbd>⇧</kbd><kbd>C</kbd></span></div>
-        <div class="shortcut-row"><span>Copy all code</span><span class="keys"><kbd>Ctrl</kbd><kbd>⇧</kbd><kbd>A</kbd></span></div>
+    <div
+      class="modal-backdrop"
+      id="snippetsModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="snippetsModalTitle"
+    >
+      <div class="modal wide">
+        <div class="modal-header">
+          <span class="modal-header-title" id="snippetsModalTitle">
+            <svg
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="12" y1="17" x2="12" y2="22" />
+              <path
+                d="M5 17h14l-1.5-2.5A3 3 0 0 1 17 12.7V7a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v5.7a3 3 0 0 1-.5 1.8z"
+              />
+            </svg>
+            Code Snippets
+          </span>
+          <button class="modal-x" id="closeSnippets">✕</button>
+        </div>
+        <div class="section-label">Save current code as snippet:</div>
+        <div class="snippet-input-row">
+          <input
+            type="text"
+            id="snippetNameInput"
+            placeholder="My snippet name..."
+            aria-label="Snippet name"
+          />
+          <button class="snippet-save-btn" id="snippetSaveBtn">Save</button>
+        </div>
+        <div class="section-label">Saved snippets:</div>
+        <div class="snippet-list" id="snippetList"></div>
+        <button class="modal-close" id="closeSnippets2" style="margin-top: 16px">Close</button>
       </div>
-      <div class="shortcuts-col">
-        <h4>Navigation</h4>
-        <div class="shortcut-row"><span>Command palette</span><span class="keys"><kbd>Ctrl</kbd><kbd>K</kbd></span></div>
-        <div class="shortcut-row"><span>Next lesson</span><span class="keys"><kbd>Ctrl</kbd><kbd>]</kbd></span></div>
-        <div class="shortcut-row"><span>Previous lesson</span><span class="keys"><kbd>Ctrl</kbd><kbd>[</kbd></span></div>
+    </div>
+
+    <div
+      class="modal-backdrop"
+      id="achievementsModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="achievementsModalTitle"
+    >
+      <div class="modal wide">
+        <div class="modal-header">
+          <span class="modal-header-title" id="achievementsModalTitle">
+            <svg
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="8" r="6" />
+              <path d="M9 13.5 7 22l5-3 5 3-2-8.5" />
+            </svg>
+            Achievements &amp; Badges
+          </span>
+          <button class="modal-x" id="closeAchievements">✕</button>
+        </div>
+        <div class="progress-row">
+          <span class="section-label" style="margin: 0">Progress</span>
+          <span class="progress-count" id="achievementsCount">Unlocked 0 / 12</span>
+        </div>
+        <div class="badges-scroll">
+          <div class="badges-grid" id="badgesGrid"></div>
+        </div>
+        <button class="modal-close" id="closeAchievements2" style="margin-top: 16px">Close</button>
       </div>
     </div>
-    <div class="shortcuts-grid">
-      <div class="shortcuts-col">
-        <h4>Editor Tabs</h4>
-        <div class="shortcut-row"><span>Switch to HTML tab</span><span class="keys"><kbd>Ctrl</kbd><kbd>1</kbd></span></div>
-        <div class="shortcut-row"><span>Switch to CSS tab</span><span class="keys"><kbd>Ctrl</kbd><kbd>2</kbd></span></div>
-        <div class="shortcut-row"><span>Switch to JS tab</span><span class="keys"><kbd>Ctrl</kbd><kbd>3</kbd></span></div>
+
+    <div
+      class="modal-backdrop palette-backdrop"
+      id="commandPalette"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Command palette"
+    >
+      <div class="palette">
+        <div class="palette-input-row">
+          <svg
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="11" cy="11" r="7" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            type="text"
+            id="paletteInput"
+            placeholder="Type a command or search lessons…"
+            autocomplete="off"
+            aria-label="Command search"
+            role="combobox"
+            aria-expanded="true"
+            aria-controls="paletteList"
+            aria-autocomplete="list"
+          />
+          <kbd>Esc</kbd>
+        </div>
+        <ul class="palette-list" id="paletteList" role="listbox"></ul>
+        <div class="palette-empty" id="paletteEmpty" style="display: none">
+          No matching commands
+        </div>
       </div>
-      <div class="shortcuts-col">
-        <h4>Editor</h4>
-        <div class="shortcut-row"><span>Undo</span><span class="keys"><kbd>Ctrl</kbd><kbd>Z</kbd></span></div>
-        <div class="shortcut-row"><span>Redo</span><span class="keys"><kbd>Ctrl</kbd><kbd>Y</kbd></span></div>
-        <div class="shortcut-row"><span>Indent (Tab)</span><span class="keys"><kbd>Tab</kbd></span></div>
-        <div class="shortcut-row"><span>Outdent</span><span class="keys"><kbd>⇧</kbd><kbd>Tab</kbd></span></div>
-      </div>
     </div>
-    <div class="shortcuts-col" style="margin-bottom:16px;">
-      <h4>UI</h4>
-      <div class="shortcut-row"><span>Open this help modal</span><span class="keys"><kbd>?</kbd></span></div>
-      <div class="shortcut-row"><span>Close modal / panel</span><span class="keys"><kbd>Esc</kbd></span></div>
-    </div>
-    <button class="modal-close" id="closeHelp2">Close</button>
-  </div>
-</div>
 
-<div class="modal-backdrop" id="analyticsModal">
-  <div class="modal wide">
-    <div class="modal-header">
-      <span class="modal-header-title">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="20"/><rect x="6" y="12" width="3" height="8"/><rect x="13" y="8" width="3" height="12"/><rect x="17" y="14" width="3" height="6"/></svg>
-        Learner Analytics
-      </span>
-      <button class="modal-x" id="closeAnalytics">✕</button>
-    </div>
-    <div class="section-label">Consistency (last 7 days)</div>
-    <div class="consistency-row" id="consistencyRow"></div>
-    <div class="consistency-caption" id="consistencyCaption">Completed lessons on 0 of the last 7 days.</div>
-    <div class="section-label">Lesson stats</div>
-    <div class="stats-scroll">
-      <table class="stats-table">
-        <thead><tr><th>Lesson</th><th>Time</th><th>Retries</th></tr></thead>
-        <tbody id="statsBody"></tbody>
-      </table>
-    </div>
-    <div class="modal-footer-row">
-      <button class="danger-btn" id="resetAnalyticsBtn">Reset Analytics</button>
-      <button class="modal-close" id="closeAnalytics2" style="width:auto;padding:8px 18px;">Close</button>
-    </div>
-  </div>
-</div>
+    <div id="ariaLiveRegion" aria-live="polite" class="sr-only"></div>
 
-<div class="modal-backdrop" id="snippetsModal">
-  <div class="modal wide">
-    <div class="modal-header">
-      <span class="modal-header-title">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14l-1.5-2.5A3 3 0 0 1 17 12.7V7a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v5.7a3 3 0 0 1-.5 1.8z"/></svg>
-        Code Snippets
-      </span>
-      <button class="modal-x" id="closeSnippets">✕</button>
-    </div>
-    <div class="section-label">Save current code as snippet:</div>
-    <div class="snippet-input-row">
-      <input type="text" id="snippetNameInput" placeholder="My snippet name...">
-      <button class="snippet-save-btn" id="snippetSaveBtn">Save</button>
-    </div>
-    <div class="section-label">Saved snippets:</div>
-    <div class="snippet-list" id="snippetList"></div>
-    <button class="modal-close" id="closeSnippets2" style="margin-top:16px;">Close</button>
-  </div>
-</div>
-
-<div class="modal-backdrop" id="achievementsModal">
-  <div class="modal wide">
-    <div class="modal-header">
-      <span class="modal-header-title">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M9 13.5 7 22l5-3 5 3-2-8.5"/></svg>
-        Achievements &amp; Badges
-      </span>
-      <button class="modal-x" id="closeAchievements">✕</button>
-    </div>
-    <div class="progress-row">
-      <span class="section-label" style="margin:0;">Progress</span>
-      <span class="progress-count" id="achievementsCount">Unlocked 0 / 12</span>
-    </div>
-    <div class="badges-scroll">
-      <div class="badges-grid" id="badgesGrid"></div>
-    </div>
-    <button class="modal-close" id="closeAchievements2" style="margin-top:16px;">Close</button>
-  </div>
-</div>
-
-<div class="modal-backdrop palette-backdrop" id="commandPalette" role="dialog" aria-modal="true" aria-label="Command palette">
-  <div class="palette">
-    <div class="palette-input-row">
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="paletteInput" placeholder="Type a command or search lessons…" autocomplete="off" aria-label="Command search">
-      <kbd>Esc</kbd>
-    </div>
-    <ul class="palette-list" id="paletteList" role="listbox"></ul>
-    <div class="palette-empty" id="paletteEmpty" style="display:none;">No matching commands</div>
-  </div>
-</div>
-
-<div id="ariaLiveRegion" aria-live="polite" class="sr-only"></div>
-
-<script src="js/dom-utils.js"></script>
-<script src="js/curriculum.js"></script>
-<script src="js/state.js"></script>
-<script src="js/store.js"></script>
-<script src="js/highlighter.js"></script>
-<script src="js/editor.js"></script>
-<script src="js/preview.js"></script>
-<script src="js/lessons.js"></script>
-<script src="js/modals.js"></script>
-<script src="js/commands.js"></script>
-<script src="js/import-export.js"></script>
-<script src="js/resizers.js"></script>
-<script src="js/main.js"></script>
-</body>
+    <script src="js/dom-utils.js"></script>
+    <script src="js/curriculum.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/store.js"></script>
+    <script src="js/highlighter.js"></script>
+    <script src="js/editor.js"></script>
+    <script src="js/preview.js"></script>
+    <script src="js/lessons.js"></script>
+    <script src="js/modals.js"></script>
+    <script src="js/commands.js"></script>
+    <script src="js/import-export.js"></script>
+    <script src="js/resizers.js"></script>
+    <script src="js/main.js"></script>
+  </body>
 </html>

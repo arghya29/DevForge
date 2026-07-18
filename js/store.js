@@ -29,16 +29,61 @@ function loadStore() {
 function saveStore(store) {
   try {
     localStorage.setItem(LS_KEY, JSON.stringify(store));
-  } catch {}
+    saveStore._warned = false;
+  } catch {
+    // Don't spam a toast on every keystroke if storage stays broken —
+    // warn once per failure episode, and reset the flag the next time a
+    // save actually succeeds.
+    if (!saveStore._warned) {
+      saveStore._warned = true;
+      toast("Couldn't save your progress — storage may be full or unavailable.");
+    }
+  }
 }
 let store = loadStore();
 
+/**
+ * Validates that a parsed import file at least *roughly* matches the
+ * shape saveStore() would have produced, before we trust it enough to
+ * replace the live store. Doesn't need to be exhaustive — just enough to
+ * stop an obviously wrong or corrupted file from crashing the app later
+ * (e.g. `store.completed.includes(...)` if completed weren't an array).
+ */
+function isValidStoreShape(data) {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return false;
+  // Every real export always has these two fields. Requiring their
+  // presence (not just correct-type-if-present) is what stops an
+  // unrelated JSON file from trivially "validating" just because it
+  // happens not to contain anything that fails a type check.
+  if (!('completed' in data) || !('streak' in data)) return false;
+  const isArr = v => v === undefined || Array.isArray(v);
+  const isObj = v => v === undefined || (typeof v === 'object' && v !== null && !Array.isArray(v));
+  const isNum = v => v === undefined || typeof v === 'number';
+  const isStrOrNull = v => v === undefined || v === null || typeof v === 'string';
+  const isBool = v => v === undefined || typeof v === 'boolean';
+  if (!isObj(data.code)) return false;
+  if (
+    !isArr(data.completed) ||
+    (data.completed && !data.completed.every(x => typeof x === 'string'))
+  )
+    return false;
+  if (!isArr(data.started)) return false;
+  if (!isNum(data.streak)) return false;
+  if (!isStrOrNull(data.lastActive)) return false;
+  if (!isObj(data.lessonTime)) return false;
+  if (!isObj(data.lessonRetries)) return false;
+  if (!isArr(data.completionDates)) return false;
+  if (!isArr(data.snippets)) return false;
+  if (!isBool(data.hasRun)) return false;
+  return true;
+}
+
 function updateStreak() {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDateString();
   if (store.lastActive === today) {
     /* already counted today */
   } else {
-    const y = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    const y = localDateString(new Date(Date.now() - 86400000));
     if (store.lastActive === y) store.streak = (store.streak || 1) + 1;
     else store.streak = 1;
     store.lastActive = today;

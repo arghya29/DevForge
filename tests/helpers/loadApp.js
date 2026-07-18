@@ -35,9 +35,11 @@ export const JS_LOAD_ORDER = [
  * Boots a fresh instance of the app in jsdom.
  * @param {object} [options]
  * @param {object} [options.seedStore] - pre-populate localStorage's devforge:v1 key
+ * @param {object} [options.localStorageSeed] - pre-populate arbitrary localStorage keys
+ *        (e.g. { 'devforge:theme': 'light' }), applied before any app script runs
  * @returns {{ window: Window, document: Document, get: (expr: string) => any }}
  */
-export function createApp({ seedStore } = {}) {
+export function createApp({ seedStore, localStorageSeed } = {}) {
   const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
   const dom = new JSDOM(html, {
     url: 'http://localhost/',
@@ -50,7 +52,7 @@ export function createApp({ seedStore } = {}) {
   // Minimal, in-memory localStorage — jsdom's file://-backed storage is
   // unreliable in a test/CI environment, and we don't need persistence
   // across process runs here anyway.
-  let backing = {};
+  let backing = Object.assign({}, localStorageSeed);
   if (seedStore) backing['devforge:v1'] = JSON.stringify(seedStore);
   Object.defineProperty(window, 'localStorage', {
     configurable: true,

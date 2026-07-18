@@ -31,10 +31,25 @@ const CONSOLE_CAPTURE_SRC = `
 })();
 `;
 
+// <script> and <style> are HTML "raw text elements" — the browser's HTML
+// parser looks for the literal, case-insensitive text "</script" or
+// "</style" to know where they end, with zero understanding of JS/CSS
+// syntax (strings, comments, etc. don't protect it). If a learner's code
+// contains that literal sequence — e.g. `console.log("</script>")`, which
+// is completely reasonable code to write — it would prematurely close our
+// injected tag and corrupt the whole preview document. Splitting the
+// sequence with a backslash is JS/CSS-semantics-preserving (`\/` inside a
+// string or comment is just `/`) while no longer matching what the HTML
+// parser is looking for.
+function escapeRawTextClose(str) {
+  return String(str).replace(/<\/(script|style)/gi, '<\\/$1');
+}
+
 function buildDoc(html, css, js) {
   let doc = html || '';
-  const styleTag = '<style>\n' + css + '\n</style>';
-  const scriptTag = '<script>\n' + CONSOLE_CAPTURE_SRC + '\n' + js + '\n<\/script>';
+  const styleTag = '<style>\n' + escapeRawTextClose(css) + '\n</style>';
+  const scriptTag =
+    '<script>\n' + CONSOLE_CAPTURE_SRC + '\n' + escapeRawTextClose(js) + '\n<\/script>';
 
   if (/<head[^>]*>/i.test(doc)) doc = doc.replace(/<head[^>]*>/i, m => m + styleTag);
   else if (/<html[^>]*>/i.test(doc))

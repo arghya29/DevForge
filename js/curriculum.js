@@ -26,17 +26,17 @@ const CURRICULUM = [
         title: 'Your First Element',
         tag: 'HTML',
         xp: 20,
-        html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <title>Hello World</title>\n</head>\n<body>\n\n  <h1>Hello, World!</h1>\n  <p>My first webpage.</p>\n  <p>HTML stands for HyperText Markup Language.</p>\n\n</body>\n</html>',
+        html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n\n  <!-- add a <title> tag here -->\n\n</head>\n<body>\n\n  <!-- add an <h1> heading with your name -->\n\n  <p>My first webpage.</p>\n  <!-- add one more <p> paragraph below, like the one above -->\n\n</body>\n</html>',
         css: '/* No styles yet — head to CSS Styling lessons! */\n',
         js: '// JavaScript comes later — for now, focus on structure.\n',
         description:
-          '<h3>What is an HTML element?</h3><p>HTML describes the <b>structure</b> of a webpage. Every piece of content lives inside an <code>element</code> — made of an opening tag, content, and a closing tag.</p><p>Try changing the text inside <code>&lt;h1&gt;</code> to your name, then click <b>Run</b>.</p>',
+          '<h3>What is an HTML element?</h3><p>HTML describes the <b>structure</b> of a webpage. Every piece of content lives inside an <code>element</code> — made of an opening tag, content, and a closing tag.</p><p>Add a <code>&lt;title&gt;</code> in the <code>&lt;head&gt;</code>, an <code>&lt;h1&gt;</code> with your name, and one more <code>&lt;p&gt;</code> paragraph, then click <b>Run</b>.</p>',
         tip: 'Tags come in pairs: <code>&lt;tag&gt;</code> … <code>&lt;/tag&gt;</code>. The <code>&lt;p&gt;</code> tag creates a paragraph.',
         goals: [
           { text: 'Contains an &lt;h1&gt; heading', check: f => /<h1[\s>]/i.test(f.html) },
           {
-            text: 'Contains at least one &lt;p&gt; paragraph',
-            check: f => /<p[\s>]/i.test(f.html)
+            text: 'Contains at least 2 &lt;p&gt; paragraphs',
+            check: f => (f.html.match(/<p[\s>]/gi) || []).length >= 2
           },
           {
             text: 'Has a &lt;title&gt; in the head',
@@ -300,7 +300,7 @@ const CURRICULUM = [
         xp: 25,
         html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <title>Variables & Types</title>\n</head>\n<body>\n\n  <h1>Open the console to see your output!</h1>\n\n</body>\n</html>',
         css: 'body{ font-family: sans-serif; padding: 2rem; }\n',
-        js: '// Declare a variable with let (can change) and const (can\'t)\nlet score = 0;\nconst playerName = "Player One";\n\n// try logging different types: string, number, boolean, array\nconsole.log(playerName);\nconsole.log(score);\n\n// add a template literal below, e.g.:\n// console.log(`${playerName} has ${score} points`);\n',
+        js: '// Declare a variable with let (can change) and const (can\'t)\nlet score = 0;\nconst playerName = "Player One";\n\n// try logging different types: string, number, boolean, array\nconsole.log(playerName);\nconsole.log(score);\n\n// now combine playerName and score into one message using a template\n// literal (backticks with ${...}) and log that instead\n',
         description:
           "<h3>let, const & data types</h3><p>Use <code>let</code> for values that change and <code>const</code> for values that don't. JavaScript's core types are strings, numbers, booleans, arrays, and objects.</p><p>Add a template literal (backticks with <code>${...}</code>) that combines <code>playerName</code> and <code>score</code>, then log it.</p>",
         tip: 'Template literals use backticks <code>`</code> not quotes, and let you embed expressions directly with <code>${expression}</code>.',
@@ -396,9 +396,9 @@ const CURRICULUM = [
         xp: 40,
         html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <title>Fetch & Async/Await</title>\n</head>\n<body>\n\n  <h1>Open the console to see your output!</h1>\n\n</body>\n</html>',
         css: 'body{ font-family: sans-serif; padding: 2rem; }\n',
-        js: "async function loadUser() {\n  try {\n    const response = await fetch('https://jsonplaceholder.typicode.com/users/1');\n    const data = await response.json();\n    console.log(data.name);\n  } catch (err) {\n    console.error('Failed to load:', err.message);\n  }\n}\n\nloadUser();\n",
+        js: "async function loadUser() {\n  try {\n    // fetch 'https://jsonplaceholder.typicode.com/users/1', await the\n    // response, parse it as JSON, then log the user's name\n\n  } catch (err) {\n    console.error('Failed to load:', err.message);\n  }\n}\n\nloadUser();\n",
         description:
-          '<h3>Asynchronous code</h3><p><code>fetch()</code> requests data from a server and returns a Promise. Marking a function <code>async</code> lets you use <code>await</code> inside it to pause until that Promise resolves — much easier to read than chained <code>.then()</code> calls.</p><p>This lesson calls a public test API. Try changing the URL to fetch a different user (e.g. <code>/users/2</code>).</p>',
+          '<h3>Asynchronous code</h3><p><code>fetch()</code> requests data from a server and returns a Promise. Marking a function <code>async</code> lets you use <code>await</code> inside it to pause until that Promise resolves — much easier to read than chained <code>.then()</code> calls.</p><p>Fill in the <code>try</code> block: <code>await fetch(...)</code> the URL, <code>await response.json()</code> to parse it, then log <code>data.name</code>.</p>',
         tip: "Always wrap <code>await</code> calls in <code>try/catch</code> — network requests can fail, and you don't want that to crash the rest of your script.",
         goals: [
           {

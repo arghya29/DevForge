@@ -51,7 +51,30 @@ describe('accessibility', () => {
     expect(document.getElementById('ariaLiveRegion').textContent).toBe('Something happened');
   });
 
-  it('the console panel and lesson goals are reachable via keyboard (no positive tabindex traps)', () => {
+  it('every interactive control in the app can actually receive keyboard focus', () => {
+    const { get, document } = createApp();
+    get('init()');
+    // Native interactive elements, plus anything explicitly marked as
+    // keyboard-operable via role="button"/tabindex="0" (the pattern used
+    // for the custom sidebar items, category headers, goals bar, etc.)
+    const candidates = Array.from(
+      document.querySelectorAll(
+        'button, a[href], input, select, textarea, [role="button"], [tabindex]'
+      )
+    ).filter(elToCheck => !elToCheck.disabled && elToCheck.style.display !== 'none');
+
+    expect(candidates.length).toBeGreaterThan(10); // sanity check the query found real elements
+
+    const unreachable = candidates.filter(elToCheck => {
+      elToCheck.focus();
+      const reached = document.activeElement === elToCheck;
+      elToCheck.blur();
+      return !reached;
+    });
+    expect(unreachable.map(elToCheck => elToCheck.id || elToCheck.className)).toEqual([]);
+  });
+
+  it('no element uses a positive tabindex (which would break natural tab order)', () => {
     const { document } = createApp();
     const positiveTabIndex = Array.from(document.querySelectorAll('[tabindex]')).filter(
       elToCheck => Number(elToCheck.getAttribute('tabindex')) > 0

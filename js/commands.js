@@ -51,6 +51,7 @@ function renderPaletteList(query) {
   if (!matches.length) {
     empty.style.display = '';
     list.style.display = 'none';
+    $('#paletteInput').setAttribute('aria-activedescendant', '');
     return;
   }
   empty.style.display = 'none';
@@ -60,7 +61,8 @@ function renderPaletteList(query) {
     const li = el('li', {
       class: 'palette-item' + (i === 0 ? ' active' : ''),
       role: 'option',
-      id: 'palette-item-' + i
+      id: 'palette-item-' + i,
+      'aria-selected': i === 0 ? 'true' : 'false'
     });
     li.innerHTML =
       '<span class="palette-item-label">' +
@@ -72,13 +74,19 @@ function renderPaletteList(query) {
     li.addEventListener('click', () => runPaletteCommand(matches, i));
     list.appendChild(li);
   });
+  $('#paletteInput').setAttribute('aria-activedescendant', 'palette-item-0');
 }
 
 function setPaletteActive(index) {
   const items = $$('.palette-item', $('#paletteList'));
   if (!items.length) return;
   paletteActiveIndex = ((index % items.length) + items.length) % items.length;
-  items.forEach((it, i) => it.classList.toggle('active', i === paletteActiveIndex));
+  items.forEach((it, i) => {
+    const isActive = i === paletteActiveIndex;
+    it.classList.toggle('active', isActive);
+    it.setAttribute('aria-selected', String(isActive));
+  });
+  $('#paletteInput').setAttribute('aria-activedescendant', items[paletteActiveIndex].id);
   if (typeof items[paletteActiveIndex].scrollIntoView === 'function') {
     items[paletteActiveIndex].scrollIntoView({ block: 'nearest' });
   }

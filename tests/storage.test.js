@@ -85,4 +85,84 @@ describe('store.js — persistent progress', () => {
     get('updateStreak()');
     expect(get('store.streak')).toBe(1);
   });
+
+  it('localDateString() uses the local calendar day, not the UTC one', () => {
+    const { get } = createApp();
+    // 11pm local time on Jan 15th is still Jan 16th in UTC for any timezone
+    // west of UTC — localDateString must report the LOCAL day (15th), not
+    // whatever toISOString() (always UTC) would give.
+    const local = get(
+      'localDateString(new Date(2026, 0, 15, 23, 0, 0))' // Jan 15, 2026, 11pm, local time
+    );
+    expect(local).toBe('2026-01-15');
+  });
+});
+
+describe('store.js — isValidStoreShape() / import validation', () => {
+  it('accepts a well-formed store object', () => {
+    const { get } = createApp();
+    expect(get('isValidStoreShape(defaultStore())')).toBe(true);
+    expect(
+      get(
+        "isValidStoreShape({ completed: ['a'], streak: 3, lastActive: '2026-01-01', hasRun: true })"
+      )
+    ).toBe(true);
+  });
+
+  it('rejects non-objects and null', () => {
+    const { get } = createApp();
+    expect(get('isValidStoreShape(null)')).toBe(false);
+    expect(get('isValidStoreShape(42)')).toBe(false);
+    expect(get('isValidStoreShape("not a store")')).toBe(false);
+    expect(get('isValidStoreShape([1, 2, 3])')).toBe(false);
+  });
+
+  it('rejects wrong-typed fields', () => {
+    const { get } = createApp();
+    expect(get("isValidStoreShape({ completed: 'not-an-array' })")).toBe(false);
+    expect(get('isValidStoreShape({ completed: [1, 2, 3] })')).toBe(false); // ids must be strings
+    expect(get("isValidStoreShape({ streak: 'five' })")).toBe(false);
+    expect(get('isValidStoreShape({ hasRun: "yes" })')).toBe(false);
+    expect(get('isValidStoreShape({ code: [1, 2] })')).toBe(false); // code must be an object, not array
+  });
+
+  it('the import handler refuses a malformed file instead of corrupting the live store', async () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const { get, document, window } = createApp({ seedStore: { streak: 7, lastActive: today } });
+    get('init()');
+    const file = new window.File(['{"totally": "not a progress file"}'], 'bad.json', {
+      type: 'application/json'
+    });
+    Object.defineProperty(document.getElementById('importFile'), 'files', { value: [file] });
+    document
+      .getElementById('importFile')
+      .dispatchEvent(new window.Event('change', { bubbles: true }));
+    // FileReader.onload fires asynchronously even in jsdom
+    await new Promise(resolve => setTimeout(resolve, 50));
+    expect(get('store.streak')).toBe(7); // untouched — the bad file was rejected
+  });
+});
+
+describe('store.js — saveStore() failure handling', () => {
+  it('surfaces a toast when localStorage.setItem throws, instead of failing silently', () => {
+    const { get, window, document } = createApp();
+    window.localStorage.setItem = () => {
+      throw new Error('QuotaExceededError');
+    };
+    get('saveStore(store)');
+    const toasts = Array.from(document.querySelectorAll('.toast')).map(t => t.textContent);
+    expect(toasts.some(t => /save/i.test(t))).toBe(true);
+  });
+
+  it('does not spam a toast on every save while storage stays broken (warns once per failure episode)', () => {
+    const { get, window, document } = createApp();
+    window.localStorage.setItem = () => {
+      throw new Error('QuotaExceededError');
+    };
+    get('saveStore(store)');
+    get('saveStore(store)');
+    get('saveStore(store)');
+    const toastCount = document.querySelectorAll('.toast').length;
+    expect(toastCount).toBe(1);
+  });
 });

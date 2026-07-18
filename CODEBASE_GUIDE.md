@@ -190,10 +190,10 @@ This is the core of the guide. For each file: what it's for, in plain
 terms; the main things inside it; when you'd touch it; and what to do if it
 outgrows itself.
 
-### `js/dom-utils.js` (~40 lines) — tiny helpers everyone uses
+### `js/dom-utils.js` (~85 lines) — tiny helpers everyone uses
 
 **What it's for:** A handful of one-line helper functions so the rest of
-the codebase doesn't repeat itself.
+the codebase doesn't repeat itself, plus one small startup snippet.
 
 - **`$(selector)`** — shorthand for `document.querySelector(selector)`.
 - **`$$(selector)`** — shorthand for `document.querySelectorAll(...)`,
@@ -201,20 +201,39 @@ the codebase doesn't repeat itself.
   you can't do directly with what `querySelectorAll` returns).
 - **`el(tag, props, children)`** — builds a DOM element without writing
   `document.createElement` and five lines of setup every time. Example:
-  `el('div', { class: 'card', role: 'button' }, ['Hello'])`.
-- **`escapeHtml(str)`** — turns `<`, `>`, `&` into their safe HTML-entity
-  equivalents, so user-typed or lesson text can't accidentally be
-  interpreted as real HTML tags when inserted into the page.
+  `el('div', { class: 'card', role: 'button' }, ['Hello'])`. Boolean HTML
+  attributes (`disabled`, `checked`, `readonly`, etc. — see the
+  `BOOLEAN_ATTRS` list at the top of the file) are reflected as real DOM
+  properties rather than stringified attributes — this matters because
+  `disabled="false"` is still _disabled_ as far as HTML is concerned (only
+  the attribute's presence matters, not its string value), so `el()`
+  handles that case correctly instead of naively calling `setAttribute`.
+- **`escapeHtml(str)`** — turns `<`, `>`, `&`, `"`, and `'` into their safe
+  HTML-entity equivalents, so user-typed or lesson text can't accidentally
+  be interpreted as real HTML tags — or break out of an attribute value —
+  when inserted into the page. Use this any time you interpolate a
+  variable into a string that gets assigned to `.innerHTML`.
 - **`toast(message)`** — shows the little bottom-right popup notification,
   and also announces the same message to screen readers via the ARIA live
   region.
+- **`localDateString(date)`** — returns a `YYYY-MM-DD` string for the
+  _local_ calendar day, unlike `Date#toISOString()` (always UTC, which
+  would misattribute a late-night session to the wrong day for anyone not
+  in UTC). Every place the app tracks "what day is it" — streaks,
+  completion-date tracking, the analytics consistency calendar — goes
+  through this one function so they can never disagree with each other.
+- **A small startup snippet at the very top of the file** applies a saved
+  theme preference (`localStorage['devforge:theme']`) before the page's
+  first paint, to avoid a flash of the wrong theme. It has to live in the
+  _first_ script that runs for that timing to matter — the rest of the
+  theme toggle UI lives in `js/modals.js`.
 
 **When you'd touch it:** almost never, unless you're adding a genuinely new
 low-level helper that many files would use. This file is intentionally
-tiny and boring — that's correct, not a gap.
+small and boring — that's correct, not a gap.
 
 **Loads first**, because literally every other file calls `$(...)` at some
-point.
+point, and the early theme snippet needs to run before anything paints.
 
 ---
 
@@ -306,7 +325,7 @@ that's usually a sign some of what you're adding actually belongs in
 
 ---
 
-### `js/store.js` (~76 lines) — everything that gets saved
+### `js/store.js` (~130 lines) — everything that gets saved
 
 **What it's for:** Reading and writing `localStorage`, and everything built
 on top of that: XP totals, streaks, completed lessons, time spent per
@@ -323,10 +342,24 @@ Key pieces:
   `defaultStore()`, which is what makes the app forward-compatible: if
   someone's saved progress is missing a field that didn't exist yet when
   they saved it, they still get the default for that field instead of
-  `undefined` breaking something.
+  `undefined` breaking something. `saveStore()` warns the learner (once per
+  failure episode, not spammed on every keystroke) if `localStorage` write
+  fails — private browsing and a full storage quota are real cases, not
+  hypotheticals, and failing silently there meant progress could vanish
+  with zero feedback.
+- **`isValidStoreShape(data)`** — checks that a parsed JSON blob at least
+  roughly matches what a real export would look like (right field types,
+  the two identifying fields present) before `js/import-export.js` trusts
+  it enough to replace the live store. It doesn't need to be exhaustive —
+  just enough to stop an unrelated or corrupted file from crashing
+  something later (e.g. `store.completed.includes(...)` if `completed`
+  weren't actually an array).
 - **`updateStreak()`** — the daily-streak logic (same day = no-op,
-  yesterday = +1, anything older = reset to 1). Runs once automatically
-  every time the app loads, via `init()` in `main.js`.
+  yesterday = +1, anything older = reset to 1), based on the learner's
+  _local_ calendar day via `localDateString()` (see `dom-utils.js`) — not
+  UTC, which would misattribute a late-night session to the wrong day.
+  Runs once automatically every time the app loads, via `init()` in
+  `main.js`.
 - **`totalXP()`** — sums `xp` for every lesson id in `store.completed`.
 - **The timer functions (`startTimer` / `flushTimer`)** — track how long a
   learner spends on each lesson, for the Learner Analytics modal. Called
@@ -430,7 +463,14 @@ Key pieces:
   one complete HTML document: injects `<style>` into `<head>` (or creates a
   `<head>` if there isn't one), and injects a `<script>` (console-capture
   code + the learner's JS) before `</body>`. Handles both "full HTML
-  document" starter code and plain fragments.
+  document" starter code and plain fragments. Before embedding `css`/`js`,
+  it runs them through `escapeRawTextClose()`, which neutralizes any
+  literal `</script` or `</style` sequence in the learner's own code (e.g.
+  `console.log("</script>")` is completely reasonable code to write) —
+  without that, the browser's HTML parser would see that literal text and
+  close our injected tag early, corrupting the whole preview document. See
+  the comment above that function for exactly how (and why the fix doesn't
+  change what the code actually does when it runs).
 - **`CONSOLE_CAPTURE_SRC`** — a string of JavaScript that gets injected
   _into the iframe itself_. It overrides `console.log`/`warn`/`error` to
   also `postMessage` each call back up to the parent page, and listens for
@@ -599,15 +639,30 @@ imported older files work correctly.
 
 ---
 
-### `js/resizers.js` (~50 lines) — draggable panel dividers
+### `js/resizers.js` (~110 lines) — draggable, keyboard-operable panel dividers
 
-**What it's for:** Two small, self-contained pieces of drag-to-resize
-logic: the vertical divider between editor and preview, and the horizontal
-divider that resizes the console panel's height. Neither depends on
-anything from another file beyond `$()`.
+**What it's for:** One shared implementation, `makeResizer(opts)`, used
+twice: the vertical divider between editor and preview (resizes a width),
+and the horizontal divider that resizes the console panel (resizes a
+height). They only differ in which CSS property they change and which
+mouse axis they watch — everything else (drag handling, clamping to
+min/max, keyboard support, ARIA state) is identical, so it's one function
+instead of two near-duplicate ones.
+
+Each divider is a real `role="separator"` with `aria-valuenow`/`min`/`max`,
+is reachable via Tab, and responds to arrow keys (grow/shrink by a fixed
+step) plus Home/End (jump straight to min/max) — not just mouse dragging.
+
+One perf detail worth knowing if you touch this: the container size is
+measured once per drag (`getBoundingClientRect()` at `mousedown`, cached
+for the whole drag), not on every single `mousemove` — recomputing layout
+on every mouse-move event is a real, measurable cost on a hot path like
+this.
 
 **When you'd touch it:** only if you're changing how resizing behaves (min/
-max widths, etc.) or adding a new resizable panel.
+max sizes, the keyboard step size) or adding a new resizable panel — in
+which case, call `makeResizer()` a third time rather than writing new
+drag-handling logic.
 
 ---
 
@@ -752,17 +807,26 @@ a test in `tests/storage.test.js` before writing the feature that uses it.
 
 Being upfront about what's incomplete, in rough priority order:
 
-- **Keyboard accessibility is good, not complete.** Modals trap focus,
-  sidebar items and category headers are keyboard-operable, but there's
-  been no full manual pass with an actual screen reader (NVDA/VoiceOver).
-  If you use one day-to-day, this would be a genuinely valuable
-  contribution.
+- **Keyboard accessibility is good, not complete.** Modals trap focus and
+  are exposed as real dialogs, every custom clickable control (sidebar
+  items, category headers, layout presets, the resizable dividers) is
+  keyboard-operable and tested by actually checking focus reachability —
+  but there's been no full manual pass with an actual screen reader
+  (NVDA/VoiceOver). If you use one day-to-day, this would be a genuinely
+  valuable contribution — automated tests can confirm the ARIA wiring is
+  correct, not what it actually sounds like.
 - **`js/modals.js` should be split** — see its section above. It works
   fine today; it just has more unrelated responsibility in one file than
   anything else in the project.
 - **Only 5 lessons have `hints`.** Low-risk, high-value, good first PR.
 - **Goal-checking is regex-only.** Works well, but an AST-based checker for
-  JS specifically would be more precise. See `ROADMAP.md` Phase 2.
+  JS specifically would be more precise. See `ROADMAP.md` Phase 2. Worth
+  knowing: this project shipped three lessons (`html-first-element`,
+  `js-variables`, `js-fetch-async`) where the starter code accidentally
+  satisfied every goal already — nothing wrong with the regexes
+  themselves, but a reminder that goal design and starter-code design have
+  to be checked _together_. `tests/curriculum.test.js` now has a
+  permanent regression test for this specific failure mode.
 - **No lesson has ever needed its `version` bumped.** The forward-
   compatibility logic for stale saved code is tested but not yet proven by
   a real content change — worth watching the first time a lesson's starter

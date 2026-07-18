@@ -68,22 +68,51 @@ for everything after it being safe to build quickly.
         state-change messages already)
   - [x] no positive `tabindex` traps (tested)
   - [x] `prefers-reduced-motion` support
-  - [ ] still open: the lesson-panel header, goals bar, and category
-        headers are clickable `<div>`s, not `<button>`s — not yet reachable
-        by keyboard. This is the next a11y item, tracked as a known gap
-        rather than silently left out.
+  - [x] every custom clickable control (sidebar items, category headers,
+        the lesson panel header, goals bar, workspace layout presets) is a
+        real `<button>` or has `role="button"` + `tabindex="0"` + a
+        matching `keydown` handler — tested by actually calling `.focus()`
+        on every interactive element and asserting it becomes
+        `document.activeElement`, not just checking `tabindex` values
+  - [x] every modal is exposed as `role="dialog"` with `aria-modal` and
+        `aria-labelledby` pointing at its visible title
+  - [x] the command palette follows the ARIA combobox/listbox pattern
+        (`aria-selected`, `aria-activedescendant`) so the active option is
+        announced even though focus stays in the search input
+  - [x] the resizable dividers are `role="separator"`, keyboard-operable
+        (arrow keys, Home/End), and report their current value via
+        `aria-valuenow`
   - [ ] still open: a full screen-reader pass (NVDA/VoiceOver), not just
-        automated checks
+        automated checks. Automated tests can confirm reachability and
+        correct ARIA wiring, but not what it actually _sounds_ like.
 - [~] Performance pass:
   - [x] debounce syntax highlighting for large buffers (>4000 characters)
         so typing stays smooth even on pasted content, while staying fully
-        synchronous (no perceptible lag) at normal lesson-sized files
+        synchronous (no perceptible lag) at normal lesson-sized files, and
+        the debounced timer is now correctly cancelled on tab switch so a
+        stale repaint can't land in the wrong tab
   - [ ] still open: curriculum-list rendering at large lesson counts
         (fine at 19 lessons; not yet stress-tested at, say, 200)
   - [ ] still open: real low-end-hardware testing
 - [x] Harden the preview `postMessage` listener to also check
       `event.source === previewFrame.contentWindow`, not just the message
       shape
+- [x] Escape raw-text closing tags (`</script>`, `</style>`) before
+      embedding a learner's HTML/CSS/JS into the preview document, so code
+      containing that literal string can't break out of its tag
+- [x] Escape quote characters in `escapeHtml()` (not just `&`/`<`/`>`), and
+      apply it consistently everywhere dynamic or lesson-authored text is
+      interpolated via `innerHTML`
+- [x] Validate the shape of an imported progress file before trusting it
+      to replace the live store
+- [x] Surface `localStorage` write failures (once per failure episode, not
+      spammed) instead of silently swallowing them
+- [x] Calculate streaks and consistency tracking using the learner's local
+      calendar day, not UTC (fixed in all 5 places this was computed, not
+      just the one originally flagged)
+- [x] CI hardening: explicit least-privilege `permissions:`, a
+      `concurrency` group to cancel superseded runs, and
+      `persist-credentials: false` on checkout
 
 ## Phase 2 — Sharpen the wedge
 

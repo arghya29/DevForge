@@ -111,7 +111,7 @@ function renderGoals() {
     !store.completed.includes(lesson.id)
   ) {
     store.completed.push(lesson.id);
-    const todayStr = new Date().toISOString().slice(0, 10);
+    const todayStr = localDateString();
     if (!store.completionDates.includes(todayStr)) store.completionDates.push(todayStr);
     saveStore(store);
     refreshXP();
@@ -245,7 +245,7 @@ function renderSidebar() {
     });
     header.innerHTML =
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg><span>' +
-      cat.category +
+      escapeHtml(cat.category) +
       '</span>';
     const toggleCategory = () => {
       const collapsed = catEl.classList.toggle('collapsed');
@@ -273,12 +273,12 @@ function renderSidebar() {
         '"></span>' +
         '<div class="lesson-item-text">' +
         '<div class="lesson-item-title">' +
-        lesson.title +
+        escapeHtml(lesson.title) +
         '</div>' +
         '<div class="lesson-item-meta"><span class="' +
         tagClass +
         '">' +
-        lesson.tag +
+        escapeHtml(lesson.tag) +
         '</span> · ' +
         lesson.xp +
         'xp</div>' +

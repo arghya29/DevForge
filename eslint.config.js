@@ -37,6 +37,7 @@ const appGlobals = {
   el: 'readonly',
   escapeHtml: 'readonly',
   toast: 'readonly',
+  localDateString: 'readonly',
   // curriculum.js
   PLAYGROUND: 'readonly',
   CURRICULUM: 'readonly',
@@ -46,6 +47,7 @@ const appGlobals = {
   // store.js
   store: 'writable',
   defaultStore: 'readonly',
+  isValidStoreShape: 'readonly',
   loadStore: 'readonly',
   saveStore: 'readonly',
   updateStreak: 'readonly',
@@ -115,8 +117,17 @@ export default [
         it: 'readonly',
         expect: 'readonly',
         beforeEach: 'readonly',
-        afterEach: 'readonly'
+        afterEach: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly'
       }
+    },
+    rules: {
+      'no-unused-vars': ['warn', { args: 'none' }],
+      'no-undef': 'error',
+      'no-redeclare': 'error',
+      eqeqeq: ['warn', 'smart'],
+      'no-var': 'warn'
     }
   }
 ];

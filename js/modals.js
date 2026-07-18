@@ -52,12 +52,24 @@ document.addEventListener('click', e => {
 });
 
 /* theme toggle */
+function setThemeButtonActive() {
+  $('#btnTheme').classList.toggle(
+    'active',
+    document.documentElement.getAttribute('data-theme') === 'light'
+  );
+}
+setThemeButtonActive(); // reflect the theme dom-utils.js already applied before first paint
 $('#btnTheme').addEventListener('click', () => {
   const html = document.documentElement;
   const isLight = html.getAttribute('data-theme') === 'light';
   if (isLight) html.removeAttribute('data-theme');
   else html.setAttribute('data-theme', 'light');
-  $('#btnTheme').classList.toggle('active', !isLight);
+  try {
+    localStorage.setItem('devforge:theme', isLight ? 'dark' : 'light');
+  } catch {
+    /* localStorage unavailable — theme still works for this session */
+  }
+  setThemeButtonActive();
 });
 
 /* modal open/close helpers, with focus trapping for keyboard/screen-reader users */
@@ -138,12 +150,12 @@ function renderAnalytics() {
   const row = $('#consistencyRow');
   row.innerHTML = '';
   const dayLetters = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = localDateString();
   let activeDays = 0;
   const completedDates = new Set(store.completionDates || []);
   for (let i = 6; i >= 0; i--) {
     const d = new Date(Date.now() - i * 86400000);
-    const dateStr = d.toISOString().slice(0, 10);
+    const dateStr = localDateString(d);
     const isToday = dateStr === todayStr;
     const isActive = completedDates.has(dateStr);
     if (isActive) activeDays++;
@@ -170,7 +182,8 @@ function renderAnalytics() {
     const time = (store.lessonTime && store.lessonTime[l.id]) || 0;
     const retries = (store.lessonRetries && store.lessonRetries[l.id]) || 0;
     const tr = el('tr');
-    tr.innerHTML = '<td>' + l.title + '</td><td>' + fmtTime(time) + '</td><td>' + retries + '</td>';
+    tr.innerHTML =
+      '<td>' + escapeHtml(l.title) + '</td><td>' + fmtTime(time) + '</td><td>' + retries + '</td>';
     body.appendChild(tr);
   });
 }
@@ -217,6 +230,8 @@ function renderSnippets() {
         '</div></div>' +
         '<div class="snippet-actions"><button class="load-btn">Load</button><button class="del-btn">Delete</button></div>';
       row.querySelector('.load-btn').addEventListener('click', () => {
+        if (!confirm('Load "' + sn.name + '"? This will replace your current code in the editor.'))
+          return;
         state.files = { html: sn.html, css: sn.css, js: sn.js };
         renderEditor();
         checkGoals();
@@ -225,6 +240,7 @@ function renderSnippets() {
         toast('Snippet "' + sn.name + '" loaded');
       });
       row.querySelector('.del-btn').addEventListener('click', () => {
+        if (!confirm('Delete "' + sn.name + '"? This can\'t be undone.')) return;
         store.snippets = store.snippets.filter(s => s.id !== sn.id);
         saveStore(store);
         renderSnippets();
@@ -338,9 +354,9 @@ function renderAchievements() {
       icon +
       '</div>' +
       '<div><div class="badge-title">' +
-      a.title +
+      escapeHtml(a.title) +
       '</div><div class="badge-desc">' +
-      a.desc +
+      escapeHtml(a.desc) +
       '</div></div>';
     grid.appendChild(card);
   });

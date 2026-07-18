@@ -1,13 +1,14 @@
 ---
 name: New lesson
 about: Propose a new lesson for the curriculum
-title: "[Lesson] "
+title: '[Lesson] '
 labels: lesson, good first issue
 ---
 
 **Lesson title**
 
 **Category**
+
 - [ ] HTML Foundations
 - [ ] CSS Styling
 - [ ] JavaScript
@@ -26,5 +27,6 @@ enough to start from.)
 3.
 
 **Are you willing to submit the PR yourself?**
+
 - [ ] Yes
 - [ ] No, just suggesting it
