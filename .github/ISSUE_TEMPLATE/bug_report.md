@@ -1,40 +1,22 @@
 ---
-name: Bug Report
-about: Something is broken or behaving incorrectly
-title: "[BUG] "
+name: Bug report
+about: Something in the editor, preview, or a lesson isn't working right
+title: '[Bug] '
 labels: bug
-assignees: ""
 ---
 
-## Describe the bug
+**What happened?**
+A clear description of the bug.
 
-A clear and concise description of what the bug is.
+**What did you expect to happen?**
 
-## Steps to reproduce
+**Steps to reproduce** 1. 2. 3.
 
-1. Go to lesson '...'
-2. Click on tab '...'
-3. Type '...'
-4. See error
+**Which lesson (if applicable)?**
+Lesson title or id, e.g. `css-flexbox`.
 
-## Expected behaviour
+**Browser & OS**
+e.g. Chrome 126 on Windows 11
 
-What you expected to happen.
-
-## Actual behaviour
-
-What actually happened.
-
-## Screenshots
-
-If applicable, add screenshots — especially for editor cursor or layout issues.
-
-## Environment
-
-- **Browser:** (e.g. Chrome 124, Firefox 125, Safari 17)
-- **OS:** (e.g. Windows 11, macOS Sonoma, Ubuntu 24)
-- **Deployment:** (e.g. GitHub Pages, local file, other)
-
-## Additional context
-
-Any other context about the problem.
+**Screenshots**
+If applicable, add screenshots.

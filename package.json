@@ -1,45 +1,21 @@
 {
   "name": "devforge",
-  "version": "1.0.0",
-  "description": "Interactive browser-based coding playground to learn HTML, CSS, and JavaScript",
+  "version": "0.1.0",
+  "description": "A zero-dependency code editor and interactive curriculum for learning HTML, CSS, and JavaScript.",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "scripts": {
-    "lint:js": "eslint app.js commands.js curriculum.js editor.js lesson.js preview.js storage.js ui.js analytics.js --max-warnings 0",
-    "lint:html": "html-validate --config html-validate.json index.html",
-    "format:check": "prettier --check \"*.html\" \"*.css\" \"*.js\" \"*.md\" \".github/**/*.md\" \"tests/**/*.js\"",
-    "format:fix": "prettier --write \"*.html\" \"*.css\" \"*.js\" \"*.md\" \".github/**/*.md\" \"tests/**/*.js\"",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
-    "check": "npm run lint:js && npm run lint:html && npm run format:check && npm run test"
+    "lint": "eslint js tests",
+    "format": "prettier --write \"**/*.{js,css,html,md,yml,json}\"",
+    "format:check": "prettier --check \"**/*.{js,css,html,md,yml,json}\""
   },
   "devDependencies": {
-    "@eslint/js": "^9.0.0",
-    "eslint": "^9.0.0",
-    "html-validate": "^9.0.0",
-    "jsdom": "^29.1.1",
-    "prettier": "^3.9.4",
-    "vitest": "^3.2.7"
-  },
-  "keywords": [
-    "html",
-    "css",
-    "javascript",
-    "learning",
-    "education",
-    "playground",
-    "code-editor",
-    "open-source",
-    "hacktoberfest"
-  ],
-  "license": "Apache-2.0",
-  "homepage": "https://arghya29.github.io/DevForge/",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/arghya29/DevForge.git"
-  },
-  "bugs": {
-    "url": "https://github.com/arghya29/DevForge/issues"
+    "eslint": "^9.9.0",
+    "jsdom": "^24.1.1",
+    "prettier": "^3.3.3",
+    "vitest": "^2.0.5"
   }
 }
