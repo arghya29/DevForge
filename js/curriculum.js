@@ -157,6 +157,38 @@ const CURRICULUM = [
           { text: 'Uses a &lt;main&gt;', check: f => /<main[\s>]/i.test(f.html) },
           { text: 'Uses a &lt;footer&gt;', check: f => /<footer[\s>]/i.test(f.html) }
         ]
+      },
+      {
+        id: 'html-tables-captions',
+        title: 'Tables & Captions',
+        tag: 'HTML',
+        xp: 25,
+        html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <title>Weekly Schedule</title>\n</head>\n<body>\n\n  <h1>Weekly Schedule</h1>\n\n  <table>\n\n    <!-- add a caption element here, as the first child of the table -->\n\n    <tr>\n      <!-- these two should be header cells, with scope="col" -->\n      <td>Day</td>\n      <td>Topic</td>\n    </tr>\n    <tr>\n      <td>Monday</td>\n      <td>HTML</td>\n    </tr>\n    <tr>\n      <td>Tuesday</td>\n      <td>CSS</td>\n    </tr>\n  </table>\n\n</body>\n</html>',
+        css: 'body{ font-family: sans-serif; padding: 2rem; }\ntable{ border-collapse: collapse; }\ncaption{ text-align: left; padding-bottom: .5rem; font-weight: 600; }\nth, td{ border: 1px solid #3a3f4b; padding: .5rem 1rem; text-align: left; }\n',
+        js: '',
+        description:
+          "<h3>Tables describe data, not layout</h3><p>A table holds rows of related data. Each row is a <code>&lt;tr&gt;</code>, each ordinary cell a <code>&lt;td&gt;</code>, and each <b>header</b> cell a <code>&lt;th&gt;</code>. A <code>&lt;caption&gt;</code> gives the whole table a title and is read out by screen readers before the data.</p><p>Add a caption to this table, and turn the first row's cells into header cells.</p>",
+        tip: 'Add <code>scope="col"</code> to a header at the top of a column, or <code>scope="row"</code> for one at the start of a row — it tells assistive tech which cells each header describes.',
+        goals: [
+          { text: 'Contains a &lt;table&gt;', check: f => /<table[\s>]/i.test(f.html) },
+          {
+            text: 'Contains a &lt;caption&gt; describing the table',
+            check: f =>
+              /<table[\s>][\s\S]*?<caption[\s>][^<]*\S[^<]*<\/caption>[\s\S]*?<tr[\s>]/i.test(
+                f.html
+              )
+          },
+          {
+            text: 'Marks the header row with &lt;th scope="col"&gt; cells',
+            check: f =>
+              /<th[^>]*\sscope\s*=\s*["']?(col|row)\b/i.test(f.html) && /<td[\s>]/i.test(f.html)
+          }
+        ],
+        hints: [
+          'The &lt;caption&gt; goes directly inside &lt;table&gt;, before the first row.',
+          'Swap the two cells in the first row from &lt;td&gt; to &lt;th&gt; — remember to change the closing tags too.',
+          'A column header is written &lt;th scope="col"&gt;Day&lt;/th&gt;.'
+        ]
       }
     ]
   },
