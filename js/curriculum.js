@@ -173,11 +173,15 @@ const CURRICULUM = [
           { text: 'Contains a &lt;table&gt;', check: f => /<table[\s>]/i.test(f.html) },
           {
             text: 'Contains a &lt;caption&gt; describing the table',
-            check: f => /<caption[\s>][\s\S]*<\/caption>/i.test(f.html)
+            check: f =>
+              /<table[\s>][\s\S]*?<caption[\s>][^<]*\S[^<]*<\/caption>[\s\S]*?<tr[\s>]/i.test(
+                f.html
+              )
           },
           {
-            text: 'Uses at least one &lt;th&gt; alongside its &lt;td&gt; cells',
-            check: f => /<th[\s>]/i.test(f.html) && /<td[\s>]/i.test(f.html)
+            text: 'Marks the header row with &lt;th scope="col"&gt; cells',
+            check: f =>
+              /<th[^>]*\sscope\s*=\s*["']?(col|row)\b/i.test(f.html) && /<td[\s>]/i.test(f.html)
           }
         ],
         hints: [

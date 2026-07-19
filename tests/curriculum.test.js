@@ -115,3 +115,45 @@ describe('curriculum data', () => {
     });
   });
 });
+
+describe('html-tables-captions goal checks', () => {
+  // The generic suite above proves goal checks never crash, but not that they accept a correct
+  // answer and reject an incorrect one. These cases pin down the two structural goals so the
+  // lesson can't quietly start passing for markup that doesn't teach what it claims to.
+  const { get } = createApp();
+  const lesson = get('FLAT_LESSONS').find(l => l.id === 'html-tables-captions');
+  const caption = lesson.goals.find(g => g.text.includes('caption')).check;
+  const headers = lesson.goals.find(g => g.text.includes('scope')).check;
+  const html = markup => caption({ html: markup, css: '', js: '' });
+  const hdr = markup => headers({ html: markup, css: '', js: '' });
+
+  it('accepts a caption that sits inside the table, above the first row', () => {
+    expect(html('<table><caption>Topics</caption><tr><td>a</td></tr></table>')).toBe(true);
+  });
+
+  it('rejects an empty or whitespace-only caption', () => {
+    expect(html('<table><caption></caption><tr><td>a</td></tr></table>')).toBe(false);
+    expect(html('<table><caption>   </caption><tr><td>a</td></tr></table>')).toBe(false);
+  });
+
+  it('rejects a caption placed outside the table or after the rows', () => {
+    expect(html('<caption>Topics</caption><table><tr><td>a</td></tr></table>')).toBe(false);
+    expect(html('<table><tr><td>a</td></tr><caption>Topics</caption></table>')).toBe(false);
+  });
+
+  it('accepts header cells carrying a col or row scope', () => {
+    expect(hdr('<table><tr><th scope="col">Day</th></tr><tr><td>a</td></tr></table>')).toBe(true);
+    expect(hdr('<table><tr><th scope="row">Day</th></tr><tr><td>a</td></tr></table>')).toBe(true);
+  });
+
+  it('rejects header cells with no scope, and headers without any data cells', () => {
+    expect(hdr('<table><tr><th>Day</th></tr><tr><td>a</td></tr></table>')).toBe(false);
+    expect(hdr('<table><tr><th scope="col">Day</th></tr></table>')).toBe(false);
+  });
+
+  it('leaves work to do: the starter does not already satisfy both goals', () => {
+    const starter = { html: lesson.html, css: lesson.css, js: lesson.js };
+    expect(caption(starter)).toBe(false);
+    expect(headers(starter)).toBe(false);
+  });
+});
