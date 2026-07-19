@@ -18,5 +18,7 @@ A clear description of the problem — not the solution yet.
 - [ ] Progress, XP, achievements
 - [ ] Something else (describe)
 
-**Have you checked `ROADMAP.md`?**
-Let us know if this is already planned, or if it's a new direction.
+**Are you willing to submit the PR yourself?**
+
+- [ ] Yes
+- [ ] No, just suggesting it
