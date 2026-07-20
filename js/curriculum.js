@@ -499,8 +499,8 @@ const CURRICULUM = [
         tip: 'Bracket notation takes an expression, so <code>book[key]</code> looks up whatever <code>key</code> currently holds — dot notation would look for a property literally named "key".',
         goals: [
           {
-            text: 'Creates an object literal',
-            check: f => /(const|let|var)\s+\w+\s*=\s*\{/.test(f.js)
+            text: 'Creates an object literal named book',
+            check: f => /(const|let|var)\s+book\s*=\s*\{/.test(f.js)
           },
           {
             text: 'Reads a property off the object',
