@@ -485,6 +485,37 @@ const CURRICULUM = [
           { text: 'Has a constructor', check: f => /constructor\s*\(/.test(f.js) },
           { text: 'Creates an instance with new', check: f => /\bnew\s+\w+\(/.test(f.js) }
         ]
+      },
+      {
+        id: 'js-objects-properties',
+        title: 'Objects & Properties',
+        tag: 'JS',
+        xp: 25,
+        html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <title>Objects</title>\n</head>\n<body>\n\n  <h1>Objects &amp; Properties</h1>\n  <p>Open the console panel to see your output.</p>\n\n</body>\n</html>',
+        css: 'body{ font-family: sans-serif; padding: 2rem; }\n',
+        js: '// An object groups related values under names instead of positions.\n//\n// 1. Create a book object with a title and a page count.\n\n\n// 2. Log just the title, reading it off the object.\n\n\n// 3. Give the book an author, then log the finished object.\n',
+        description:
+          '<h3>Named values, not numbered ones</h3><p>An array holds values in order; an object holds them under <b>keys</b>. You read a property with dot notation, <code>book.title</code>, or bracket notation, <code>book["title"]</code> — brackets are what you need when the key is held in a variable.</p><p>Create the object, read a property off it, then add or change one, and watch the console.</p>',
+        tip: 'Bracket notation takes an expression, so <code>book[key]</code> looks up whatever <code>key</code> currently holds — dot notation would look for a property literally named "key".',
+        goals: [
+          {
+            text: 'Creates an object literal',
+            check: f => /(const|let|var)\s+\w+\s*=\s*\{/.test(f.js)
+          },
+          {
+            text: 'Reads a property off the object',
+            check: f => /\bbook\s*(\.\s*\w+|\[\s*[^\]]+\])/.test(f.js)
+          },
+          {
+            text: 'Adds or updates a property',
+            check: f => /\bbook\s*(\.\s*\w+|\[\s*[^\]]+\])\s*=[^=]/.test(f.js)
+          }
+        ],
+        hints: [
+          "An object literal looks like: const book = { title: 'Some Book', pages: 352 };",
+          'Reading a property looks like console.log(book.title);',
+          "Adding one is just an assignment: book.author = 'Hunt & Thomas'; and assigning to a key that already exists updates it instead."
+        ]
       }
     ]
   }
