@@ -321,6 +321,62 @@ const CURRICULUM = [
         ]
       },
       {
+        id: 'css-media-queries',
+        title: 'Responsive Layout with Media Queries',
+        tag: 'CSS',
+        xp: 30,
+        html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <title>Responsive Layout</title>\n</head>\n<body>\n\n  <h1>Resize the preview</h1>\n\n  <div class="layout">\n    <div class="panel">Panel one</div>\n    <div class="panel">Panel two</div>\n    <div class="panel">Panel three</div>\n  </div>\n\n</body>\n</html>',
+        css: 'body{ font-family: sans-serif; padding: 2rem; }\n\n.layout{\n  display: flex;\n  flex-direction: row;\n  gap: 1rem;\n}\n\n.panel{\n  flex: 1;\n  background: #1a1d24;\n  border-radius: 8px;\n  padding: 1rem;\n}\n\n/* These three panels sit side by side at every width, which is cramped on a\n   phone. Add a rule at the bottom that only applies below 600px and stacks\n   them into a single column instead. */\n',
+        js: '',
+        description:
+          '<h3>One layout does not fit every screen</h3><p>A media query applies a block of CSS only when a condition about the viewport holds. <code>@media (max-width: 600px)</code> means "apply this when the viewport is 600px wide or narrower".</p><p>Add a query that switches <code>.layout</code> from a row to a column on narrow screens, then drag the divider between the editor and the preview to see it flip.</p>',
+        tip: 'Design mobile-first by writing your base styles for small screens and using <code>min-width</code> queries to add complexity as space allows — it usually produces less CSS than overriding a desktop layout downwards.',
+        goals: [
+          {
+            text: 'Adds an @media rule',
+            check: f => /@media[\s(]/i.test(f.css.replace(/\/\*[\s\S]*?\*\//g, ''))
+          },
+          {
+            text: 'Targets a width breakpoint (max-width or min-width)',
+            check: f =>
+              /@media[^{]*\((max|min)-width\s*:/i.test(f.css.replace(/\/\*[\s\S]*?\*\//g, ''))
+          },
+          {
+            text: 'Changes the layout inside that media query',
+            check: f => {
+              const css = f.css.replace(/\/\*[\s\S]*?\*\//g, '');
+              const re = /@media[\s(]/gi;
+              let m;
+              while ((m = re.exec(css))) {
+                const open = css.indexOf('{', m.index);
+                if (open < 0) continue;
+                let depth = 0;
+                let end = open;
+                while (end < css.length) {
+                  if (css[end] === '{') depth += 1;
+                  else if (css[end] === '}') {
+                    depth -= 1;
+                    if (depth === 0) break;
+                  }
+                  end += 1;
+                }
+                const inside = css.slice(open + 1, end);
+                if (/(flex-direction|flex-flow|grid-template|display)\s*:/i.test(inside)) {
+                  return true;
+                }
+                re.lastIndex = end;
+              }
+              return false;
+            }
+          }
+        ],
+        hints: [
+          'Start the block with @media (max-width: 600px) followed by a pair of braces.',
+          'Inside it, target .layout again — a later rule of equal specificity wins.',
+          'Setting flex-direction: column inside the query stacks the panels vertically.'
+        ]
+      },
+      {
         id: 'css-variables-theming',
         title: 'CSS Variables & Theming',
         tag: 'CSS',
