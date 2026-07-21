@@ -369,6 +369,51 @@ const CURRICULUM = [
           'Inside it, target .layout again — a later rule of equal specificity wins.',
           'Setting flex-direction: column inside the query stacks the panels vertically.'
         ]
+      },
+      {
+        id: 'css-variables-theming',
+        title: 'CSS Variables & Theming',
+        tag: 'CSS',
+        xp: 25,
+        html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <title>Theming</title>\n</head>\n<body>\n\n  <h1>Theme me</h1>\n\n  <div class="card">\n    <p>This card and the button below should share one colour.</p>\n    <button class="button">Click me</button>\n  </div>\n\n</body>\n</html>',
+        css: 'body{\n  font-family: sans-serif;\n  padding: 2rem;\n  background: #0f1115;\n  color: #e6e6e6;\n}\n\n/* Every colour below is hard-coded, so changing the accent means editing\n   more than one rule. Define your theme once at the top of this file,\n   then point each rule at it. */\n\n.card{\n  background: #1a1d24;\n  border: 2px solid #4d8dff;\n  border-radius: 8px;\n  padding: 1rem;\n}\n\n.button{\n  background: #4d8dff;\n  color: #0f1115;\n  border: none;\n  border-radius: 6px;\n  padding: .5rem 1rem;\n  cursor: pointer;\n}\n',
+        js: '',
+        description:
+          '<h3>Define a colour once, use it everywhere</h3><p>CSS custom properties let you name a value and reuse it. Declare them on <code>:root</code> so the whole document can see them, then read them back with <code>var(--name)</code>.</p><p>Move the accent colour into a custom property and use it in both the card border and the button, so changing one line restyles both.</p>',
+        tip: 'Custom property names are case-sensitive and must start with two dashes, e.g. <code>--accent: #4d8dff;</code>. <code>var(--accent, #4d8dff)</code> supplies a fallback if the property is missing.',
+        goals: [
+          {
+            text: 'Declares a custom property inside :root',
+            check: f => /:root\s*\{[^}]*--[\w-]+\s*:/is.test(f.css.replace(/\/\*[\s\S]*?\*\//g, ''))
+          },
+          {
+            text: 'Reads one of those declared properties with var()',
+            check: f => {
+              const css = f.css.replace(/\/\*[\s\S]*?\*\//g, '');
+              const root = (css.match(/:root\s*\{([^}]*)\}/is) || ['', ''])[1];
+              const declared = new Set(Array.from(root.matchAll(/--([\w-]+)\s*:/g), m => m[1]));
+              return Array.from(css.matchAll(/var\(\s*--([\w-]+)/g)).some(m => declared.has(m[1]));
+            }
+          },
+          {
+            text: 'Reuses the same declared property in at least two rules',
+            check: f => {
+              const css = f.css.replace(/\/\*[\s\S]*?\*\//g, '');
+              const root = (css.match(/:root\s*\{([^}]*)\}/is) || ['', ''])[1];
+              const declared = new Set(Array.from(root.matchAll(/--([\w-]+)\s*:/g), m => m[1]));
+              const uses = {};
+              Array.from(css.matchAll(/var\(\s*--([\w-]+)/g)).forEach(m => {
+                if (declared.has(m[1])) uses[m[1]] = (uses[m[1]] || 0) + 1;
+              });
+              return Object.keys(uses).some(k => uses[k] >= 2);
+            }
+          }
+        ],
+        hints: [
+          'Add a :root block at the very top, e.g. :root { --accent: #4d8dff; }',
+          'Then replace the hard-coded #4d8dff in .card with var(--accent).',
+          'Do the same in .button — one property, two rules, and now a single edit re-themes both.'
+        ]
       }
     ]
   },
@@ -534,6 +579,37 @@ const CURRICULUM = [
           { text: 'Defines a class', check: f => /\bclass\s+\w+/.test(f.js) },
           { text: 'Has a constructor', check: f => /constructor\s*\(/.test(f.js) },
           { text: 'Creates an instance with new', check: f => /\bnew\s+\w+\(/.test(f.js) }
+        ]
+      },
+      {
+        id: 'js-objects-properties',
+        title: 'Objects & Properties',
+        tag: 'JS',
+        xp: 25,
+        html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <title>Objects</title>\n</head>\n<body>\n\n  <h1>Objects &amp; Properties</h1>\n  <p>Open the console panel to see your output.</p>\n\n</body>\n</html>',
+        css: 'body{ font-family: sans-serif; padding: 2rem; }\n',
+        js: '// An object groups related values under names instead of positions.\n//\n// 1. Create a book object with a title and a page count.\n\n\n// 2. Log just the title, reading it off the object.\n\n\n// 3. Give the book an author, then log the finished object.\n',
+        description:
+          '<h3>Named values, not numbered ones</h3><p>An array holds values in order; an object holds them under <b>keys</b>. You read a property with dot notation, <code>book.title</code>, or bracket notation, <code>book["title"]</code> — brackets are what you need when the key is held in a variable.</p><p>Create the object, read a property off it, then add or change one, and watch the console.</p>',
+        tip: 'Bracket notation takes an expression, so <code>book[key]</code> looks up whatever <code>key</code> currently holds — dot notation would look for a property literally named "key".',
+        goals: [
+          {
+            text: 'Creates an object literal named book',
+            check: f => /(const|let|var)\s+book\s*=\s*\{/.test(f.js)
+          },
+          {
+            text: 'Reads a property off the object',
+            check: f => /\bbook\s*(\.\s*\w+|\[\s*[^\]]+\])/.test(f.js)
+          },
+          {
+            text: 'Adds or updates a property',
+            check: f => /\bbook\s*(\.\s*\w+|\[\s*[^\]]+\])\s*=[^=]/.test(f.js)
+          }
+        ],
+        hints: [
+          "An object literal looks like: const book = { title: 'Some Book', pages: 352 };",
+          'Reading a property looks like console.log(book.title);',
+          "Adding one is just an assignment: book.author = 'Hunt & Thomas'; and assigning to a key that already exists updates it instead."
         ]
       }
     ]
