@@ -1,7 +1,16 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { createApp } from './helpers/loadApp.js';
 
 describe('modals.js — learner analytics', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-01-01T12:00:00Z'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('renders one row per curriculum lesson in the stats table, defaulting to 00:00 / 0 retries', () => {
     const { get, document, window } = createApp();
     get('init()');
