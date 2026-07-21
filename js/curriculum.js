@@ -345,22 +345,28 @@ const CURRICULUM = [
             text: 'Changes the layout inside that media query',
             check: f => {
               const css = f.css.replace(/\/\*[\s\S]*?\*\//g, '');
-              const at = css.search(/@media[\s(]/i);
-              if (at < 0) return false;
-              const open = css.indexOf('{', at);
-              if (open < 0) return false;
-              let depth = 0;
-              let end = open;
-              while (end < css.length) {
-                if (css[end] === '{') depth += 1;
-                else if (css[end] === '}') {
-                  depth -= 1;
-                  if (depth === 0) break;
+              const re = /@media[\s(]/gi;
+              let m;
+              while ((m = re.exec(css))) {
+                const open = css.indexOf('{', m.index);
+                if (open < 0) continue;
+                let depth = 0;
+                let end = open;
+                while (end < css.length) {
+                  if (css[end] === '{') depth += 1;
+                  else if (css[end] === '}') {
+                    depth -= 1;
+                    if (depth === 0) break;
+                  }
+                  end += 1;
                 }
-                end += 1;
+                const inside = css.slice(open + 1, end);
+                if (/(flex-direction|flex-flow|grid-template|display)\s*:/i.test(inside)) {
+                  return true;
+                }
+                re.lastIndex = end;
               }
-              const inside = css.slice(open + 1, end);
-              return /(flex-direction|flex-flow|grid-template|display)\s*:/i.test(inside);
+              return false;
             }
           }
         ],
