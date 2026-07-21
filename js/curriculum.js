@@ -617,6 +617,46 @@ const CURRICULUM = [
           'Reading a property looks like console.log(book.title);',
           "Adding one is just an assignment: book.author = 'Hunt & Thomas'; and assigning to a key that already exists updates it instead."
         ]
+      },
+      {
+        id: 'js-form-validation',
+        title: 'Form Validation & Input Events',
+        tag: 'JS',
+        xp: 30,
+        html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <title>Sign Up</title>\n</head>\n<body>\n\n  <h1>Sign Up</h1>\n\n  <form id="signupForm">\n    <label for="email">Email</label>\n    <input type="text" id="email" placeholder="you@example.com">\n    <button type="submit">Join</button>\n  </form>\n\n  <p id="message"></p>\n\n</body>\n</html>',
+        css: 'body{ font-family: sans-serif; padding: 2rem; }\nform{ display: flex; flex-direction: column; gap: .5rem; max-width: 20rem; }\ninput, button{ padding: .5rem; border-radius: 6px; border: 1px solid #3a3f4b; }\nbutton{ background: #4d8dff; color: #0f1115; border: none; cursor: pointer; }\n#message{ margin-top: 1rem; font-weight: 600; }\n',
+        js: "const form = document.getElementById('signupForm');\nconst email = document.getElementById('email');\nconst message = document.getElementById('message');\n\n// Right now this form reloads the page and loses whatever was typed.\n//\n// 1. Listen for the form's submit event.\n// 2. Stop the browser doing its default reload.\n// 3. Read what the user typed, and put a result in the message element.\n",
+        description:
+          '<h3>Catching a submit before the browser acts</h3><p>Submitting a form navigates the page by default, which throws away anything JavaScript was doing. Listening for the <code>submit</code> event and calling <code>event.preventDefault()</code> hands control to your code instead.</p><p>Validate the email box — reject it when it is empty or missing an <code>@</code> — and write the outcome into the message paragraph.</p>',
+        tip: 'Listen on the <b>form</b> rather than the button: a form can also be submitted by pressing Enter in a text field, and a click listener on the button would miss that entirely.',
+        goals: [
+          {
+            text: "Listens for the form's submit event",
+            check: f =>
+              /addEventListener\(\s*['\"](submit|input)['\"]/.test(
+                f.js.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '')
+              )
+          },
+          {
+            text: 'Calls preventDefault() to stop the reload',
+            check: f =>
+              /preventDefault\s*\(/.test(
+                f.js.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '')
+              )
+          },
+          {
+            text: 'Reads the typed value and writes a result into the page',
+            check: f => {
+              const js = f.js.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+              return /\.value\b/.test(js) && /(textContent|innerText|innerHTML)\s*=[^=]/.test(js);
+            }
+          }
+        ],
+        hints: [
+          "form.addEventListener('submit', function (event) { ... });",
+          'The listener receives the event — call event.preventDefault() first thing inside it.',
+          'email.value.trim() gives you the typed text; assign to message.textContent to show a result.'
+        ]
       }
     ]
   }
