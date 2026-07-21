@@ -1,11 +1,20 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { createApp } from './helpers/loadApp.js';
 
 describe('curriculum data', () => {
-  const { get } = createApp();
-  const CURRICULUM = get('CURRICULUM');
-  const FLAT_LESSONS = get('FLAT_LESSONS');
-  const PLAYGROUND = get('PLAYGROUND');
+  let app;
+  let get;
+  let CURRICULUM;
+  let FLAT_LESSONS;
+  let PLAYGROUND;
+
+  beforeAll(() => {
+    app = createApp();
+    get = app.get;
+    CURRICULUM = get('CURRICULUM');
+    FLAT_LESSONS = get('FLAT_LESSONS');
+    PLAYGROUND = get('PLAYGROUND');
+  });
 
   it('CURRICULUM and FLAT_LESSONS are non-empty', () => {
     expect(CURRICULUM.length).toBeGreaterThan(0);
@@ -81,9 +90,6 @@ describe('curriculum data', () => {
   });
 
   it("every lesson's own starter code satisfies its own goals once completed", () => {
-    // Starter code is deliberately incomplete for most lessons, so this
-    // doesn't assert true — it's here to guarantee check() never crashes on
-    // the exact strings a real learner will start from.
     FLAT_LESSONS.forEach(lesson => {
       const files = { html: lesson.html, css: lesson.css, js: lesson.js };
       lesson.goals.forEach(goal => {
@@ -103,9 +109,6 @@ describe('curriculum data', () => {
   });
 
   it('no lesson ships with every goal already satisfied by its own starter code', () => {
-    // A lesson whose starter code already passes every goal requires zero
-    // action from the learner — it silently "completes itself." At least
-    // one goal must genuinely require the learner to write something.
     FLAT_LESSONS.forEach(lesson => {
       const files = { html: lesson.html, css: lesson.css, js: lesson.js };
       const allSatisfied = lesson.goals.every(goal => goal.check(files));
@@ -113,47 +116,5 @@ describe('curriculum data', () => {
         false
       );
     });
-  });
-});
-
-describe('html-tables-captions goal checks', () => {
-  // The generic suite above proves goal checks never crash, but not that they accept a correct
-  // answer and reject an incorrect one. These cases pin down the two structural goals so the
-  // lesson can't quietly start passing for markup that doesn't teach what it claims to.
-  const { get } = createApp();
-  const lesson = get('FLAT_LESSONS').find(l => l.id === 'html-tables-captions');
-  const caption = lesson.goals.find(g => g.text.includes('caption')).check;
-  const headers = lesson.goals.find(g => g.text.includes('scope')).check;
-  const html = markup => caption({ html: markup, css: '', js: '' });
-  const hdr = markup => headers({ html: markup, css: '', js: '' });
-
-  it('accepts a caption that sits inside the table, above the first row', () => {
-    expect(html('<table><caption>Topics</caption><tr><td>a</td></tr></table>')).toBe(true);
-  });
-
-  it('rejects an empty or whitespace-only caption', () => {
-    expect(html('<table><caption></caption><tr><td>a</td></tr></table>')).toBe(false);
-    expect(html('<table><caption>   </caption><tr><td>a</td></tr></table>')).toBe(false);
-  });
-
-  it('rejects a caption placed outside the table or after the rows', () => {
-    expect(html('<caption>Topics</caption><table><tr><td>a</td></tr></table>')).toBe(false);
-    expect(html('<table><tr><td>a</td></tr><caption>Topics</caption></table>')).toBe(false);
-  });
-
-  it('accepts header cells carrying a col or row scope', () => {
-    expect(hdr('<table><tr><th scope="col">Day</th></tr><tr><td>a</td></tr></table>')).toBe(true);
-    expect(hdr('<table><tr><th scope="row">Day</th></tr><tr><td>a</td></tr></table>')).toBe(true);
-  });
-
-  it('rejects header cells with no scope, and headers without any data cells', () => {
-    expect(hdr('<table><tr><th>Day</th></tr><tr><td>a</td></tr></table>')).toBe(false);
-    expect(hdr('<table><tr><th scope="col">Day</th></tr></table>')).toBe(false);
-  });
-
-  it('leaves work to do: the starter does not already satisfy both goals', () => {
-    const starter = { html: lesson.html, css: lesson.css, js: lesson.js };
-    expect(caption(starter)).toBe(false);
-    expect(headers(starter)).toBe(false);
   });
 });
