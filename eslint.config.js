@@ -71,15 +71,18 @@ const appGlobals = {
   exportCode: 'readonly',
   addConsoleLine: 'readonly',
   scheduleAutoRun: 'readonly',
-  // lessons.js
+  // lesson-load.js
   currentLessonDef: 'readonly',
-  renderLessonPanel: 'readonly',
-  checkGoals: 'readonly',
-  loadLesson: 'readonly',
-  renderSidebar: 'readonly',
+  updateCounters: 'readonly',
   prevLesson: 'readonly',
   nextLesson: 'readonly',
   copyCurrentCode: 'readonly',
+  loadLesson: 'readonly',
+  // lesson-panel.js
+  renderLessonPanel: 'readonly',
+  checkGoals: 'readonly',
+  // curriculum-sidebar.js
+  renderSidebar: 'readonly',
   // modals.js
   applyLayout: 'readonly',
   openModal: 'readonly',
