@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createApp } from './helpers/loadApp.js';
 
 describe('dom-utils.js', () => {
@@ -70,6 +70,14 @@ describe('highlighter.js — syntax highlighting', () => {
 });
 
 describe('editor.js — editor behavior', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it("loads a lesson's HTML into the editor by default", () => {
     const { get, document } = createApp();
     get('loadLesson(FLAT_LESSONS[0].id)');
@@ -124,7 +132,7 @@ describe('editor.js — editor behavior', () => {
     expect(get('store.code')['__playground__']).toBeUndefined();
   });
 
-  it('switching tabs cancels a pending debounced highlight instead of letting it paint stale content into the new tab', async () => {
+  it('switching tabs cancels a pending debounced highlight instead of letting it paint stale content into the new tab', () => {
     const { get, document, window } = createApp();
     get("loadLesson('__playground__')");
     // force the large-buffer debounce path (>4000 chars) on the JS tab
@@ -136,7 +144,7 @@ describe('editor.js — editor behavior', () => {
     get("switchTab('css')");
     const cssTextAtSwitch = document.getElementById('codeHighlight').textContent;
 
-    await new Promise(resolve => setTimeout(resolve, 250)); // past the 150ms debounce window
+    vi.advanceTimersByTime(250); // fast-forward past the 150ms debounce window
 
     // the overlay must still reflect the CSS tab, not stale JS content
     expect(document.getElementById('codeHighlight').textContent).toBe(cssTextAtSwitch);

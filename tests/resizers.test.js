@@ -1,10 +1,21 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { createApp } from './helpers/loadApp.js';
 
 describe('resizers.js', () => {
-  it('both dividers are exposed as ARIA separators with a value range', () => {
-    const { get, document } = createApp();
+  let app;
+  let get;
+  let document;
+  let window;
+
+  beforeEach(() => {
+    app = createApp();
+    get = app.get;
+    document = app.document;
+    window = app.window;
     get('init()');
+  });
+
+  it('both dividers are exposed as ARIA separators with a value range', () => {
     ['dividerV', 'dividerH'].forEach(id => {
       const handle = document.getElementById(id);
       expect(handle.getAttribute('role')).toBe('separator');
@@ -17,10 +28,8 @@ describe('resizers.js', () => {
   // jsdom has no real layout engine — getBoundingClientRect() always
   // reports 0, so testing "grow/shrink from the real current size" via the
   // live console panel isn't meaningful here. Instead we drive
-  // makeResizer() directly against an in-memory fake size, which tests the
-  // actual keyboard math precisely (and faster/more deterministically than
-  // trying to coax real measurements out of jsdom).
-  function withFakeResizer(get, document, opts) {
+  // makeResizer() directly against an in-memory fake size.
+  function withFakeResizer(opts) {
     return get(`(function(){
       const handle = document.createElement('div');
       document.body.appendChild(handle);
@@ -38,9 +47,7 @@ describe('resizers.js', () => {
   }
 
   it('ArrowUp grows a horizontal (height-resizing) divider, ArrowDown shrinks it', () => {
-    const { get, document, window } = createApp();
-    get('init()');
-    const handle = withFakeResizer(get, document, {
+    const handle = withFakeResizer({
       orientation: 'horizontal',
       min: 80,
       max: 500,
@@ -61,9 +68,7 @@ describe('resizers.js', () => {
   });
 
   it('ArrowRight grows a vertical (width-resizing) divider, ArrowLeft shrinks it', () => {
-    const { get, document, window } = createApp();
-    get('init()');
-    const handle = withFakeResizer(get, document, {
+    const handle = withFakeResizer({
       orientation: 'vertical',
       min: 220,
       max: 900,
@@ -81,9 +86,7 @@ describe('resizers.js', () => {
   });
 
   it('arrow keys clamp to min/max instead of going out of range', () => {
-    const { get, document, window } = createApp();
-    get('init()');
-    const handle = withFakeResizer(get, document, {
+    const handle = withFakeResizer({
       orientation: 'horizontal',
       min: 80,
       max: 500,
@@ -99,9 +102,7 @@ describe('resizers.js', () => {
   });
 
   it('Home and End jump straight to min/max', () => {
-    const { get, document, window } = createApp();
-    get('init()');
-    const handle = withFakeResizer(get, document, {
+    const handle = withFakeResizer({
       orientation: 'horizontal',
       min: 80,
       max: 500,
@@ -119,11 +120,9 @@ describe('resizers.js', () => {
   });
 
   it('never reports aria-valuemax below aria-valuemin, even when the computed max would be smaller (e.g. a very narrow container)', () => {
-    const { get, document } = createApp();
-    get('init()');
     // a container narrower than min would make a naive `containerWidth - X`
     // calculation return something less than min
-    const handle = withFakeResizer(get, document, {
+    const handle = withFakeResizer({
       orientation: 'vertical',
       min: 220,
       max: 180, // deliberately less than min

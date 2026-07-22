@@ -14,7 +14,7 @@ function updateCounters() {
   if (state.currentLessonId !== PLAYGROUND.id) {
     idx = FLAT_LESSONS.findIndex(l => l.id === state.currentLessonId) + 1;
   }
-  const text = state.currentLessonId === PLAYGROUND.id ? '0/0' : idx + '/' + total;
+  const text = idx + '/' + total;
   $('#lessonCounter').textContent = text;
   $('#bottomCounter').textContent = text.replace('/', ' / ');
   $('#prevBtn').disabled = state.currentLessonId === PLAYGROUND.id || idx <= 1;
