@@ -33,16 +33,27 @@ export const JS_LOAD_ORDER = [
   'main.js'
 ];
 
+// Module-level file cache to eliminate redundant synchronous I/O across test suites
+const fileCache = {};
+
+function getCachedFile(filePath) {
+  if (!fileCache[filePath]) {
+    fileCache[filePath] = fs.readFileSync(filePath, 'utf8');
+  }
+  return fileCache[filePath];
+}
+
 /**
  * Boots a fresh instance of the app in jsdom.
  * @param {object} [options]
  * @param {object} [options.seedStore] - pre-populate localStorage's devforge:v1 key
  * @param {object} [options.localStorageSeed] - pre-populate arbitrary localStorage keys
  *        (e.g. { 'devforge:theme': 'light' }), applied before any app script runs
- * @returns {{ window: Window, document: Document, get: (expr: string) => any }}
+ * @param {Array} [options.mockCurriculum] - optional mock lessons array to override production curriculum
+ * @returns {{ window: Window, document: Document, get: (expr: string) => any, cleanup: () => void }}
  */
-export function createApp({ seedStore, localStorageSeed } = {}) {
-  const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+export function createApp({ seedStore, localStorageSeed, mockCurriculum } = {}) {
+  const html = getCachedFile(path.join(ROOT, 'index.html'));
 
   // Minimal, in-memory localStorage — jsdom's file://-backed storage is
   // unreliable in a test/CI environment, and we don't need persistence
@@ -95,11 +106,18 @@ export function createApp({ seedStore, localStorageSeed } = {}) {
     const script = document.createElement('script');
     script.textContent = code;
     document.body.appendChild(script);
+    script.remove(); // Clean up script node immediately after execution to prevent DOM memory bloat
   };
 
   JS_LOAD_ORDER.forEach(f => {
-    run(fs.readFileSync(path.join(ROOT, 'js', f), 'utf8'));
+    run(getCachedFile(path.join(ROOT, 'js', f)));
   });
+
+  // Inject mock curriculum if provided for decoupled integration testing
+  if (mockCurriculum) {
+    window.FLAT_LESSONS = mockCurriculum;
+    window.CURRICULUM = [{ title: 'Mock Category', items: mockCurriculum }];
+  }
 
   return {
     window,
@@ -113,6 +131,8 @@ export function createApp({ seedStore, localStorageSeed } = {}) {
       const result = window[marker];
       delete window[marker];
       return result;
-    }
+    },
+    // Expose explicit cleanup method to destroy the JSDOM window and prevent memory leaks
+    cleanup: () => window.close()
   };
 }
