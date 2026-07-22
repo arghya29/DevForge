@@ -20,3 +20,8 @@ e.g. Chrome 126 on Windows 11
 
 **Screenshots**
 If applicable, add screenshots.
+
+**Are you willing to submit the PR yourself?**
+
+- [ ] Yes
+- [ ] No, just suggesting it

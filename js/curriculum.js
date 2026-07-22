@@ -157,6 +157,38 @@ const CURRICULUM = [
           { text: 'Uses a &lt;main&gt;', check: f => /<main[\s>]/i.test(f.html) },
           { text: 'Uses a &lt;footer&gt;', check: f => /<footer[\s>]/i.test(f.html) }
         ]
+      },
+      {
+        id: 'html-tables-captions',
+        title: 'Tables & Captions',
+        tag: 'HTML',
+        xp: 25,
+        html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <title>Weekly Schedule</title>\n</head>\n<body>\n\n  <h1>Weekly Schedule</h1>\n\n  <table>\n\n    <!-- add a caption element here, as the first child of the table -->\n\n    <tr>\n      <!-- these two should be header cells, with scope="col" -->\n      <td>Day</td>\n      <td>Topic</td>\n    </tr>\n    <tr>\n      <td>Monday</td>\n      <td>HTML</td>\n    </tr>\n    <tr>\n      <td>Tuesday</td>\n      <td>CSS</td>\n    </tr>\n  </table>\n\n</body>\n</html>',
+        css: 'body{ font-family: sans-serif; padding: 2rem; }\ntable{ border-collapse: collapse; }\ncaption{ text-align: left; padding-bottom: .5rem; font-weight: 600; }\nth, td{ border: 1px solid #3a3f4b; padding: .5rem 1rem; text-align: left; }\n',
+        js: '',
+        description:
+          "<h3>Tables describe data, not layout</h3><p>A table holds rows of related data. Each row is a <code>&lt;tr&gt;</code>, each ordinary cell a <code>&lt;td&gt;</code>, and each <b>header</b> cell a <code>&lt;th&gt;</code>. A <code>&lt;caption&gt;</code> gives the whole table a title and is read out by screen readers before the data.</p><p>Add a caption to this table, and turn the first row's cells into header cells.</p>",
+        tip: 'Add <code>scope="col"</code> to a header at the top of a column, or <code>scope="row"</code> for one at the start of a row — it tells assistive tech which cells each header describes.',
+        goals: [
+          { text: 'Contains a &lt;table&gt;', check: f => /<table[\s>]/i.test(f.html) },
+          {
+            text: 'Contains a &lt;caption&gt; describing the table',
+            check: f =>
+              /<table[\s>][\s\S]*?<caption[\s>][^<]*\S[^<]*<\/caption>[\s\S]*?<tr[\s>]/i.test(
+                f.html
+              )
+          },
+          {
+            text: 'Marks the header row with &lt;th scope="col"&gt; cells',
+            check: f =>
+              /<th[^>]*\sscope\s*=\s*["']?(col|row)\b/i.test(f.html) && /<td[\s>]/i.test(f.html)
+          }
+        ],
+        hints: [
+          'The &lt;caption&gt; goes directly inside &lt;table&gt;, before the first row.',
+          'Swap the two cells in the first row from &lt;td&gt; to &lt;th&gt; — remember to change the closing tags too.',
+          'A column header is written &lt;th scope="col"&gt;Day&lt;/th&gt;.'
+        ]
       }
     ]
   },
@@ -286,6 +318,107 @@ const CURRICULUM = [
           },
           { text: 'Sets a top offset', check: f => /\.badge\s*\{[^}]*top\s*:/is.test(f.css) },
           { text: 'Sets a right offset', check: f => /\.badge\s*\{[^}]*right\s*:/is.test(f.css) }
+        ]
+      },
+      {
+        id: 'css-media-queries',
+        title: 'Responsive Layout with Media Queries',
+        tag: 'CSS',
+        xp: 30,
+        html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <title>Responsive Layout</title>\n</head>\n<body>\n\n  <h1>Resize the preview</h1>\n\n  <div class="layout">\n    <div class="panel">Panel one</div>\n    <div class="panel">Panel two</div>\n    <div class="panel">Panel three</div>\n  </div>\n\n</body>\n</html>',
+        css: 'body{ font-family: sans-serif; padding: 2rem; }\n\n.layout{\n  display: flex;\n  flex-direction: row;\n  gap: 1rem;\n}\n\n.panel{\n  flex: 1;\n  background: #1a1d24;\n  border-radius: 8px;\n  padding: 1rem;\n}\n\n/* These three panels sit side by side at every width, which is cramped on a\n   phone. Add a rule at the bottom that only applies below 600px and stacks\n   them into a single column instead. */\n',
+        js: '',
+        description:
+          '<h3>One layout does not fit every screen</h3><p>A media query applies a block of CSS only when a condition about the viewport holds. <code>@media (max-width: 600px)</code> means "apply this when the viewport is 600px wide or narrower".</p><p>Add a query that switches <code>.layout</code> from a row to a column on narrow screens, then drag the divider between the editor and the preview to see it flip.</p>',
+        tip: 'Design mobile-first by writing your base styles for small screens and using <code>min-width</code> queries to add complexity as space allows — it usually produces less CSS than overriding a desktop layout downwards.',
+        goals: [
+          {
+            text: 'Adds an @media rule',
+            check: f => /@media[\s(]/i.test(f.css.replace(/\/\*[\s\S]*?\*\//g, ''))
+          },
+          {
+            text: 'Targets a width breakpoint (max-width or min-width)',
+            check: f =>
+              /@media[^{]*\((max|min)-width\s*:/i.test(f.css.replace(/\/\*[\s\S]*?\*\//g, ''))
+          },
+          {
+            text: 'Changes the layout inside that media query',
+            check: f => {
+              const css = f.css.replace(/\/\*[\s\S]*?\*\//g, '');
+              const re = /@media[\s(]/gi;
+              let m;
+              while ((m = re.exec(css))) {
+                const open = css.indexOf('{', m.index);
+                if (open < 0) continue;
+                let depth = 0;
+                let end = open;
+                while (end < css.length) {
+                  if (css[end] === '{') depth += 1;
+                  else if (css[end] === '}') {
+                    depth -= 1;
+                    if (depth === 0) break;
+                  }
+                  end += 1;
+                }
+                const inside = css.slice(open + 1, end);
+                if (/(flex-direction|flex-flow|grid-template|display)\s*:/i.test(inside)) {
+                  return true;
+                }
+                re.lastIndex = end;
+              }
+              return false;
+            }
+          }
+        ],
+        hints: [
+          'Start the block with @media (max-width: 600px) followed by a pair of braces.',
+          'Inside it, target .layout again — a later rule of equal specificity wins.',
+          'Setting flex-direction: column inside the query stacks the panels vertically.'
+        ]
+      },
+      {
+        id: 'css-variables-theming',
+        title: 'CSS Variables & Theming',
+        tag: 'CSS',
+        xp: 25,
+        html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <title>Theming</title>\n</head>\n<body>\n\n  <h1>Theme me</h1>\n\n  <div class="card">\n    <p>This card and the button below should share one colour.</p>\n    <button class="button">Click me</button>\n  </div>\n\n</body>\n</html>',
+        css: 'body{\n  font-family: sans-serif;\n  padding: 2rem;\n  background: #0f1115;\n  color: #e6e6e6;\n}\n\n/* Every colour below is hard-coded, so changing the accent means editing\n   more than one rule. Define your theme once at the top of this file,\n   then point each rule at it. */\n\n.card{\n  background: #1a1d24;\n  border: 2px solid #4d8dff;\n  border-radius: 8px;\n  padding: 1rem;\n}\n\n.button{\n  background: #4d8dff;\n  color: #0f1115;\n  border: none;\n  border-radius: 6px;\n  padding: .5rem 1rem;\n  cursor: pointer;\n}\n',
+        js: '',
+        description:
+          '<h3>Define a colour once, use it everywhere</h3><p>CSS custom properties let you name a value and reuse it. Declare them on <code>:root</code> so the whole document can see them, then read them back with <code>var(--name)</code>.</p><p>Move the accent colour into a custom property and use it in both the card border and the button, so changing one line restyles both.</p>',
+        tip: 'Custom property names are case-sensitive and must start with two dashes, e.g. <code>--accent: #4d8dff;</code>. <code>var(--accent, #4d8dff)</code> supplies a fallback if the property is missing.',
+        goals: [
+          {
+            text: 'Declares a custom property inside :root',
+            check: f => /:root\s*\{[^}]*--[\w-]+\s*:/is.test(f.css.replace(/\/\*[\s\S]*?\*\//g, ''))
+          },
+          {
+            text: 'Reads one of those declared properties with var()',
+            check: f => {
+              const css = f.css.replace(/\/\*[\s\S]*?\*\//g, '');
+              const root = (css.match(/:root\s*\{([^}]*)\}/is) || ['', ''])[1];
+              const declared = new Set(Array.from(root.matchAll(/--([\w-]+)\s*:/g), m => m[1]));
+              return Array.from(css.matchAll(/var\(\s*--([\w-]+)/g)).some(m => declared.has(m[1]));
+            }
+          },
+          {
+            text: 'Reuses the same declared property in at least two rules',
+            check: f => {
+              const css = f.css.replace(/\/\*[\s\S]*?\*\//g, '');
+              const root = (css.match(/:root\s*\{([^}]*)\}/is) || ['', ''])[1];
+              const declared = new Set(Array.from(root.matchAll(/--([\w-]+)\s*:/g), m => m[1]));
+              const uses = {};
+              Array.from(css.matchAll(/var\(\s*--([\w-]+)/g)).forEach(m => {
+                if (declared.has(m[1])) uses[m[1]] = (uses[m[1]] || 0) + 1;
+              });
+              return Object.keys(uses).some(k => uses[k] >= 2);
+            }
+          }
+        ],
+        hints: [
+          'Add a :root block at the very top, e.g. :root { --accent: #4d8dff; }',
+          'Then replace the hard-coded #4d8dff in .card with var(--accent).',
+          'Do the same in .button — one property, two rules, and now a single edit re-themes both.'
         ]
       }
     ]
@@ -452,6 +585,77 @@ const CURRICULUM = [
           { text: 'Defines a class', check: f => /\bclass\s+\w+/.test(f.js) },
           { text: 'Has a constructor', check: f => /constructor\s*\(/.test(f.js) },
           { text: 'Creates an instance with new', check: f => /\bnew\s+\w+\(/.test(f.js) }
+        ]
+      },
+      {
+        id: 'js-objects-properties',
+        title: 'Objects & Properties',
+        tag: 'JS',
+        xp: 25,
+        html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <title>Objects</title>\n</head>\n<body>\n\n  <h1>Objects &amp; Properties</h1>\n  <p>Open the console panel to see your output.</p>\n\n</body>\n</html>',
+        css: 'body{ font-family: sans-serif; padding: 2rem; }\n',
+        js: '// An object groups related values under names instead of positions.\n//\n// 1. Create a book object with a title and a page count.\n\n\n// 2. Log just the title, reading it off the object.\n\n\n// 3. Give the book an author, then log the finished object.\n',
+        description:
+          '<h3>Named values, not numbered ones</h3><p>An array holds values in order; an object holds them under <b>keys</b>. You read a property with dot notation, <code>book.title</code>, or bracket notation, <code>book["title"]</code> — brackets are what you need when the key is held in a variable.</p><p>Create the object, read a property off it, then add or change one, and watch the console.</p>',
+        tip: 'Bracket notation takes an expression, so <code>book[key]</code> looks up whatever <code>key</code> currently holds — dot notation would look for a property literally named "key".',
+        goals: [
+          {
+            text: 'Creates an object literal named book',
+            check: f => /(const|let|var)\s+book\s*=\s*\{/.test(f.js)
+          },
+          {
+            text: 'Reads a property off the object',
+            check: f => /\bbook\s*(\.\s*\w+|\[\s*[^\]]+\])/.test(f.js)
+          },
+          {
+            text: 'Adds or updates a property',
+            check: f => /\bbook\s*(\.\s*\w+|\[\s*[^\]]+\])\s*=[^=]/.test(f.js)
+          }
+        ],
+        hints: [
+          "An object literal looks like: const book = { title: 'Some Book', pages: 352 };",
+          'Reading a property looks like console.log(book.title);',
+          "Adding one is just an assignment: book.author = 'Hunt & Thomas'; and assigning to a key that already exists updates it instead."
+        ]
+      },
+      {
+        id: 'js-form-validation',
+        title: 'Form Validation & Input Events',
+        tag: 'JS',
+        xp: 30,
+        html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <title>Sign Up</title>\n</head>\n<body>\n\n  <h1>Sign Up</h1>\n\n  <form id="signupForm">\n    <label for="email">Email</label>\n    <input type="text" id="email" placeholder="you@example.com">\n    <button type="submit">Join</button>\n  </form>\n\n  <p id="message"></p>\n\n</body>\n</html>',
+        css: 'body{ font-family: sans-serif; padding: 2rem; }\nform{ display: flex; flex-direction: column; gap: .5rem; max-width: 20rem; }\ninput, button{ padding: .5rem; border-radius: 6px; border: 1px solid #3a3f4b; }\nbutton{ background: #4d8dff; color: #0f1115; border: none; cursor: pointer; }\n#message{ margin-top: 1rem; font-weight: 600; }\n',
+        js: "const form = document.getElementById('signupForm');\nconst email = document.getElementById('email');\nconst message = document.getElementById('message');\n\n// Right now this form reloads the page and loses whatever was typed.\n//\n// 1. Listen for the form's submit event.\n// 2. Stop the browser doing its default reload.\n// 3. Read what the user typed, and put a result in the message element.\n",
+        description:
+          '<h3>Catching a submit before the browser acts</h3><p>Submitting a form navigates the page by default, which throws away anything JavaScript was doing. Listening for the <code>submit</code> event and calling <code>event.preventDefault()</code> hands control to your code instead.</p><p>Validate the email box — reject it when it is empty or missing an <code>@</code> — and write the outcome into the message paragraph.</p>',
+        tip: 'Listen on the <b>form</b> rather than the button: a form can also be submitted by pressing Enter in a text field, and a click listener on the button would miss that entirely.',
+        goals: [
+          {
+            text: "Listens for the form's submit event",
+            check: f =>
+              /addEventListener\(\s*['\"](submit|input)['\"]/.test(
+                f.js.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '')
+              )
+          },
+          {
+            text: 'Calls preventDefault() to stop the reload',
+            check: f =>
+              /preventDefault\s*\(/.test(
+                f.js.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '')
+              )
+          },
+          {
+            text: 'Reads the typed value and writes a result into the page',
+            check: f => {
+              const js = f.js.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+              return /\.value\b/.test(js) && /(textContent|innerText|innerHTML)\s*=[^=]/.test(js);
+            }
+          }
+        ],
+        hints: [
+          "form.addEventListener('submit', function (event) { ... });",
+          'The listener receives the event — call event.preventDefault() first thing inside it.',
+          'email.value.trim() gives you the typed text; assign to message.textContent to show a result.'
         ]
       }
     ]
