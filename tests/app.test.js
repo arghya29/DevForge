@@ -114,9 +114,9 @@ describe('app.js — integration behavior with mock curriculum', () => {
     expect(first.document.documentElement.getAttribute('data-theme')).toBe('light');
     expect(first.window.localStorage.getItem('devforge:theme')).toBe('light');
 
-    const second = createApp({ 
-      mockCurriculum: [mockLesson], 
-      localStorageSeed: { 'devforge:theme': 'light' } 
+    const second = createApp({
+      mockCurriculum: [mockLesson],
+      localStorageSeed: { 'devforge:theme': 'light' }
     });
     expect(second.document.documentElement.getAttribute('data-theme')).toBe('light');
     expect(second.document.getElementById('btnTheme').classList.contains('active')).toBe(true);

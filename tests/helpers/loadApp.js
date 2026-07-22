@@ -71,6 +71,10 @@ export function createApp({ seedStore, localStorageSeed, mockCurriculum } = {}) 
     // exactly like a real browser would already have real localStorage
     // available before running any script.
     beforeParse(win) {
+      Object.defineProperty(win, 'Date', {
+        configurable: true,
+        value: Date
+      });
       Object.defineProperty(win, 'localStorage', {
         configurable: true,
         value: {
@@ -109,15 +113,17 @@ export function createApp({ seedStore, localStorageSeed, mockCurriculum } = {}) 
     script.remove(); // Clean up script node immediately after execution to prevent DOM memory bloat
   };
 
-  JS_LOAD_ORDER.forEach(f => {
+  JS_LOAD_ORDER.slice(0, -1).forEach(f => {
     run(getCachedFile(path.join(ROOT, 'js', f)));
   });
 
   // Inject mock curriculum if provided for decoupled integration testing
   if (mockCurriculum) {
     window.FLAT_LESSONS = mockCurriculum;
-    window.CURRICULUM = [{ title: 'Mock Category', items: mockCurriculum }];
+    window.CURRICULUM = [{ category: 'Mock Category', items: mockCurriculum }];
   }
+
+  run(getCachedFile(path.join(ROOT, 'js', 'main.js')));
 
   return {
     window,

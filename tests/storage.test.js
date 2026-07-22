@@ -108,9 +108,7 @@ describe('store.js — persistent progress', () => {
   });
 
   it('localDateString() uses the local calendar day, not the UTC one', () => {
-    const local = get(
-      'localDateString(new Date(2026, 0, 15, 23, 0, 0))'
-    );
+    const local = get('localDateString(new Date(2026, 0, 15, 23, 0, 0))');
     expect(local).toBe('2026-01-15');
   });
 });
@@ -184,8 +182,10 @@ describe('store.js — isValidStoreShape() / import validation', () => {
     const validExport = JSON.stringify(get('defaultStore()'));
     const file = new window.File([validExport], 'progress.json', { type: 'application/json' });
     Object.defineProperty(document.getElementById('importFile'), 'files', { value: [file] });
-    document.getElementById('importFile').dispatchEvent(new window.Event('change', { bubbles: true }));
-    
+    document
+      .getElementById('importFile')
+      .dispatchEvent(new window.Event('change', { bubbles: true }));
+
     vi.advanceTimersByTime(50);
     const toasts = Array.from(document.querySelectorAll('.toast')).map(t => t.textContent);
     expect(toasts).not.toContain('Progress imported');

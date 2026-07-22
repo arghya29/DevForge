@@ -5,7 +5,7 @@
    the app needs to change. */
 'use strict';
 
-const PLAYGROUND = {
+var PLAYGROUND = {
   id: '__playground__',
   title: 'Playground',
   html: '<h1>Hello, playground!</h1>\n<p>Write any HTML, CSS or JavaScript here.</p>\n',
@@ -17,7 +17,7 @@ const PLAYGROUND = {
   goals: []
 };
 
-const CURRICULUM = [
+var CURRICULUM = [
   {
     category: 'HTML Foundations',
     items: [
@@ -662,4 +662,4 @@ const CURRICULUM = [
   }
 ];
 
-const FLAT_LESSONS = CURRICULUM.flatMap(c => c.items);
+var FLAT_LESSONS = CURRICULUM.flatMap(c => c.items);

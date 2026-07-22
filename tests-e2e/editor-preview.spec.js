@@ -6,6 +6,7 @@ test.describe('DevForge E2E Core Loop', () => {
 
     const editor = page.locator('#codeInput');
     await editor.fill('<h1>Hello from GitHub Actions E2E</h1>');
+    await page.locator('#runBtn').click();
 
     const previewFrame = page.frameLocator('#previewFrame');
     await expect(previewFrame.locator('h1')).toHaveText('Hello from GitHub Actions E2E');

@@ -34,11 +34,11 @@ describe('preview.js — buildDoc()', () => {
     const doc = get(
       `buildDoc('<body></body>', '', 'console.log("</script><script>alert(1)</scr" + "ipt>")')`
     );
-    
+
     // Parse document natively to assert script safety structure
     const parsedDoc = domParser.parseFromString(doc, 'text/html');
     const scripts = parsedDoc.querySelectorAll('script');
-    
+
     // Ensure no unauthorized breakout script tags were created
     expect(scripts.length).toBeLessThanOrEqual(1);
     expect(doc).toContain('<\\/script>');
@@ -48,7 +48,7 @@ describe('preview.js — buildDoc()', () => {
     const doc = get(
       `buildDoc('<body></body>', 'body{}\\n/* </style><img src=x onerror=alert(1)> */', '')`
     );
-    
+
     const parsedDoc = domParser.parseFromString(doc, 'text/html');
     expect(parsedDoc.querySelectorAll('img[src="x"]').length).toBe(0);
     expect(doc).toContain('<\\/style>');
