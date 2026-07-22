@@ -121,6 +121,7 @@ export default [
         expect: 'readonly',
         beforeEach: 'readonly',
         afterEach: 'readonly',
+        process: 'readonly',
         setTimeout: 'readonly',
         clearTimeout: 'readonly'
       }

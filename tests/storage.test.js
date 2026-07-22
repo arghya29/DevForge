@@ -169,7 +169,7 @@ describe('store.js — isValidStoreShape() / import validation', () => {
     Object.defineProperty(sDoc.getElementById('importFile'), 'files', { value: [file] });
     sDoc.getElementById('importFile').dispatchEvent(new sWin.Event('change', { bubbles: true }));
 
-    // Fast-forward fake timers instead of real setTimeout
+    await new Promise(resolve => process.nextTick(resolve));
     vi.advanceTimersByTime(50);
     expect(sGet('store.streak')).toBe(7);
   });
@@ -186,6 +186,7 @@ describe('store.js — isValidStoreShape() / import validation', () => {
       .getElementById('importFile')
       .dispatchEvent(new window.Event('change', { bubbles: true }));
 
+    await new Promise(resolve => process.nextTick(resolve));
     vi.advanceTimersByTime(50);
     const toasts = Array.from(document.querySelectorAll('.toast')).map(t => t.textContent);
     expect(toasts).not.toContain('Progress imported');
