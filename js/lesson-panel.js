@@ -39,6 +39,7 @@ function renderHints() {
   const list = $('#hintsList');
   const btn = $('#hintBtn');
   const label = $('#hintBtnLabel');
+  const closeBtn = $('#closeHintBtn');
   list.innerHTML = '';
 
   if (!lesson.hints || !lesson.hints.length) {
@@ -51,6 +52,9 @@ function renderHints() {
   for (let i = 0; i < revealed; i++) {
     list.appendChild(el('li', {}, [lesson.hints[i]]));
   }
+
+  // Only offer to hide the hints once at least one of them is on screen.
+  closeBtn.style.display = revealed > 0 ? '' : 'none';
 
   if (revealed >= lesson.hints.length) {
     btn.disabled = true;
@@ -126,3 +130,12 @@ function toggleLessonPanel() {
 }
 $('#goalsBar').addEventListener('click', toggleGoals);
 $('#lessonPanelHeader').addEventListener('click', toggleLessonPanel);
+
+$('#closeHintBtn').addEventListener('click', () => {
+  const lesson = currentLessonDef();
+  if (!lesson.hints || !lesson.hints.length) return;
+  // Clearing the revealed count collapses the list and returns the hint button to its starting
+  // label, so the panel reads exactly as it did before any hint was opened.
+  state.hintsRevealed[lesson.id] = 0;
+  renderHints();
+});
