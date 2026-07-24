@@ -663,7 +663,7 @@ var CURRICULUM = [
         title: 'LocalStorage Persistence',
         tag: 'JS',
         xp: 30,
-        html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <title>Persistence</title>\n</head>\n<body>\n\n  <h1>Remember me</h1>\n\n  <input type="text" id="nameInput" placeholder="Your name">\n  <button id="saveBtn">Save</button>\n\n  <p id="output">Nothing saved yet.</p>\n\n</body>\n</html>',
+        html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <title>Persistence</title>\n</head>\n<body>\n\n  <h1>Remember me</h1>\n\n  <label for="nameInput">Your name</label>\n  <input type="text" id="nameInput" placeholder="e.g. Ada">\n  <button id="saveBtn">Save</button>\n\n  <p id="output">Nothing saved yet.</p>\n\n</body>\n</html>',
         css: 'body{ font-family: sans-serif; padding: 2rem; }\ninput, button{ padding: .5rem; border-radius: 6px; border: 1px solid #3a3f4b; }\nbutton{ background: #4d8dff; color: #0f1115; border: none; cursor: pointer; }\n#output{ margin-top: 1rem; font-weight: 600; }\n',
         js: "const nameInput = document.getElementById('nameInput');\nconst saveBtn = document.getElementById('saveBtn');\nconst output = document.getElementById('output');\n\n// Everything here is forgotten the moment the preview reloads.\n//\n// 1. When Save is clicked, keep the typed name under a key.\n// 2. On load, look that key up again and show it in the output paragraph.\n\nsaveBtn.addEventListener('click', function () {\n\n});\n",
         description:
@@ -671,39 +671,56 @@ var CURRICULUM = [
         tip: 'Everything in localStorage is a string. Objects and arrays need <code>JSON.stringify()</code> going in and <code>JSON.parse()</code> coming out, or you will read back the text "[object Object]".',
         goals: [
           {
-            text: 'Writes a value with localStorage.setItem()',
+            text: 'Saves the typed name with localStorage.setItem()',
             check: f =>
-              /localStorage\s*\.\s*setItem\s*\(/.test(
+              /localStorage\s*\.\s*setItem\s*\(\s*[^,)]+,\s*[^)]*\.\s*value\b/.test(
                 f.js.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '')
               )
           },
           {
-            text: 'Reads it back with localStorage.getItem()',
-            check: f =>
-              /localStorage\s*\.\s*getItem\s*\(/.test(
-                f.js.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '')
-              )
+            text: 'Reads it back with localStorage.getItem() using the same key',
+            check: f => {
+              const js = f.js.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+              // The key can be a string literal or a variable, so compare the written expression
+              // with quotes stripped -- 'name', "name" and KEY all compare consistently.
+              const norm = s => s.trim().replace(/^['"]|['"]$/g, '');
+              const saved = js.match(
+                /localStorage\s*\.\s*setItem\s*\(\s*([^,)]+?)\s*,\s*[^)]*\.\s*value\b/
+              );
+              if (!saved) return false;
+              const key = norm(saved[1]);
+              return Array.from(
+                js.matchAll(/localStorage\s*\.\s*getItem\s*\(\s*([^)]+?)\s*\)/g),
+                m => norm(m[1])
+              ).includes(key);
+            }
           },
           {
             text: 'Shows the value it read back on the page',
             check: f => {
               const js = f.js.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
-              if (!/localStorage\s*\.\s*getItem\s*\(/.test(js)) return false;
+              const norm = s => s.trim().replace(/^['"]|['"]$/g, '');
+              const saved = js.match(
+                /localStorage\s*\.\s*setItem\s*\(\s*([^,)]+?)\s*,\s*[^)]*\.\s*value\b/
+              );
+              if (!saved) return false;
+              const key = norm(saved[1]);
+              // Variables that hold the value read back under that same key.
               const held = Array.from(
                 js.matchAll(
-                  /(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*localStorage\s*\.\s*getItem\s*\(/g
-                ),
-                m => m[1]
-              );
-              const written = Array.from(
+                  /(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*localStorage\s*\.\s*getItem\s*\(\s*([^)]+?)\s*\)/g
+                )
+              )
+                .filter(m => norm(m[2]) === key)
+                .map(m => m[1]);
+              return Array.from(
                 js.matchAll(/(?:textContent|innerText|innerHTML)\s*=\s*([^;\n]+)/g),
                 m => m[1]
-              );
-              return written.some(
-                rhs =>
-                  /localStorage\s*\.\s*getItem\s*\(/.test(rhs) ||
-                  held.some(name => rhs.indexOf(name) !== -1)
-              );
+              ).some(rhs => {
+                const direct = rhs.match(/localStorage\s*\.\s*getItem\s*\(\s*([^)]+?)\s*\)/);
+                if (direct && norm(direct[1]) === key) return true;
+                return held.some(name => new RegExp('\\b' + name + '\\b').test(rhs));
+              });
             }
           }
         ],
