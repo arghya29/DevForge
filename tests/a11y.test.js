@@ -16,10 +16,10 @@ describe('accessibility', () => {
     const { get, document } = createApp();
     get('init()');
     const trigger = document.getElementById('btnHelp');
-    
+
     await user.click(trigger);
     await user.click(document.getElementById('closeHelp'));
-    
+
     expect(document.activeElement).toBe(trigger);
   });
 
@@ -30,10 +30,10 @@ describe('accessibility', () => {
     get("openModal('helpModal')");
     const focusable = get('getFocusable(document.getElementById("helpModal"))');
     const last = focusable[focusable.length - 1];
-    
+
     last.focus();
     await user.tab();
-    
+
     expect(document.activeElement).toBe(focusable[0]);
   });
 
@@ -43,9 +43,9 @@ describe('accessibility', () => {
     get('init()');
     get("openModal('achievementsModal')");
     expect(document.getElementById('achievementsModal')).toHaveClass('open');
-    
+
     await user.keyboard('{Escape}');
-    
+
     expect(document.getElementById('achievementsModal')).not.toHaveClass('open');
   });
 
@@ -89,10 +89,10 @@ describe('accessibility', () => {
     get('init()');
     const items = document.querySelectorAll('.lesson-item');
     expect(items[1]).toHaveAttribute('tabindex', '0');
-    
+
     items[1].focus();
     await user.keyboard('{Enter}');
-    
+
     expect(document.getElementById('lessonPanelTitle')).toHaveTextContent(
       get('FLAT_LESSONS[0].title')
     );
@@ -104,10 +104,10 @@ describe('accessibility', () => {
     get('init()');
     const header = document.querySelector('.category-header');
     expect(header).toHaveAttribute('role', 'button');
-    
+
     header.focus();
     await user.keyboard(' ');
-    
+
     expect(header.parentElement).toHaveClass('collapsed');
     expect(header).toHaveAttribute('aria-expanded', 'false');
   });
@@ -124,13 +124,13 @@ describe('accessibility', () => {
     get('init()');
     const panel = document.getElementById('lessonPanel');
     const header = document.getElementById('lessonPanelHeader');
-    
+
     expect(panel).not.toHaveClass('collapsed');
-    
+
     await user.click(header);
     expect(panel).toHaveClass('collapsed');
     expect(header).toHaveAttribute('aria-expanded', 'false');
-    
+
     await user.click(header);
     expect(panel).not.toHaveClass('collapsed');
     expect(header).toHaveAttribute('aria-expanded', 'true');
@@ -144,13 +144,13 @@ describe('accessibility', () => {
     get(`loadLesson('${lesson.id}')`);
     const goalsBar = document.getElementById('goalsBar');
     const goalsList = document.getElementById('goalsList');
-    
+
     expect(goalsList).not.toHaveClass('open');
-    
+
     await user.click(goalsBar);
     expect(goalsList).toHaveClass('open');
     expect(goalsBar).toHaveAttribute('aria-expanded', 'true');
-    
+
     await user.click(goalsBar);
     expect(goalsList).not.toHaveClass('open');
     expect(goalsBar).toHaveAttribute('aria-expanded', 'false');

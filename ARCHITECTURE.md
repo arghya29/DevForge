@@ -18,16 +18,16 @@ graph TD
     B -->|Serves| C[index.html]
     B -->|Serves| D[css/*.css]
     B -->|Serves| E[js/*.js]
-    
+
     C -.->|Links to| D
     C -.->|Imports| E
-    
+
     subgraph Frontend Application
         C
         D
         E
     end
-    
+
     E -->|DOM Manipulation| C
 ```
 
@@ -56,7 +56,7 @@ classDiagram
         +init()
         +bindEvents()
     }
-    
+
     index_html --> main_css : Links
     index_html --> app_js : Includes
 ```
@@ -64,6 +64,7 @@ classDiagram
 ## 🧪 Testing Strategy
 
 DevForge emphasizes test-driven development:
+
 - **Unit Testing**: Powered by [Vitest](https://vitest.dev/), focusing on JavaScript logic and utility functions.
 - **E2E Testing**: Powered by [Playwright](https://playwright.dev/), ensuring that user flows function correctly in a real browser environment.
 
