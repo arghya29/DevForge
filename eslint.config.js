@@ -83,11 +83,21 @@ const appGlobals = {
   checkGoals: 'readonly',
   // curriculum-sidebar.js
   renderSidebar: 'readonly',
-  // modals.js
-  applyLayout: 'readonly',
+  // modal-utils.js
   openModal: 'readonly',
   closeModal: 'readonly',
   closeAllModals: 'readonly',
+  getFocusable: 'readonly',
+  // layout-theme.js
+  applyLayout: 'readonly',
+  // analytics.js
+  fmtTime: 'readonly',
+  renderAnalytics: 'readonly',
+  // snippets.js
+  renderSnippets: 'readonly',
+  // achievements.js
+  ACHIEVEMENTS: 'readonly',
+  renderAchievements: 'readonly',
   // commands.js
   registerCommand: 'readonly',
   openCommandPalette: 'readonly',
