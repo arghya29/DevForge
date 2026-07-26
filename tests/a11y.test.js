@@ -1,6 +1,9 @@
+/**
+ * @vitest-environment jsdom
+ */
 import { describe, it, expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { createApp } from './helpers/loadApp.js';
 
 describe('accessibility', () => {
@@ -12,8 +15,8 @@ describe('accessibility', () => {
   });
 
   it('closing a modal returns focus to whatever triggered it', async () => {
-    const user = userEvent.setup();
     const { get, document } = createApp();
+    const user = userEvent.setup({ document });
     get('init()');
     const trigger = document.getElementById('btnHelp');
 
@@ -24,8 +27,8 @@ describe('accessibility', () => {
   });
 
   it('Tab wraps from the last focusable element back to the first while a modal is open', async () => {
-    const user = userEvent.setup();
     const { get, document } = createApp();
+    const user = userEvent.setup({ document });
     get('init()');
     get("openModal('helpModal')");
     const focusable = get('getFocusable(document.getElementById("helpModal"))');
@@ -38,8 +41,8 @@ describe('accessibility', () => {
   });
 
   it('Escape closes whatever modal is open', async () => {
-    const user = userEvent.setup();
     const { get, document } = createApp();
+    const user = userEvent.setup({ document });
     get('init()');
     get("openModal('achievementsModal')");
     expect(document.getElementById('achievementsModal')).toHaveClass('open');
@@ -84,8 +87,8 @@ describe('accessibility', () => {
   });
 
   it('sidebar lesson items are keyboard-activatable (Enter loads the lesson)', async () => {
-    const user = userEvent.setup();
     const { get, document } = createApp();
+    const user = userEvent.setup({ document });
     get('init()');
     const items = document.querySelectorAll('.lesson-item');
     expect(items[1]).toHaveAttribute('tabindex', '0');
@@ -99,8 +102,8 @@ describe('accessibility', () => {
   });
 
   it('category headers are keyboard-collapsible (Space toggles collapsed state)', async () => {
-    const user = userEvent.setup();
     const { get, document } = createApp();
+    const user = userEvent.setup({ document });
     get('init()');
     const header = document.querySelector('.category-header');
     expect(header).toHaveAttribute('role', 'button');
@@ -114,13 +117,16 @@ describe('accessibility', () => {
 
   it('the lesson panel header and goals bar are real <button> elements, not ARIA-only reimplementations', () => {
     const { document } = createApp();
-    expect(document.getElementById('lessonPanelHeader')).toHavetagName('BUTTON');
-    expect(document.getElementById('goalsBar')).toHavetagName('BUTTON');
+    // `toHaveTagName` is not a jest-dom matcher, so this silently threw rather
+    // than asserting anything. Both elements are genuine <button>s; checking
+    // tagName directly is what the test meant.
+    expect(document.getElementById('lessonPanelHeader').tagName).toBe('BUTTON');
+    expect(document.getElementById('goalsBar').tagName).toBe('BUTTON');
   });
 
   it('clicking the lesson panel header toggles the lesson panel collapsed state', async () => {
-    const user = userEvent.setup();
     const { get, document } = createApp();
+    const user = userEvent.setup({ document });
     get('init()');
     const panel = document.getElementById('lessonPanel');
     const header = document.getElementById('lessonPanelHeader');
@@ -137,8 +143,8 @@ describe('accessibility', () => {
   });
 
   it('clicking the goals bar toggles the goals list open/closed exactly once per click (no duplicate listeners)', async () => {
-    const user = userEvent.setup();
     const { get, document } = createApp();
+    const user = userEvent.setup({ document });
     get('init()');
     const lesson = get('FLAT_LESSONS[0]');
     get(`loadLesson('${lesson.id}')`);
