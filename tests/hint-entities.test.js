@@ -18,7 +18,14 @@ describe('lesson hints render as text, not HTML', () => {
   let FLAT_LESSONS;
 
   beforeAll(() => {
-    FLAT_LESSONS = createApp().get('FLAT_LESSONS');
+    // createApp() opens a JSDOM window; closing it once the data is extracted
+    // keeps the suite from leaking one window per test file.
+    const app = createApp();
+    try {
+      FLAT_LESSONS = app.get('FLAT_LESSONS');
+    } finally {
+      app.cleanup();
+    }
   });
 
   const ENTITY = /&(?:lt|gt|amp|quot|apos|nbsp|#\d+|#x[0-9a-f]+);/i;
@@ -61,7 +68,9 @@ describe('lesson hints render as text, not HTML', () => {
     // hints were fixed, the angle brackets would be parsed as markup and
     // silently vanish from the checklist.
     const goalText = FLAT_LESSONS.flatMap(l => (l.goals || []).map(g => g.text));
-    const withRawAngle = goalText.filter(t => typeof t === 'string' && /<[a-z]/i.test(t));
+    // Any literal '<', not just an opening tag: '</p>' would slip past a
+    // /<[a-z]/ check while still being consumed by innerHTML.
+    const withRawAngle = goalText.filter(t => typeof t === 'string' && t.includes('<'));
     expect(withRawAngle).toEqual([]);
   });
 });
