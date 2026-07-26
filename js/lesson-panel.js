@@ -83,13 +83,41 @@ function checkGoals() {
   if (!lesson.goals || !lesson.goals.length) return;
   renderGoals();
 }
+/* Goal checks run against the learner's code with comments removed.
+
+   Starter code teaches by instruction — "add an <h1> heading with your name"
+   sits in a comment where the learner can read it. But a goal that tests for
+   /<h1[\s>]/ finds that text inside the comment and ticks itself before the
+   learner has typed anything. On `html-first-element`, the very first lesson,
+   two of four goals were already ticked on load.
+
+   Stripping comments centrally means starter code can keep saying what it
+   means. Two CSS goals already did this inline, which is what made the
+   pattern worth lifting out.
+
+   A goal that genuinely needs to inspect comments can set `checksComments:
+   true` and will receive the code untouched.
+
+   Known limitation: `//` inside a JavaScript string is indistinguishable from
+   a line comment without parsing. The `[^:]` guard protects URLs, which is
+   the case that occurs in practice; a string literal containing `//` would
+   still be truncated. */
+function stripCodeComments(files) {
+  return {
+    html: (files.html || '').replace(/<!--[\s\S]*?-->/g, ''),
+    css: (files.css || '').replace(/\/\*[\s\S]*?\*\//g, ''),
+    js: (files.js || '').replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1')
+  };
+}
+
 function renderGoals() {
   const lesson = currentLessonDef();
   const list = $('#goalsList');
   list.innerHTML = '';
   let doneCount = 0;
+  const strippedFiles = stripCodeComments(state.files);
   lesson.goals.forEach(g => {
-    const done = g.check(state.files);
+    const done = g.check(g.checksComments ? state.files : strippedFiles);
     if (done) doneCount++;
     const row = el('li', { class: 'goal-row' + (done ? ' done' : '') });
     row.innerHTML =
