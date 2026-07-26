@@ -44,9 +44,9 @@ var CURRICULUM = [
           }
         ],
         hints: [
-          'The starter code already has an &lt;h1&gt; and two &lt;p&gt; tags — try just editing the text inside them first.',
-          'A &lt;title&gt; goes inside &lt;head&gt;, like this: &lt;title&gt;My Page&lt;/title&gt;.',
-          'Every tag needs a matching closing tag with a forward slash, e.g. &lt;p&gt;text&lt;/p&gt;.'
+          'The starter already has one <p> paragraph — copy its shape to add the second one.',
+          'A <title> goes inside <head>, like this: <title>My Page</title>.',
+          'Every tag needs a matching closing tag with a forward slash, e.g. <p>text</p>.'
         ]
       },
       {
@@ -185,9 +185,9 @@ var CURRICULUM = [
           }
         ],
         hints: [
-          'The &lt;caption&gt; goes directly inside &lt;table&gt;, before the first row.',
-          'Swap the two cells in the first row from &lt;td&gt; to &lt;th&gt; — remember to change the closing tags too.',
-          'A column header is written &lt;th scope="col"&gt;Day&lt;/th&gt;.'
+          'The <caption> goes directly inside <table>, before the first row.',
+          'Swap the two cells in the first row from <td> to <th> — remember to change the closing tags too.',
+          'A column header is written <th scope="col">Day</th>.'
         ]
       }
     ]
