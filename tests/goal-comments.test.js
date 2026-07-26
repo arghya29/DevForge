@@ -19,9 +19,14 @@ describe('goal checks ignore comments in starter code', () => {
   let stripCodeComments;
 
   beforeAll(() => {
+    // createApp() opens a JSDOM window; close it once the data is extracted.
     const app = createApp();
-    FLAT_LESSONS = app.get('FLAT_LESSONS');
-    stripCodeComments = app.get('stripCodeComments');
+    try {
+      FLAT_LESSONS = app.get('FLAT_LESSONS');
+      stripCodeComments = app.get('stripCodeComments');
+    } finally {
+      app.cleanup();
+    }
   });
 
   /** Runs a lesson's goals the way renderGoals does. */
@@ -133,7 +138,12 @@ describe('stripCodeComments', () => {
   let stripCodeComments;
 
   beforeAll(() => {
-    stripCodeComments = createApp().get('stripCodeComments');
+    const app = createApp();
+    try {
+      stripCodeComments = app.get('stripCodeComments');
+    } finally {
+      app.cleanup();
+    }
   });
 
   const strip = files => stripCodeComments({ html: '', css: '', js: '', ...files });
