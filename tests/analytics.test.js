@@ -81,4 +81,24 @@ describe('modals.js — learner analytics', () => {
     expect(get('store.completionDates')).toEqual([]);
     expect(get('store.completed')).toEqual([lessonId]);
   });
+
+  it('Reset Analytics clear is aborted if the user cancels the confirm dialog', () => {
+    const lessonId = 'html-first-element';
+    const { get, document, window } = createApp({
+      seedStore: {
+        completed: [lessonId],
+        lessonTime: { [lessonId]: 500 },
+        lessonRetries: { [lessonId]: 3 },
+        completionDates: ['2026-01-01']
+      }
+    });
+    get('init()');
+    window.confirm = () => false; // User cancels
+    document
+      .getElementById('resetAnalyticsBtn')
+      .dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+    expect(get('store.lessonTime')).toEqual({ [lessonId]: 500 });
+    expect(get('store.lessonRetries')).toEqual({ [lessonId]: 3 });
+    expect(get('store.completionDates')).toEqual(['2026-01-01']);
+  });
 });
