@@ -10,7 +10,8 @@
     "test:watch": "vitest",
     "lint": "eslint js tests",
     "format": "prettier --write \"**/*.{js,css,html,md,yml,json}\"",
-    "format:check": "prettier --check \"**/*.{js,css,html,md,yml,json}\""
+    "format:check": "prettier --check \"**/*.{js,css,html,md,yml,json}\"",
+    "build": "echo 'No build required for static assets'"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.1",
