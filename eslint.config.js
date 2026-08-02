@@ -103,7 +103,135 @@ export default [
       globals: { ...browserGlobals, ...appGlobals }
     },
     rules: {
+      'no-unused-vars': [\n        'warn',\n        {\n          args: 'none',\n          varsIgnorePattern: '^(?:' + Object.keys(appGlobals).map(k => k === ',
+      'no-undef': 'error',
+      'no-redeclare': ['error', { builtinGlobals: false }],
+      eqeqeq: ['warn', 'smart'],
+      'no-var': 'warn'
+    }
+  },
+  {
+    files: ['tests/**/*.js'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: {
+        describe: 'readonly',
+        it: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        process: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly'
+      }
+    },
+    rules: {
       'no-unused-vars': ['warn', { args: 'none' }],
+      'no-undef': 'error',
+      'no-redeclare': 'error',
+      eqeqeq: ['warn', 'smart'],
+      'no-var': 'warn'
+    }
+  }
+];
+ ? '\\\\,
+      'no-undef': 'error',
+      'no-redeclare': ['error', { builtinGlobals: false }],
+      eqeqeq: ['warn', 'smart'],
+      'no-var': 'warn'
+    }
+  },
+  {
+    files: ['tests/**/*.js'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: {
+        describe: 'readonly',
+        it: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        process: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly'
+      }
+    },
+    rules: {
+      'no-unused-vars': ['warn', { args: 'none' }],
+      'no-undef': 'error',
+      'no-redeclare': 'error',
+      eqeqeq: ['warn', 'smart'],
+      'no-var': 'warn'
+    }
+  }
+];
+ : k === '$' ? '\\\\$\\\\,
+      'no-undef': 'error',
+      'no-redeclare': ['error', { builtinGlobals: false }],
+      eqeqeq: ['warn', 'smart'],
+      'no-var': 'warn'
+    }
+  },
+  {
+    files: ['tests/**/*.js'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: {
+        describe: 'readonly',
+        it: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        process: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly'
+      }
+    },
+    rules: {
+      'no-unused-vars': ['warn', { args: 'none' }],
+      'no-undef': 'error',
+      'no-redeclare': 'error',
+      eqeqeq: ['warn', 'smart'],
+      'no-var': 'warn'
+    }
+  }
+];
+ : k).join('|') + '),
+      'no-undef': 'error',
+      'no-redeclare': ['error', { builtinGlobals: false }],
+      eqeqeq: ['warn', 'smart'],
+      'no-var': 'warn'
+    }
+  },
+  {
+    files: ['tests/**/*.js'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: {
+        describe: 'readonly',
+        it: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        process: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly'
+      }
+    },
+    rules: {
+      'no-unused-vars': ['warn', { args: 'none' }],
+      'no-undef': 'error',
+      'no-redeclare': 'error',
+      eqeqeq: ['warn', 'smart'],
+      'no-var': 'warn'
+    }
+  }
+];
+\n        }\n      ],
       'no-undef': 'error',
       'no-redeclare': ['error', { builtinGlobals: false }],
       eqeqeq: ['warn', 'smart'],
