@@ -12,6 +12,10 @@ function applyLayout(name) {
     lessonPanel = $('#lessonPanel');
   editorCol.style.flex = '';
   previewCol.style.flex = '';
+  editorCol.style.display = '';
+  previewCol.style.display = '';
+  $('#dividerV').style.display = '';
+
   if (name === 'default') {
     editorCol.style.flex = '1 1 50%';
     previewCol.style.flex = '1 1 50%';
@@ -30,6 +34,16 @@ function applyLayout(name) {
   } else if (name === 'minimal') {
     editorCol.style.flex = '1 1 50%';
     previewCol.style.flex = '1 1 50%';
+    sidebar.classList.add('collapsed');
+    lessonPanel.classList.add('collapsed');
+  } else if (name === 'editor-only') {
+    previewCol.style.display = 'none';
+    $('#dividerV').style.display = 'none';
+    sidebar.classList.add('collapsed');
+    lessonPanel.classList.add('collapsed');
+  } else if (name === 'preview-only') {
+    editorCol.style.display = 'none';
+    $('#dividerV').style.display = 'none';
     sidebar.classList.add('collapsed');
     lessonPanel.classList.add('collapsed');
   }
