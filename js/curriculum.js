@@ -301,7 +301,22 @@ var CURRICULUM = [
         ]
       },
       {
-        id: 'css-positioning',
+        {
+        id: 'css-keyframes',
+        title: 'Keyframe Animations',
+        tag: 'CSS',
+        xp: 35,
+        html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <title>Keyframe Animations</title>\n</head>\n<body>\n\n  <div class="loader"></div>\n\n</body>\n</html>',
+        css: 'body{ font-family: sans-serif; padding: 2rem; }\n\n.loader{\n  width: 40px;\n  height: 40px;\n  border: 4px solid #3a3f4b;\n  border-top-color: #4d8dff;\n  border-radius: 50%;\n  /* add your animation property here */\n}\n\n/* define @keyframes spin below */\n',
+        js: '',
+        description: '<h3>Continuous animation</h3><p>While transitions only happen when a property changes (like on hover), <code>@keyframes</code> lets you define complex, multi-step animations that run automatically.</p><p>Define a <code>@keyframes spin</code> that rotates from <code>0deg</code> to <code>360deg</code>, then apply it to <code>.loader</code> using <code>animation: spin 1s linear infinite;</code>.</p>',
+        tip: 'Use <code>transform: rotate(360deg);</code> inside your keyframe blocks.',
+        goals: [
+          { text: 'Defines @keyframes spin', check: f => /@keyframes\s+spin/.test(f.css.replace(/\/\*[\s\S]*?\*\//g, '')) },
+          { text: 'Applies the animation to .loader', check: f => /\.loader\s*\{[^}]*animation\s*:\s*spin/.test(f.css.replace(/\/\*[\s\S]*?\*\//g, '')) },
+          { text: 'Uses transform: rotate', check: f => /transform\s*:\s*rotate/.test(f.css.replace(/\/\*[\s\S]*?\*\//g, '')) }
+        ]
+      },\n      {\n        id: 'css-positioning',
         title: 'Positioning',
         tag: 'CSS',
         xp: 30,
