@@ -8,7 +8,7 @@
 var PLAYGROUND = {
   id: '__playground__',
   title: 'Playground',
-  html: '<h1>Hello, playground!</h1>\n<p>Write any HTML, CSS or JavaScript here.</p>\n',
+  html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <title>Playground</title>\n</head>\n<body>\n\n  <h1>Hello, playground!</h1>\n  <p>Write any HTML, CSS or JavaScript here.</p>\n\n</body>\n</html>',
   css: 'body{\n  font-family: sans-serif;\n  padding: 2rem;\n}\n',
   js: '// Free play — try:\nconsole.log("Hello from the playground!");\n',
   description:
