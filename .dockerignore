@@ -1,0 +1,10 @@
+.git
+.github
+node_modules
+tests
+tests-e2e
+playwright-report
+playwright.config.js
+vitest.config.js
+package.json
+package-lock.json

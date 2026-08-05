@@ -44,9 +44,9 @@ var CURRICULUM = [
           }
         ],
         hints: [
-          'The starter code already has an &lt;h1&gt; and two &lt;p&gt; tags — try just editing the text inside them first.',
-          'A &lt;title&gt; goes inside &lt;head&gt;, like this: &lt;title&gt;My Page&lt;/title&gt;.',
-          'Every tag needs a matching closing tag with a forward slash, e.g. &lt;p&gt;text&lt;/p&gt;.'
+          'The starter already has one <p> paragraph — copy its shape to add the second one.',
+          'A <title> goes inside <head>, like this: <title>My Page</title>.',
+          'Every tag needs a matching closing tag with a forward slash, e.g. <p>text</p>.'
         ]
       },
       {
@@ -185,9 +185,9 @@ var CURRICULUM = [
           }
         ],
         hints: [
-          'The &lt;caption&gt; goes directly inside &lt;table&gt;, before the first row.',
-          'Swap the two cells in the first row from &lt;td&gt; to &lt;th&gt; — remember to change the closing tags too.',
-          'A column header is written &lt;th scope="col"&gt;Day&lt;/th&gt;.'
+          'The <caption> goes directly inside <table>, before the first row.',
+          'Swap the two cells in the first row from <td> to <th> — remember to change the closing tags too.',
+          'A column header is written <th scope="col">Day</th>.'
         ]
       }
     ]
@@ -656,6 +656,78 @@ var CURRICULUM = [
           "form.addEventListener('submit', function (event) { ... });",
           'The listener receives the event — call event.preventDefault() first thing inside it.',
           'email.value.trim() gives you the typed text; assign to message.textContent to show a result.'
+        ]
+      },
+      {
+        id: 'js-localstorage',
+        title: 'LocalStorage Persistence',
+        tag: 'JS',
+        xp: 30,
+        html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <title>Persistence</title>\n</head>\n<body>\n\n  <h1>Remember me</h1>\n\n  <label for="nameInput">Your name</label>\n  <input type="text" id="nameInput" placeholder="e.g. Ada">\n  <button id="saveBtn">Save</button>\n\n  <p id="output">Nothing saved yet.</p>\n\n</body>\n</html>',
+        css: 'body{ font-family: sans-serif; padding: 2rem; }\ninput, button{ padding: .5rem; border-radius: 6px; border: 1px solid #3a3f4b; }\nbutton{ background: #4d8dff; color: #0f1115; border: none; cursor: pointer; }\n#output{ margin-top: 1rem; font-weight: 600; }\n',
+        js: "const nameInput = document.getElementById('nameInput');\nconst saveBtn = document.getElementById('saveBtn');\nconst output = document.getElementById('output');\n\n// Everything here is forgotten the moment the preview reloads.\n//\n// 1. When Save is clicked, keep the typed name under a key.\n// 2. On load, look that key up again and show it in the output paragraph.\n\nsaveBtn.addEventListener('click', function () {\n\n});\n",
+        description:
+          '<h3>Surviving a reload</h3><p><code>localStorage</code> is a small store the browser keeps per site, and it outlives both reloads and closing the tab. <code>localStorage.setItem(key, value)</code> writes, and <code>localStorage.getItem(key)</code> reads back — returning <code>null</code> when the key was never set.</p><p>Save the typed name, then read it back when the page loads so it is still there.</p>',
+        tip: 'Everything in localStorage is a string. Objects and arrays need <code>JSON.stringify()</code> going in and <code>JSON.parse()</code> coming out, or you will read back the text "[object Object]".',
+        goals: [
+          {
+            text: 'Saves the typed name with localStorage.setItem()',
+            check: f =>
+              /localStorage\s*\.\s*setItem\s*\(\s*[^,)]+,\s*[^)]*\.\s*value\b/.test(
+                f.js.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '')
+              )
+          },
+          {
+            text: 'Reads it back with localStorage.getItem() using the same key',
+            check: f => {
+              const js = f.js.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+              // The key can be a string literal or a variable, so compare the written expression
+              // with quotes stripped -- 'name', "name" and KEY all compare consistently.
+              const norm = s => s.trim().replace(/^['"]|['"]$/g, '');
+              const saved = js.match(
+                /localStorage\s*\.\s*setItem\s*\(\s*([^,)]+?)\s*,\s*[^)]*\.\s*value\b/
+              );
+              if (!saved) return false;
+              const key = norm(saved[1]);
+              return Array.from(
+                js.matchAll(/localStorage\s*\.\s*getItem\s*\(\s*([^)]+?)\s*\)/g),
+                m => norm(m[1])
+              ).includes(key);
+            }
+          },
+          {
+            text: 'Shows the value it read back on the page',
+            check: f => {
+              const js = f.js.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+              const norm = s => s.trim().replace(/^['"]|['"]$/g, '');
+              const saved = js.match(
+                /localStorage\s*\.\s*setItem\s*\(\s*([^,)]+?)\s*,\s*[^)]*\.\s*value\b/
+              );
+              if (!saved) return false;
+              const key = norm(saved[1]);
+              // Variables that hold the value read back under that same key.
+              const held = Array.from(
+                js.matchAll(
+                  /(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*localStorage\s*\.\s*getItem\s*\(\s*([^)]+?)\s*\)/g
+                )
+              )
+                .filter(m => norm(m[2]) === key)
+                .map(m => m[1]);
+              return Array.from(
+                js.matchAll(/(?:textContent|innerText|innerHTML)\s*=\s*([^;\n]+)/g),
+                m => m[1]
+              ).some(rhs => {
+                const direct = rhs.match(/localStorage\s*\.\s*getItem\s*\(\s*([^)]+?)\s*\)/);
+                if (direct && norm(direct[1]) === key) return true;
+                return held.some(name => new RegExp('\\b' + name + '\\b').test(rhs));
+              });
+            }
+          }
+        ],
+        hints: [
+          "Inside the click handler: localStorage.setItem('name', nameInput.value);",
+          "Outside the handler, run localStorage.getItem('name') once when the script loads.",
+          'getItem returns null if nothing was stored, so check before writing it into output.textContent.'
         ]
       }
     ]
