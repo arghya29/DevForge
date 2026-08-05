@@ -153,6 +153,21 @@ describe('store.js — isValidStoreShape() / import validation', () => {
     expect(get("isValidStoreShape({ completed: [], streak: 'five' })")).toBe(false);
     expect(get('isValidStoreShape({ completed: [], streak: 0, hasRun: "yes" })')).toBe(false);
     expect(get('isValidStoreShape({ completed: [], streak: 0, code: [1, 2] })')).toBe(false);
+    expect(get('isValidStoreShape({ completed: [], streak: 0, code: { a: "invalid" } })')).toBe(
+      false
+    );
+    expect(get('isValidStoreShape({ completed: [], streak: 0, snippets: null })')).toBe(false);
+    expect(get('isValidStoreShape({ completed: [], streak: 0, snippets: [1, 2] })')).toBe(false);
+    expect(get('isValidStoreShape({ completed: [], streak: 0, lessonTime: null })')).toBe(false);
+    expect(
+      get('isValidStoreShape({ completed: [], streak: 0, lessonTime: { a: "not-a-number" } })')
+    ).toBe(false);
+    expect(
+      get('isValidStoreShape({ completed: [], streak: 0, lessonRetries: { a: "not-a-number" } })')
+    ).toBe(false);
+    expect(get('isValidStoreShape({ completed: [], streak: 0, completionDates: [123] })')).toBe(
+      false
+    );
   });
 
   it('the import handler refuses a malformed file instead of corrupting the live store', async () => {
