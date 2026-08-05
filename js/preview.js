@@ -82,6 +82,13 @@ function addConsoleLine(type, text) {
     row.style.display = '';
   else row.style.display = 'none';
   out.scrollTop = out.scrollHeight;
+  updateConsoleEmptyState();
+}
+
+function updateConsoleEmptyState() {
+  const hasOutput = !!$('#consoleOutput').querySelector('.console-line');
+  $('#consoleEmpty').style.display = hasOutput ? 'none' : 'block';
+  $('#consoleOutput').style.display = hasOutput ? 'block' : 'none';
 }
 
 window.addEventListener('message', e => {
@@ -187,4 +194,5 @@ $('#consoleFilter').addEventListener('input', e => {
 });
 $('#consoleClear').addEventListener('click', () => {
   $('#consoleOutput').innerHTML = '';
+  updateConsoleEmptyState();
 });
