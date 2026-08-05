@@ -495,7 +495,22 @@ var CURRICULUM = [
         ]
       },
       {
-        id: 'js-dom',
+        {
+        id: 'js-array-methods',
+        title: 'Array Methods: map & filter',
+        tag: 'JS',
+        xp: 35,
+        html: '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <title>Array Methods</title>\n</head>\n<body>\n\n  <h1>Open the console to see your output!</h1>\n\n</body>\n</html>',
+        css: 'body{ font-family: sans-serif; padding: 2rem; }\n',
+        js: 'const numbers = [1, 2, 3, 4, 5];\n\n// 1. Use .map() to create a new array with each number doubled\nconst doubled = numbers.map(n => n);\nconsole.log("Doubled:", doubled);\n\n// 2. Use .filter() to create a new array with only numbers greater than 2\nconst large = numbers.filter(n => true);\nconsole.log("Large:", large);\n',
+        description:
+          '<h3>Transforming and filtering data</h3><p><code>.map()</code> runs a function on every item in an array and returns a new array of the results. <code>.filter()</code> returns a new array keeping only the items where the function returns <code>true</code>.</p><p>Update the <code>map</code> callback to double <code>n</code>, and the <code>filter</code> callback to keep numbers <code>&gt; 2</code>.</p>',
+        tip: 'Array methods return <i>new</i> arrays — they don\'t change the original array.',
+        goals: [
+          { text: 'Uses .map() correctly', check: f => /map\([^)]*(\*|\+)[^)]*\)/.test(f.js.replace(/\/\/.*$/gm, '')) },
+          { text: 'Uses .filter() correctly', check: f => /filter\([^)]*>[^)]*\)/.test(f.js.replace(/\/\/.*$/gm, '')) }
+        ]
+      },\n      {\n        id: 'js-dom',
         title: 'DOM Manipulation',
         tag: 'JS',
         xp: 30,
