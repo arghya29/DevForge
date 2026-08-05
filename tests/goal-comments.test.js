@@ -177,6 +177,27 @@ describe('stripCodeComments', () => {
     expect(strip({ js: source }).js).toBe(source);
   });
 
+  it('leaves // inside string literals untouched', () => {
+    const doubleQuote = 'const msg = "Hello // World";';
+    expect(strip({ js: doubleQuote }).js).toBe(doubleQuote);
+
+    const singleQuote = "const msg = 'Hello // World';";
+    expect(strip({ js: singleQuote }).js).toBe(singleQuote);
+
+    const templateLiteral = 'const msg = `Hello // World`;';
+    expect(strip({ js: templateLiteral }).js).toBe(templateLiteral);
+  });
+
+  it('strips line comments after string literals containing //', () => {
+    const source = 'const msg = "Hello // World"; // comment';
+    expect(strip({ js: source }).js).toBe('const msg = "Hello // World"; ');
+  });
+
+  it('leaves block comment syntax inside strings untouched', () => {
+    const source = 'const str = "/* comment */";';
+    expect(strip({ js: source }).js).toBe(source);
+  });
+
   it('leaves real code untouched', () => {
     const source = 'async function f(){ await fetch(url); }';
     expect(strip({ js: source }).js).toBe(source);

@@ -98,15 +98,17 @@ function checkGoals() {
    A goal that genuinely needs to inspect comments can set `checksComments:
    true` and will receive the code untouched.
 
-   Known limitation: `//` inside a JavaScript string is indistinguishable from
-   a line comment without parsing. The `[^:]` guard protects URLs, which is
-   the case that occurs in practice; a string literal containing `//` would
-   still be truncated. */
+   JS comment stripping matches single/double/template string literals alongside
+   block and line comments in a single pass so that `//` or `/*` inside strings
+   is preserved rather than mistaken for comments. */
 function stripCodeComments(files) {
   return {
     html: (files.html || '').replace(/<!--[\s\S]*?-->/g, ''),
     css: (files.css || '').replace(/\/\*[\s\S]*?\*\//g, ''),
-    js: (files.js || '').replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1')
+    js: (files.js || '').replace(
+      /"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`|\/\*[\s\S]*?\*\/|\/\/[^\r\n]*/g,
+      m => (m.startsWith('//') || m.startsWith('/*') ? '' : m)
+    )
   };
 }
 
