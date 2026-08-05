@@ -58,24 +58,28 @@ function isValidStoreShape(data) {
   // unrelated JSON file from trivially "validating" just because it
   // happens not to contain anything that fails a type check.
   if (!('completed' in data) || !('streak' in data)) return false;
-  const isArr = v => v === undefined || Array.isArray(v);
-  const isObj = v => v === undefined || (typeof v === 'object' && v !== null && !Array.isArray(v));
+  const isArr = (v, itemCheck) =>
+    v === undefined || (Array.isArray(v) && (!itemCheck || v.every(itemCheck)));
+  const isObj = (v, valCheck) =>
+    v === undefined ||
+    (typeof v === 'object' &&
+      v !== null &&
+      !Array.isArray(v) &&
+      (!valCheck || Object.values(v).every(valCheck)));
   const isNum = v => v === undefined || typeof v === 'number';
   const isStrOrNull = v => v === undefined || v === null || typeof v === 'string';
   const isBool = v => v === undefined || typeof v === 'boolean';
-  if (!isObj(data.code)) return false;
-  if (
-    !isArr(data.completed) ||
-    (data.completed && !data.completed.every(x => typeof x === 'string'))
-  )
+  if (!isObj(data.code, c => typeof c === 'object' && c !== null && !Array.isArray(c)))
     return false;
-  if (!isArr(data.started)) return false;
+  if (!isArr(data.completed, x => typeof x === 'string')) return false;
+  if (!isArr(data.started, x => typeof x === 'string')) return false;
   if (!isNum(data.streak)) return false;
   if (!isStrOrNull(data.lastActive)) return false;
-  if (!isObj(data.lessonTime)) return false;
-  if (!isObj(data.lessonRetries)) return false;
-  if (!isArr(data.completionDates)) return false;
-  if (!isArr(data.snippets)) return false;
+  if (!isObj(data.lessonTime, x => typeof x === 'number')) return false;
+  if (!isObj(data.lessonRetries, x => typeof x === 'number')) return false;
+  if (!isArr(data.completionDates, x => typeof x === 'string')) return false;
+  if (!isArr(data.snippets, s => typeof s === 'object' && s !== null && !Array.isArray(s)))
+    return false;
   if (!isBool(data.hasRun)) return false;
   return true;
 }
