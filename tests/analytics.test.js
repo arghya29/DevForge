@@ -11,18 +11,18 @@ describe('modals.js — learner analytics', () => {
     vi.useRealTimers();
   });
 
-  it('renders one row per curriculum lesson in the stats table, defaulting to 00:00 / 0 retries', () => {
+  it('displays an empty state message when opening analytics with no data', () => {
     const { get, document, window } = createApp();
     get('init()');
     document
       .getElementById('btnAnalytics')
       .dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
-    const rows = document.querySelectorAll('#statsBody tr');
-    expect(rows.length).toBe(get('FLAT_LESSONS.length'));
-    expect(rows[0].textContent).toContain('00:00');
+    expect(document.getElementById('analyticsEmpty').style.display).not.toBe('none');
+    expect(document.getElementById('analyticsBody').style.display).toBe('none');
+    expect(document.getElementById('resetAnalyticsBtn').style.display).toBe('none');
   });
 
-  it('reflects accumulated lesson time in the stats table', () => {
+  it('renders one row per curriculum lesson in the stats table when analytics data exists', () => {
     const { get, document, window } = createApp({
       seedStore: { lessonTime: { 'html-first-element': 125 } }
     });
@@ -30,8 +30,12 @@ describe('modals.js — learner analytics', () => {
     document
       .getElementById('btnAnalytics')
       .dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
-    const firstRow = document.querySelectorAll('#statsBody tr')[0];
-    expect(firstRow.textContent).toContain('02:05'); // 125s = 2:05
+    expect(document.getElementById('analyticsEmpty').style.display).toBe('none');
+    expect(document.getElementById('analyticsBody').style.display).not.toBe('none');
+    expect(document.getElementById('resetAnalyticsBtn').style.display).not.toBe('none');
+    const rows = document.querySelectorAll('#statsBody tr');
+    expect(rows.length).toBe(get('FLAT_LESSONS.length'));
+    expect(rows[0].textContent).toContain('02:05'); // 125s = 2:05
   });
 
   it('a lesson error during a run increments its retry count', () => {
@@ -61,7 +65,7 @@ describe('modals.js — learner analytics', () => {
     );
   });
 
-  it('Reset Analytics clears time/retries/consistency but leaves XP and completed lessons intact', () => {
+  it('Reset Analytics clears time/retries/consistency and reverts to empty state', () => {
     const lessonId = 'html-first-element';
     const { get, document, window } = createApp({
       seedStore: {
@@ -80,5 +84,6 @@ describe('modals.js — learner analytics', () => {
     expect(get('store.lessonRetries')).toEqual({});
     expect(get('store.completionDates')).toEqual([]);
     expect(get('store.completed')).toEqual([lessonId]);
+    expect(document.getElementById('analyticsEmpty').style.display).not.toBe('none');
   });
 });
