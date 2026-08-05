@@ -606,23 +606,28 @@
           </span>
           <button class="modal-x" id="closeAnalytics">✕</button>
         </div>
-        <div class="section-label">Consistency (last 7 days)</div>
-        <div class="consistency-row" id="consistencyRow"></div>
-        <div class="consistency-caption" id="consistencyCaption">
-          Completed lessons on 0 of the last 7 days.
+        <div class="analytics-empty" id="analyticsEmpty" style="display: none">
+          No analytics data yet. Complete lessons to track your progress!
         </div>
-        <div class="section-label">Lesson stats</div>
-        <div class="stats-scroll">
-          <table class="stats-table">
-            <thead>
-              <tr>
-                <th>Lesson</th>
-                <th>Time</th>
-                <th>Retries</th>
-              </tr>
-            </thead>
-            <tbody id="statsBody"></tbody>
-          </table>
+        <div id="analyticsBody">
+          <div class="section-label">Consistency (last 7 days)</div>
+          <div class="consistency-row" id="consistencyRow"></div>
+          <div class="consistency-caption" id="consistencyCaption">
+            Completed lessons on 0 of the last 7 days.
+          </div>
+          <div class="section-label">Lesson stats</div>
+          <div class="stats-scroll">
+            <table class="stats-table">
+              <thead>
+                <tr>
+                  <th>Lesson</th>
+                  <th>Time</th>
+                  <th>Retries</th>
+                </tr>
+              </thead>
+              <tbody id="statsBody"></tbody>
+            </table>
+          </div>
         </div>
         <div class="modal-footer-row">
           <button class="danger-btn" id="resetAnalyticsBtn">Reset Analytics</button>

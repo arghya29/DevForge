@@ -170,6 +170,13 @@
 }
 
 /* analytics modal */
+.analytics-empty {
+  padding: 30px 20px;
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
 .section-label {
   font-size: 11px;
   font-weight: 700;

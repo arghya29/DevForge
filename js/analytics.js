@@ -12,6 +12,26 @@ function fmtTime(sec) {
 }
 
 function renderAnalytics() {
+  const emptyEl = $('#analyticsEmpty');
+  const bodyEl = $('#analyticsBody');
+  const resetBtn = $('#resetAnalyticsBtn');
+
+  const hasDates = Array.isArray(store.completionDates) && store.completionDates.length > 0;
+  const hasTime = store.lessonTime && Object.values(store.lessonTime).some(t => t > 0);
+  const hasRetries = store.lessonRetries && Object.values(store.lessonRetries).some(r => r > 0);
+  const hasData = hasDates || hasTime || hasRetries;
+
+  if (!hasData) {
+    if (emptyEl) emptyEl.style.display = '';
+    if (bodyEl) bodyEl.style.display = 'none';
+    if (resetBtn) resetBtn.style.display = 'none';
+    return;
+  }
+
+  if (emptyEl) emptyEl.style.display = 'none';
+  if (bodyEl) bodyEl.style.display = '';
+  if (resetBtn) resetBtn.style.display = '';
+
   const row = $('#consistencyRow');
   row.innerHTML = '';
   const dayLetters = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
