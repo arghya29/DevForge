@@ -13,14 +13,12 @@ function localDay(daysAgo = 0) {
 describe('store.js — persistent progress', () => {
   let app;
   let get;
-  let document;
   let window;
 
   beforeEach(() => {
     vi.useFakeTimers();
     app = createApp();
     get = app.get;
-    document = app.document;
     window = app.window;
   });
 
@@ -116,14 +114,14 @@ describe('store.js — persistent progress', () => {
 describe('store.js — isValidStoreShape() / import validation', () => {
   let app;
   let get;
-  let document;
+  let testDoc;
   let window;
 
   beforeEach(() => {
     vi.useFakeTimers();
     app = createApp();
     get = app.get;
-    document = app.document;
+    testDoc = app.document;
     window = app.window;
   });
 
@@ -181,14 +179,14 @@ describe('store.js — isValidStoreShape() / import validation', () => {
     };
     const validExport = JSON.stringify(get('defaultStore()'));
     const file = new window.File([validExport], 'progress.json', { type: 'application/json' });
-    Object.defineProperty(document.getElementById('importFile'), 'files', { value: [file] });
-    document
+    Object.defineProperty(testDoc.getElementById('importFile'), 'files', { value: [file] });
+    testDoc
       .getElementById('importFile')
       .dispatchEvent(new window.Event('change', { bubbles: true }));
 
     await new Promise(resolve => process.nextTick(resolve));
     vi.advanceTimersByTime(50);
-    const toasts = Array.from(document.querySelectorAll('.toast')).map(t => t.textContent);
+    const toasts = Array.from(testDoc.querySelectorAll('.toast')).map(t => t.textContent);
     expect(toasts).not.toContain('Progress imported');
   });
 });
@@ -196,13 +194,13 @@ describe('store.js — isValidStoreShape() / import validation', () => {
 describe('store.js — saveStore() failure handling', () => {
   let app;
   let get;
-  let document;
+  let testDoc;
   let window;
 
   beforeEach(() => {
     app = createApp();
     get = app.get;
-    document = app.document;
+    testDoc = app.document;
     window = app.window;
   });
 
@@ -211,7 +209,7 @@ describe('store.js — saveStore() failure handling', () => {
       throw new Error('QuotaExceededError');
     };
     get('saveStore(store)');
-    const toasts = Array.from(document.querySelectorAll('.toast')).map(t => t.textContent);
+    const toasts = Array.from(testDoc.querySelectorAll('.toast')).map(t => t.textContent);
     expect(toasts.some(t => /save/i.test(t))).toBe(true);
   });
 
@@ -222,7 +220,7 @@ describe('store.js — saveStore() failure handling', () => {
     get('saveStore(store)');
     get('saveStore(store)');
     get('saveStore(store)');
-    const toastCount = document.querySelectorAll('.toast').length;
+    const toastCount = testDoc.querySelectorAll('.toast').length;
     expect(toastCount).toBe(1);
   });
 });
