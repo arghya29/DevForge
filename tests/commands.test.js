@@ -125,4 +125,31 @@ describe('commands.js — command palette', () => {
     expect(written).toContain('/* script.js */');
     expect(written).toContain(get('FLAT_LESSONS[0].html'));
   });
+
+  it('global shortcuts do not fire when typing inside an input field', () => {
+    const { get, document, window } = createApp();
+    get('init()');
+    get('openCommandPalette()');
+    const input = document.getElementById('paletteInput');
+    expect(document.activeElement).toBe(input);
+
+    input.dispatchEvent(
+      new window.KeyboardEvent('keydown', {
+        key: '?',
+        bubbles: true,
+        cancelable: true
+      })
+    );
+    expect(document.getElementById('helpModal').classList.contains('open')).toBe(false);
+
+    input.dispatchEvent(
+      new window.KeyboardEvent('keydown', {
+        key: 'b',
+        ctrlKey: true,
+        bubbles: true,
+        cancelable: true
+      })
+    );
+    expect(document.getElementById('sidebar').classList.contains('collapsed')).toBe(false);
+  });
 });

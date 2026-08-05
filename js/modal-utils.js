@@ -81,6 +81,13 @@ document.addEventListener('keydown', e => {
   const isTyping = tag === 'textarea' || tag === 'input';
   const mod = e.ctrlKey || e.metaKey;
 
+  if (e.key === 'Escape') {
+    closeAllModals();
+    return;
+  }
+
+  if (isTyping) return;
+
   if (mod && e.key.toLowerCase() === 'b') {
     e.preventDefault();
     $('#sidebar').classList.toggle('collapsed');
@@ -121,13 +128,9 @@ document.addEventListener('keydown', e => {
     switchTab('js');
     return;
   }
-  if (e.key === '?' && !isTyping) {
+  if (e.key === '?') {
     e.preventDefault();
     openModal('helpModal');
-    return;
-  }
-  if (e.key === 'Escape') {
-    closeAllModals();
     return;
   }
 });
