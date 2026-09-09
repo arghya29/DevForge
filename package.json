@@ -14,7 +14,7 @@
     "build": "echo 'No build required for static assets'"
   },
   "devDependencies": {
-    "@playwright/test": "^1.61.1",
+    "@playwright/test": "^1.63.0",
     "eslint": "^9.9.0",
     "jsdom": "^24.1.1",
     "prettier": "^3.3.3",
